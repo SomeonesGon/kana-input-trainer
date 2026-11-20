@@ -1,38 +1,107 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Kana Input Trainer with SRS
+
+An interactive web application designed to help learners master direct Japanese Kana keyboard input using a Spaced Repetition System (SRS).
+
+Built with **Next.js**, **React 19**, and **TypeScript** (Strict mode with `noUncheckedIndexedAccess`).
+
+Forked, parsed into typescript manually, and vibecoded new features.
+---
+
+## Features
+
+- **Spaced Repetition Algorithm (SRS)**: Dynamically adjusts character presentation frequency based on user recall ease.
+- **Lookahead Window**: Previews upcoming kana characters to improve typing rhythm.
+- **Category Filter Switches**: Test specific character groups independently (Basic, Dakuten, Handakuten, Small/Shift, Punctuation) using minimal toggles without losing queue progression.
+- **Backward-Compatible State Import / Export**: Save and load your training progress as a JSON file backup. Seamlessly loads old save files even if they predate new character groups or switches.
+- **Direct Input Support**: Focuses purely on direct Japanese keyboard layout key mapping without relying on standard IME conversion loops.
+- **Complete Kana Layout Character Coverage (92 characters)**:
+  - **Basic single-key Kana** (45 chars: `ちとしはきく...`)
+  - **Shift-modified Kana** (13 chars: `を`, small vowels `ぁぃぅぇぉ`, small `っ`, `ゃゅょ`, `ゎ`, `ゕ`, `ゖ`)
+  - **Voiced Kana / Dakuten** (21 chars: `がぎぐげござ...` and `ゔ`)
+  - **Semi-voiced Kana / Handakuten** (5 chars: `ぱぴぷぺぽ`)
+  - **Punctuation & Symbols** (8 chars: `ー`, `、`, `。`, `・`, `「`, `」`, `゛`, `゜`)
+- **Full TypeScript Type Safety**: Fully typed with strict null and unchecked index access checking.
+
+---
+
+## How the Spaced Repetition (SRS) Works
+
+The trainer tracks three primary metrics for each kana character in state:
+
+1. **`queue`**: The list of kana characters queued up for presentation. The first character (`queue[0]`) is the active prompt.
+2. **`ease`**: A recall confidence multiplier (defaults to `2`):
+   - **Correct Answer**: Ease value doubles (`ease = ease * 2`).
+   - **Wrong Answer**: Ease value drops sharply (`ease = max(1, floor(ease / 8))`).
+3. **`priority`**: A numerical scheduling score:
+   - When a character is answered correctly, its new priority increases by its `ease` plus random jitter:
+     $$\text{priority} = \text{priority} + \text{ease} + \lfloor \text{random} \times (\text{ease} / 2) \rfloor$$
+   - The queue backlog beyond the lookahead window is sorted in ascending order of priority. Characters with lower priority scores reappear sooner.
+
+---
+
+## Project Structure
+
+```text
+kana-input-trainer/
+├── src/
+│   ├── components/
+│   │   ├── KanaInputTrainer.tsx  # Main interactive trainer view
+│   │   └── KanaPrompt.tsx        # Centered prompt display with lookahead
+│   ├── constants/
+│   │   └── kanas.ts              # Kana character lists, lookahead, and initial state
+│   ├── hooks/
+│   │   ├── useKanaState.ts       # Hook managing SRS queue and action dispatching
+│   │   ├── useFileBackup.ts      # Hook handling JSON export and file upload parsing
+│   │   └── usePersistReducer.ts  # Generic hook synchronizing reducer state with localStorage
+│   ├── types/
+│   │   └── kana.ts               # Core TypeScript definitions (KanaState, KanaAction)
+│   ├── utils/
+│   │   └── srs.ts                # Pure Spaced Repetition queue rescheduling algorithm
+│   ├── pages/
+│   │   ├── _app.tsx              # Next.js custom app wrapper
+│   │   ├── _document.tsx         # Next.js custom HTML document
+│   │   └── index.tsx             # Main landing page
+│   └── styles/
+│       ├── globals.css           # Global application styles
+│       └── Home.module.css       # Page styling module
+├── tsconfig.json                 # TypeScript compiler configuration (strict mode)
+└── package.json                  # Dependencies and build scripts
+```
+
+---
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js (v18+ recommended)
+- npm
+
+### Installation
+
+```bash
+npm install
+```
+
+### Development Server
+
+Run the development server with Turbopack:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+### Type Checking & Building
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+```bash
+# Type check without emitting files
+npx tsc --noEmit
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+# Production build
+npm run build
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+# Start production server
+npm start
+```

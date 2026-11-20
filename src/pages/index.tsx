@@ -1,9 +1,18 @@
 import Head from 'next/head';
 import Image from 'next/image';
-import styles from '@/styles/Home.module.css';
 import KanaInputTrainer from '@/components/KanaInputTrainer';
 import kanaInputLayout from '@/images/kana-input-layout.png';
 
+/**
+ * Main application landing page for Kana Input Trainer.
+ *
+ * Renders:
+ * - Meta tags and SEO information in Head.
+ * - Header and instructions.
+ * - Interactive KanaInputTrainer component.
+ * - Keyboard layout reference image (kana-input-layout.png).
+ * - "How to use" guidance and known limitations.
+ */
 export default function Home() {
   return (
     <>
@@ -15,7 +24,10 @@ export default function Home() {
       </Head>
       <main className='container-sm'>
         <h1>Kana Input Trainer with SRS</h1>
-        <p>Uses a simple SRS algorithm. Keyboard reference image below. <a href='https://github.com/justremember/kana-input-trainer'>Source code here.</a></p>
+        <p>Uses a simple SRS algorithm. Keyboard reference image below. 
+        <a href='https://github.com/SomeonesGon/kana-input-trainer'>Source Code.</a>
+        </p>
+        <a href='https://github.com/justremember/kana-input-trainer'>Forked from the original.</a>
         <KanaInputTrainer />
         <Image
           src={kanaInputLayout}

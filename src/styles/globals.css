@@ -16,18 +16,121 @@ main {
   visibility: hidden;
 }
 
+/* Base style for the active question */
 .kana-next-question {
   font-size: 5rem;
+  line-height: 1.1;
+  min-height: 1.1em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+/* Distinctive styling for small kana characters (ぁ, っ, ゃ, etc.) to clearly contrast with regular size */
+.kana-next-question.is-small-kana {
+  font-size: 3.5rem;
+  color: #b45309;
+  background-color: #fffbeb;
+  border: 2px dashed #f59e0b;
+  border-radius: 14px;
+  padding: 0 16px;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);
 }
 
 .kana-questions-after {
   color: gray;
 }
 
-.kana-input-box.was-correct {
-  background-color: #cfc;
+/* Centered container for the enhanced typing input card */
+.kana-input-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1rem;
 }
 
-.kana-input-box.was-wrong {
-  background-color: #fcc;
+/* Dual-slot card containing past character history on left and active typing area */
+.kana-input-card {
+  display: flex;
+  align-items: center;
+  width: 240px;
+  height: 85px;
+  border-radius: 16px;
+  border: 2px solid #ced4da;
+  background-color: #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  transition: all 0.15s ease-in-out;
+  cursor: text;
+  overflow: hidden;
+}
+
+.kana-input-card:focus-within {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.18);
+}
+
+/* Soft visual feedback on correct input */
+.kana-input-card.was-correct {
+  background-color: #e8f5e9;
+  border-color: #81c784;
+}
+
+/* Soft visual feedback on incorrect input */
+.kana-input-card.was-wrong {
+  background-color: #ffebee;
+  border-color: #e57373;
+}
+
+/* Past character slot (pushed to the left, visually smaller, and gray similar to lookahead preview) */
+.kana-past-slot {
+  width: 85px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1.5px dashed #d1d5db;
+  font-size: 1.85rem;
+  font-weight: 500;
+  color: #9ca3af; /* muted gray */
+  background-color: rgba(0, 0, 0, 0.02);
+  user-select: none;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+/* Subtle feedback tint for correct past input */
+.kana-past-slot.past-correct {
+  color: #4b6b50;
+}
+
+/* Subtle feedback tint for wrong past input */
+.kana-past-slot.past-wrong {
+  color: #8c4a4a;
+}
+
+/* Active typing slot containing the large input */
+.kana-active-slot {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kana-active-input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  outline: none;
+  text-align: center;
+  font-size: 3rem;
+  font-weight: 500;
+  color: #212529;
+}
+
+.kana-active-input::placeholder {
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: #adb5bd;
 }
