@@ -11,8 +11,8 @@ Forked, parsed into typescript manually, and vibecoded new features.
 
 - **Spaced Repetition Algorithm (SRS)**: Dynamically adjusts character presentation frequency based on user recall ease.
 - **Lookahead Window**: Previews upcoming kana characters to improve typing rhythm.
-- **Category Filter Switches**: Test specific character groups independently (Basic, Dakuten, Handakuten, Small/Shift, Punctuation) using minimal toggles without losing queue progression.
-- **Backward-Compatible State Import / Export**: Save and load your training progress as a JSON file backup. Seamlessly loads old save files even if they predate new character groups or switches.
+- **Automatic Background Persistence**: Automatically saves your progress (SRS queue, priority scores, ease factors, and switch preferences) to browser local storage on every question with real-time visual feedback.
+- **Export & Import Backups**: Export and import your training progress as a JSON backup file to transfer between devices. Seamlessly compatible with older save formats.
 - **Direct Input Support**: Focuses purely on direct Japanese keyboard layout key mapping without relying on standard IME conversion loops.
 - **Complete Kana Layout Character Coverage (92 characters)**:
   - **Basic single-key Kana** (45 chars: `ちとしはきく...`)

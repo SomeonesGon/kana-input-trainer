@@ -1,5 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { SMALL_KANA_MAP } from '@/constants/kanas';
+
+/** localStorage key used to remember that the user has already seen the small-kana notice. */
+const SMALL_KANA_SEEN_KEY = 'kana_small_seen';
 
 /**
  * Props for the KanaPrompt component.
@@ -30,11 +33,30 @@ export default function KanaPrompt({ currentKana, lookaheadKanas = '' }: KanaPro
   const smallKanaInfo = currentKana ? SMALL_KANA_MAP[currentKana] : undefined;
   const isSmall = Boolean(smallKanaInfo);
 
+  // Track whether the user has already been shown the small-kana notice at least once.
+  // Initialises synchronously to 'true' (already seen) on the server to avoid hydration mismatch;
+  // corrected to the real localStorage value in an effect on the client.
+  const [smallKanaSeen, setSmallKanaSeen] = useState<boolean>(true);
+
+  useEffect(() => {
+    // Read the persisted flag on the client after mount
+    setSmallKanaSeen(Boolean(localStorage.getItem(SMALL_KANA_SEEN_KEY)));
+  }, []);
+
+  // The first time a small kana appears we show the badge and immediately persist the flag so
+  // it won't appear again on future visits.
+  useEffect(() => {
+    if (isSmall && !smallKanaSeen) {
+      setSmallKanaSeen(true);
+      localStorage.setItem(SMALL_KANA_SEEN_KEY, '1');
+    }
+  }, [isSmall, smallKanaSeen]);
+
   return (
     <div className="kana-prompt-container text-center my-2">
-      {/* Visual Badge for Small Kana with reserved height to prevent vertical jitter */}
+      {/* Visual Badge for Small Kana — shown only on the user's first encounter, then never again */}
       <div className="kana-badge-container d-flex justify-content-center align-items-center" style={{ minHeight: '32px' }}>
-        {smallKanaInfo ? (
+        {smallKanaInfo && !smallKanaSeen ? (
           <span className="badge text-bg-warning px-3 py-1 fw-semibold shadow-sm">
             ⭐ Small Kana / 小文字 ({smallKanaInfo.label})
           </span>

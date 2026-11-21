@@ -1,8 +1,11 @@
 import { useState, useRef, ChangeEvent } from 'react';
 import useKanaState from '@/hooks/useKanaState';
 import { useFileBackup } from '@/hooks/useFileBackup';
+import { useAutosave } from '@/hooks/useAutosave';
 import KanaPrompt from '@/components/KanaPrompt';
 import KanaCategorySwitches from '@/components/KanaCategorySwitches';
+import AutosaveIndicator from '@/components/AutosaveIndicator';
+import ThemeSlider from '@/components/ThemeSlider';
 import { evaluateKanaInput } from '@/utils/srs';
 import { KanaState } from '@/types/kana';
 
@@ -15,21 +18,25 @@ interface PastInputRecord {
 }
 
 /**
+ * Props for KanaInputTrainer.
+ */
+interface KanaInputTrainerProps {
+  /** Whether the keyboard reference image is currently visible. */
+  showKeyboard: boolean;
+  /** Callback to toggle keyboard image visibility. */
+  onToggleKeyboard: () => void;
+}
+
+/**
  * KanaInputTrainer component.
  *
  * Core interactive training view:
- * - Displays the prompt and upcoming lookahead characters via KanaPrompt.
- * - Highlights small kana (ぁ, っ, ゃ, etc.) so they are visually distinct from regular kana.
- * - Dual-slot input card:
- *   - Left slot: keeps 1 past character pushed to the left, smaller and grayed out (right or wrong).
- *   - Active slot: clean, large input area that clears after each answer to avoid character accumulation.
- * - Manages user input detection and dispatches 'correct' or 'wrong' actions.
- * - Supports two-stroke compound characters (dakuten/handakuten) without premature penalty.
- * - Provides category toggle switches to test specific character groups (Basic, Dakuten, Handakuten, etc.).
- * - Provides Save State / Load State functionality using useFileBackup.
- * - Displays progress stats (prompts answered correctly).
+ * - Top-right Utility Bar: Export/Import controls, keyboard toggle, real-time Autosave status, and Answered counter
+ *   pushed all the way to the top-right corner.
+ * - Center Stage (Mathematically Centered at 50%): Prompt & dual-slot input card are always dead-center.
+ * - Right Sidebar: Stacked vertical category switches positioned on the right.
  */
-export default function KanaInputTrainer() {
+export default function KanaInputTrainer({ showKeyboard, onToggleKeyboard }: KanaInputTrainerProps) {
   const [state, dispatch, lookahead, activeQueue] = useKanaState();
   const [wasCorrect, setWasCorrect] = useState<boolean>(true);
   // Controlled input value ensuring the active typing slot stays clean
@@ -44,11 +51,19 @@ export default function KanaInputTrainer() {
   // Pre-calculate upcoming preview characters for lookahead from the active queue
   const lookaheadKanas = activeQueue.slice(1, 1 + lookahead).join('');
 
+  // 1. Continuous Autosave hook: automatically saves to browser localStorage on every state transition
+  const { autosaveStatus } = useAutosave<Partial<KanaState>>({
+    state,
+    onLoad: (loadedState) => {
+      dispatch({ type: 'loadState', state: loadedState });
+    },
+  });
+
+  // 2. Manual Export / Import file backup hook
   // Code from https://plainenglish.io/blog/how-to-create-download-and-upload-files-in-react-apps
-  // Encapsulated file save/load state hook
   const {
-    saveState: triggerSaveState,
-    loadState,
+    saveState: triggerExportState,
+    loadState: triggerImportState,
     openFile,
     fileDownloadUrl,
     fileDownloadRef,
@@ -57,14 +72,18 @@ export default function KanaInputTrainer() {
     fileNamePrefix: 'kanaState',
     onLoad: (loadedState) => {
       dispatch({ type: 'loadState', state: loadedState });
-      // Reset input history when loading a new backup
+      // Reset input history when loading a manual backup
       setPastInput(null);
       setInputValue('');
     },
   });
 
-  function saveState() {
-    triggerSaveState(state);
+  function exportState() {
+    triggerExportState(state);
+  }
+
+  function importState() {
+    triggerImportState();
   }
 
   /**
@@ -108,72 +127,119 @@ export default function KanaInputTrainer() {
   }
 
   return (
-    <div className='kana-input-trainer'>
-      {/* Centered Kana question prompt with small kana distinction */}
-      <KanaPrompt
-        currentKana={activePrompt}
-        lookaheadKanas={lookaheadKanas}
-      />
-
-      {/* Category selector switches */}
-      <KanaCategorySwitches
-        enabledCategories={state.enabledCategories}
-        onToggle={(category) => dispatch({ type: 'toggleCategory', category })}
-      />
-
-      {/* Action controls & session statistics */}
-      <div className="d-flex flex-wrap align-items-center justify-content-between mb-2">
+    <div className='kana-input-trainer w-100'>
+      {/* Top Header Row: title on the left, utility controls on the right — no preceding element so this sits at the absolute top */}
+      <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 pb-2 border-bottom w-100">
+        {/* Left: Page title & subtitle */}
         <div>
-          <button className='btn btn-secondary btn-sm me-2' onClick={saveState}>
-            Save State
-          </button>
-          <button className='btn btn-secondary btn-sm me-2' onClick={loadState}>
-            Load State
-          </button>
+          <h1 className="h4 mb-0 lh-sm">Kana Input Trainer with SRS</h1>
+          <p className="text-muted small mb-0">
+            Uses a simple SRS algorithm.{' '}
+            <a href='https://github.com/SomeonesGon/kana-input-trainer' target="_blank" rel="noreferrer">Source Code</a>.{' '}
+            <a href='https://github.com/justremember/kana-input-trainer' target="_blank" rel="noreferrer">Forked from original</a>.
+          </p>
         </div>
-        <span className="text-secondary small">
-          Answered: <strong className="text-dark">{ state.charsAnswered }</strong>
-        </span>
+
+        {/* Right: Import/Export, keyboard toggle, Autosave indicator & Characters Answered */}
+        <div className="d-flex flex-wrap align-items-center gap-2">
+          <button
+            className='btn btn-outline-secondary btn-sm px-2 py-1'
+            onClick={exportState}
+            title="Export training state to a JSON backup file"
+          >
+            Export State
+          </button>
+          <button
+            className='btn btn-outline-secondary btn-sm px-2 py-1'
+            onClick={importState}
+            title="Import training state from a JSON backup file"
+          >
+            Import State
+          </button>
+
+          {/* Toggle keyboard reference image */}
+          <button
+            className={`btn btn-sm px-2 py-1 ${showKeyboard ? 'btn-outline-secondary' : 'btn-secondary'}`}
+            onClick={onToggleKeyboard}
+            title={showKeyboard ? 'Hide keyboard reference image' : 'Show keyboard reference image'}
+          >
+            {showKeyboard ? '⌨️ Hide Keyboard' : '⌨️ Show Keyboard'}
+          </button>
+
+          <div className="vr d-none d-sm-block my-1" style={{ height: '18px' }} />
+
+          {/* Theme slider: Light → Dark → Pink */}
+          <ThemeSlider />
+
+          <div className="vr d-none d-sm-block my-1" style={{ height: '18px' }} />
+
+          <div className="d-flex align-items-center gap-2">
+            <AutosaveIndicator status={autosaveStatus} />
+            <span className="badge text-bg-light border text-secondary fw-normal px-2 py-1">
+              Answered: <strong className="text-dark">{ state.charsAnswered }</strong>
+            </span>
+          </div>
+        </div>
       </div>
 
-      {/* Dual-slot input card: Past character pushed to left (smaller, gray), active input on right */}
-      <div className='kana-input-wrapper'>
-        <div
-          className={`kana-input-card ${wasCorrect ? 'was-correct' : 'was-wrong'}`}
-          onClick={() => inputRef.current?.focus()}
-          title="Click to focus typing box"
-        >
-          {/* Past character slot on the left (smaller, gray, showing recent input history) */}
-          <div
-            className={`kana-past-slot ${
-              pastInput ? (pastInput.wasCorrect ? 'past-correct' : 'past-wrong') : ''
-            }`}
-            title={
-              pastInput
-                ? `Previous input: ${pastInput.char} (${pastInput.wasCorrect ? 'correct' : 'wrong'})`
-                : 'Previous input will appear here'
-            }
-          >
-            {pastInput ? pastInput.char : ''}
-          </div>
+      {/* Main Interactive Stage: Symmetrical 3-column grid ensuring Center is ALWAYS 50% dead-center */}
+      <div className="kana-stage-grid">
+        {/* Left Column: Spacer symmetrically balancing Column 3 */}
+        <div className="kana-stage-left" />
 
-          {/* Active typing input slot on the right */}
-          <div className='kana-active-slot'>
-            <input
-              ref={inputRef}
-              type='text'
-              value={inputValue}
-              className='kana-active-input'
-              placeholder={pastInput ? '' : 'かな'}
-              onChange={handleInputChange}
-              maxLength={4}
-              autoFocus
-              autoComplete='off'
-              autoCorrect='off'
-              autoCapitalize='off'
-              spellCheck='false'
-            />
+        {/* Center Column: ALWAYS mathematically locked in the dead-center (50%) */}
+        <div className="kana-stage-center">
+          <KanaPrompt
+            currentKana={activePrompt}
+            lookaheadKanas={lookaheadKanas}
+          />
+
+          {/* Dual-slot input card: Past character on left (smaller, gray), active input on right */}
+          <div className='kana-input-wrapper mt-3'>
+            <div
+              className={`kana-input-card ${wasCorrect ? 'was-correct' : 'was-wrong'}`}
+              onClick={() => inputRef.current?.focus()}
+              title="Click to focus typing box"
+            >
+              <div
+                className={`kana-past-slot ${
+                  pastInput ? (pastInput.wasCorrect ? 'past-correct' : 'past-wrong') : ''
+                }`}
+                title={
+                  pastInput
+                    ? `Previous input: ${pastInput.char} (${pastInput.wasCorrect ? 'correct' : 'wrong'})`
+                    : 'Previous input will appear here'
+                }
+              >
+                {pastInput ? pastInput.char : ''}
+              </div>
+
+              <div className='kana-active-slot'>
+                <input
+                  ref={inputRef}
+                  type='text'
+                  value={inputValue}
+                  className='kana-active-input'
+                  placeholder={pastInput ? '' : 'かな'}
+                  onChange={handleInputChange}
+                  maxLength={4}
+                  autoFocus
+                  autoComplete='off'
+                  autoCorrect='off'
+                  autoCapitalize='off'
+                  spellCheck='false'
+                />
+              </div>
+            </div>
           </div>
+        </div>
+
+        {/* Right Column: Vertical Category Switches aligned to the right */}
+        <div className="kana-stage-right">
+          <KanaCategorySwitches
+            enabledCategories={state.enabledCategories}
+            onToggle={(category) => dispatch({ type: 'toggleCategory', category })}
+          />
         </div>
       </div>
 

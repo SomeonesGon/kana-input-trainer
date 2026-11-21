@@ -1,19 +1,21 @@
 import Head from 'next/head';
 import Image from 'next/image';
+import { useState } from 'react';
 import KanaInputTrainer from '@/components/KanaInputTrainer';
 import kanaInputLayout from '@/images/kana-input-layout.png';
 
 /**
  * Main application landing page for Kana Input Trainer.
  *
- * Renders:
- * - Meta tags and SEO information in Head.
- * - Header and instructions.
- * - Interactive KanaInputTrainer component.
- * - Keyboard layout reference image (kana-input-layout.png).
- * - "How to use" guidance and known limitations.
+ * Configured with full-width container-fluid layout:
+ * - Top-right utility toolbar spans across the top right of the viewport.
+ * - Center quiz arena (prompt & dual-slot input card) is always mathematically locked at 50% dead-center.
+ * - Quiz category switches are arranged vertically on the right.
  */
 export default function Home() {
+  // Controls visibility of the keyboard reference image at the bottom of the page
+  const [showKeyboard, setShowKeyboard] = useState<boolean>(true);
+
   return (
     <>
       <Head>
@@ -22,31 +24,38 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className='container-sm'>
-        <h1>Kana Input Trainer with SRS</h1>
-        <p>Uses a simple SRS algorithm. Keyboard reference image below. 
-        <a href='https://github.com/SomeonesGon/kana-input-trainer'>Source Code.</a>
-        </p>
-        <a href='https://github.com/justremember/kana-input-trainer'>Forked from the original.</a>
-        <KanaInputTrainer />
-        <Image
-          src={kanaInputLayout}
-          alt='Kana Input Layout'
-          style={{margin: '50px auto 0 auto', display: 'block'}}
+      <main className='container-fluid px-3 px-sm-4 px-md-5 py-3'>
+        {/* Title is rendered inside KanaInputTrainer's top toolbar row to reach the absolute top of the page.
+            showKeyboard / onToggleKeyboard are threaded through so the toggle button lives in the toolbar. */}
+        <KanaInputTrainer
+          showKeyboard={showKeyboard}
+          onToggleKeyboard={() => setShowKeyboard((v) => !v)}
         />
-        <div className='mt-1'>
+
+        {/* Keyboard reference image — hidden when user toggles it off */}
+        {showKeyboard && (
+          <div className="text-center mt-5">
+            <Image
+              src={kanaInputLayout}
+              alt='Kana Input Layout'
+              style={{ margin: '30px auto 0 auto', display: 'block', maxWidth: '100%', height: 'auto' }}
+            />
+          </div>
+        )}
+
+        <div className='mx-auto mt-4' style={{ maxWidth: '800px' }}>
           <h5>How to use</h5>
-          <p>Click on the text box. Type the kana as shown on the center of the screen.
-          </p>
+          <p>Click on the text box. Type the kana as shown on the center of the screen.</p>
           <p>
             Ignore the textbox. Ignore the IME. No need to press backspace, enter, tab, or space. Just focus on pressing the correct key. If experiencing issues try pressing enter to &quot;reset&quot; the IME.
           </p>
-          <h5>Known Issues</h5>
+          <h5>Progress &amp; Backups</h5>
           <ul>
-            <li>Sadly I could not get the autosave feature to work, so here are &quot;Save State&quot; & &quot;Load State&quot; buttons instead.</li>
+            <li>Progress automatically saves to your browser&apos;s local storage after every question.</li>
+            <li>Use <strong>Export State</strong> and <strong>Import State</strong> in the top right to download backup files or transfer your training progress across different devices and browsers.</li>
           </ul>
         </div>
       </main>
     </>
-  )
+  );
 }

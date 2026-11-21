@@ -1,15 +1,251 @@
-main {
-  margin-top: 20px;
+/* =============================================================================
+   THEME TOKENS
+   Each [data-theme] block defines the same set of custom properties so every
+   rule below can reference var(--...) without caring which theme is active.
+   ============================================================================= */
+
+/* ---- Light (default) ---- */
+:root,
+[data-theme="light"] {
+  --bg-page:            #ffffff;
+  --bg-card:            #ffffff;
+  --bg-card-past:       rgba(0, 0, 0, 0.02);
+  --bg-input:           transparent;
+
+  --text-primary:       #212529;
+  --text-muted:         #6c757d;
+  --text-past:          #9ca3af;
+
+  --border-card:        #ced4da;
+  --border-past:        #d1d5db;
+  --border-focus:       #0d6efd;
+  --shadow-focus:       rgba(13, 110, 253, 0.18);
+
+  --correct-bg:         #e8f5e9;
+  --correct-border:     #81c784;
+  --correct-past-text:  #4b6b50;
+  --wrong-bg:           #ffebee;
+  --wrong-border:       #e57373;
+  --wrong-past-text:    #8c4a4a;
+
+  --small-kana-color:   #b45309;
+  --small-kana-bg:      #fffbeb;
+  --small-kana-border:  #f59e0b;
+  --small-kana-shadow:  rgba(245, 158, 11, 0.15);
+
+  --lookahead-color:    gray;
+  --placeholder-color:  #adb5bd;
 }
 
-.kana-input-trainer {
-  max-width: 540px;
-  margin: auto;
+/* ---- Dark ---- */
+[data-theme="dark"] {
+  --bg-page:            #080d13;
+  --bg-card:            #111827;
+  --bg-card-past:       rgba(255, 255, 255, 0.04);
+  --bg-input:           transparent;
+
+  --text-primary:       #e6edf3;
+  --text-muted:         #8b949e;
+  --text-past:          #4b5563;
+
+  --border-card:        #21262d;
+  --border-past:        #21262d;
+  --border-focus:       #388bfd;
+  --shadow-focus:       rgba(56, 139, 253, 0.3);
+
+  --correct-bg:         #0a1f10;
+  --correct-border:     #1a4f28;
+  --correct-past-text:  #3fb950;
+  --wrong-bg:           #200a0a;
+  --wrong-border:       #7a1e1e;
+  --wrong-past-text:    #f85149;
+
+  --small-kana-color:   #d29922;
+  --small-kana-bg:      #161206;
+  --small-kana-border:  #9e6a03;
+  --small-kana-shadow:  rgba(210, 153, 34, 0.18);
+
+  --lookahead-color:    #484f58;
+  --placeholder-color:  #30363d;
 }
+
+/* ---- Pink ---- */
+[data-theme="pink"] {
+  --bg-page:            #ffd6e7;
+  --bg-card:            #ffe8f2;
+  --bg-card-past:       rgba(236, 72, 153, 0.05);
+  --bg-input:           transparent;
+
+  --text-primary:       #5b0030;
+  --text-muted:         #9d4a72;
+  --text-past:          #e4a0c0;
+
+  --border-card:        #f472b6;
+  --border-past:        #fbcfe8;
+  --border-focus:       #db2777;
+  --shadow-focus:       rgba(219, 39, 119, 0.28);
+
+  --correct-bg:         #dcfce7;
+  --correct-border:     #4ade80;
+  --correct-past-text:  #15803d;
+  --wrong-bg:           #ffe4e6;
+  --wrong-border:       #fb7185;
+  --wrong-past-text:    #be123c;
+
+  --small-kana-color:   #9d174d;
+  --small-kana-bg:      #fce7f3;
+  --small-kana-border:  #ec4899;
+  --small-kana-shadow:  rgba(236, 72, 153, 0.2);
+
+  --lookahead-color:    #db93b8;
+  --placeholder-color:  #f9a8d4;
+}
+
+/* =============================================================================
+   GLOBAL BASE
+   ============================================================================= */
+
+html, body {
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+main {
+  margin-top: 20px;
+  /* Sit above background particles */
+  position: relative;
+  z-index: 1;
+}
+
+/* =============================================================================
+   BACKGROUND PARTICLES  (dark mode: stars | pink mode: hearts)
+   ============================================================================= */
+
+/* Fixed full-screen canvas behind all page content */
+.bg-particles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.bg-particle {
+  position: absolute;
+  user-select: none;
+  line-height: 1;
+  opacity: 0;
+  animation-fill-mode: both;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+/* ---- Hearts (pink mode) ---- */
+/* Hearts start below the viewport and drift upward, fading in then out */
+.bg-particle--heart {
+  bottom: -8%;
+  color: #f472b6;
+  animation-name: float-heart;
+}
+
+@keyframes float-heart {
+  0% {
+    transform: translateY(0) rotate(-8deg) scale(1);
+    opacity: 0;
+  }
+  12% {
+    opacity: var(--particle-opacity, 0.55);
+  }
+  88% {
+    opacity: var(--particle-opacity, 0.55);
+  }
+  100% {
+    transform: translateY(-108vh) rotate(10deg) scale(0.7);
+    opacity: 0;
+  }
+}
+
+/* ---- Stars (dark mode) ---- */
+/* Stars twinkle in place: fade in, hold, fade out, repeat */
+.bg-particle--star {
+  color: #e2e8f0;
+  animation-name: twinkle-star;
+}
+
+@keyframes twinkle-star {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0.55);
+  }
+  40%, 60% {
+    opacity: var(--particle-opacity, 0.65);
+    transform: scale(1.05);
+  }
+}
+
+/* =============================================================================
+   LAYOUT
+   ============================================================================= */
+
+.kana-input-trainer {
+  width: 100%;
+  margin: 0;
+}
+
+/* Symmetrical 3-column layout ensuring center typing arena is ALWAYS dead-center at 50% */
+.kana-stage-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  width: 100%;
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+}
+
+.kana-stage-left {
+  /* Empty spacer balancing the 3-column grid symmetrically */
+}
+
+.kana-stage-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 320px;
+}
+
+.kana-stage-right {
+  justify-self: end;
+  width: 260px;
+}
+
+@media (max-width: 991px) {
+  .kana-stage-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .kana-stage-left {
+    display: none;
+  }
+
+  .kana-stage-right {
+    width: 100%;
+    max-width: 360px;
+  }
+}
+
+/* =============================================================================
+   KANA PROMPT
+   ============================================================================= */
 
 .kana-prompt {
   font-size: 3rem;
   text-align: center;
+  color: var(--text-primary);
 }
 
 .kana-ghost {
@@ -25,22 +261,27 @@ main {
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
+  color: var(--text-primary);
 }
 
-/* Distinctive styling for small kana characters (ぁ, っ, ゃ, etc.) to clearly contrast with regular size */
+/* Distinctive styling for small kana characters (ぁ, っ, ゃ, etc.) */
 .kana-next-question.is-small-kana {
   font-size: 3.5rem;
-  color: #b45309;
-  background-color: #fffbeb;
-  border: 2px dashed #f59e0b;
+  color: var(--small-kana-color);
+  background-color: var(--small-kana-bg);
+  border: 2px dashed var(--small-kana-border);
   border-radius: 14px;
   padding: 0 16px;
-  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);
+  box-shadow: 0 2px 8px var(--small-kana-shadow);
 }
 
 .kana-questions-after {
-  color: gray;
+  color: var(--lookahead-color);
 }
+
+/* =============================================================================
+   INPUT CARD
+   ============================================================================= */
 
 /* Centered container for the enhanced typing input card */
 .kana-input-wrapper {
@@ -57,8 +298,8 @@ main {
   width: 240px;
   height: 85px;
   border-radius: 16px;
-  border: 2px solid #ced4da;
-  background-color: #ffffff;
+  border: 2px solid var(--border-card);
+  background-color: var(--bg-card);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
   transition: all 0.15s ease-in-out;
   cursor: text;
@@ -66,46 +307,46 @@ main {
 }
 
 .kana-input-card:focus-within {
-  border-color: #0d6efd;
-  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.18);
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 0.25rem var(--shadow-focus);
 }
 
 /* Soft visual feedback on correct input */
 .kana-input-card.was-correct {
-  background-color: #e8f5e9;
-  border-color: #81c784;
+  background-color: var(--correct-bg);
+  border-color: var(--correct-border);
 }
 
 /* Soft visual feedback on incorrect input */
 .kana-input-card.was-wrong {
-  background-color: #ffebee;
-  border-color: #e57373;
+  background-color: var(--wrong-bg);
+  border-color: var(--wrong-border);
 }
 
-/* Past character slot (pushed to the left, visually smaller, and gray similar to lookahead preview) */
+/* Past character slot (pushed to the left, visually smaller and muted) */
 .kana-past-slot {
   width: 85px;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-right: 1.5px dashed #d1d5db;
+  border-right: 1.5px dashed var(--border-past);
   font-size: 1.85rem;
   font-weight: 500;
-  color: #9ca3af; /* muted gray */
-  background-color: rgba(0, 0, 0, 0.02);
+  color: var(--text-past);
+  background-color: var(--bg-card-past);
   user-select: none;
   transition: color 0.15s ease, background-color 0.15s ease;
 }
 
 /* Subtle feedback tint for correct past input */
 .kana-past-slot.past-correct {
-  color: #4b6b50;
+  color: var(--correct-past-text);
 }
 
 /* Subtle feedback tint for wrong past input */
 .kana-past-slot.past-wrong {
-  color: #8c4a4a;
+  color: var(--wrong-past-text);
 }
 
 /* Active typing slot containing the large input */
@@ -121,16 +362,179 @@ main {
   width: 100%;
   height: 100%;
   border: none;
-  background: transparent;
+  background: var(--bg-input);
   outline: none;
   text-align: center;
   font-size: 3rem;
   font-weight: 500;
-  color: #212529;
+  color: var(--text-primary);
 }
 
 .kana-active-input::placeholder {
   font-size: 1.1rem;
   font-weight: 400;
-  color: #adb5bd;
+  color: var(--placeholder-color);
 }
+
+
+/* =============================================================================
+   BOOTSTRAP COMPONENT OVERRIDES — DARK MODE
+   Bootstrap hardcodes colours on many utility classes and components.
+   These rules override them so the full UI responds to the dark theme.
+   ============================================================================= */
+
+[data-theme="dark"] {
+  /* Tell the browser this is a dark surface so native controls (scrollbars,
+     select dropdowns, date pickers) also render in dark mode. */
+  color-scheme: dark;
+}
+
+/* Page & container backgrounds */
+[data-theme="dark"] body,
+[data-theme="dark"] .bg-light { background-color: #111827 !important; color: #e6edf3 !important; }
+
+/* Generic border utility */
+[data-theme="dark"] .border,
+[data-theme="dark"] .border-bottom { border-color: #21262d !important; }
+
+/* Text utilities */
+[data-theme="dark"] .text-muted    { color: #8b949e !important; }
+[data-theme="dark"] .text-dark     { color: #c9d1d9 !important; }
+[data-theme="dark"] .text-secondary { color: #8b949e !important; }
+
+/* Links */
+[data-theme="dark"] a { color: #58a6ff; }
+[data-theme="dark"] a:hover { color: #79b8ff; }
+
+/* VR divider */
+[data-theme="dark"] .vr { background-color: #30363d; }
+
+/* Badges */
+[data-theme="dark"] .text-bg-light {
+  background-color: #21262d !important;
+  color: #c9d1d9 !important;
+}
+[data-theme="dark"] .text-bg-warning {
+  background-color: #2a1f00 !important;
+  color: #d29922 !important;
+}
+
+/* btn-outline-secondary */
+[data-theme="dark"] .btn-outline-secondary {
+  color: #adbac7;
+  border-color: #30363d;
+  background-color: transparent;
+}
+[data-theme="dark"] .btn-outline-secondary:hover,
+[data-theme="dark"] .btn-outline-secondary:focus {
+  background-color: #21262d;
+  border-color: #58a6ff;
+  color: #58a6ff;
+}
+
+/* btn-secondary (used by active keyboard toggle) */
+[data-theme="dark"] .btn-secondary {
+  background-color: #21262d;
+  border-color: #30363d;
+  color: #adbac7;
+}
+[data-theme="dark"] .btn-secondary:hover {
+  background-color: #2d333b;
+  border-color: #58a6ff;
+  color: #58a6ff;
+}
+
+/* Form switches (category toggles) */
+[data-theme="dark"] .form-check-input {
+  background-color: #21262d;
+  border-color: #30363d;
+}
+[data-theme="dark"] .form-check-input:checked {
+  background-color: #388bfd;
+  border-color: #388bfd;
+}
+[data-theme="dark"] .form-check-input:disabled {
+  opacity: 0.4;
+}
+
+/* Range slider thumb */
+[data-theme="dark"] .form-range::-webkit-slider-thumb { background-color: #388bfd; }
+[data-theme="dark"] .form-range::-moz-range-thumb     { background-color: #388bfd; border-color: #388bfd; }
+[data-theme="dark"] .form-range::-webkit-slider-runnable-track { background-color: #21262d; }
+
+/* =============================================================================
+   BOOTSTRAP COMPONENT OVERRIDES — PINK MODE
+   ============================================================================= */
+
+/* Page & container backgrounds */
+[data-theme="pink"] body,
+[data-theme="pink"] .bg-light { background-color: #ffe8f2 !important; color: #5b0030 !important; }
+
+/* Generic border utility */
+[data-theme="pink"] .border,
+[data-theme="pink"] .border-bottom { border-color: #f472b6 !important; }
+
+/* Text utilities */
+[data-theme="pink"] .text-muted     { color: #be5a84 !important; }
+[data-theme="pink"] .text-dark      { color: #5b0030 !important; }
+[data-theme="pink"] .text-secondary { color: #be5a84 !important; }
+
+/* Links */
+[data-theme="pink"] a { color: #db2777; }
+[data-theme="pink"] a:hover { color: #9d174d; }
+
+/* VR divider */
+[data-theme="pink"] .vr { background-color: #f472b6; }
+
+/* Badges */
+[data-theme="pink"] .text-bg-light {
+  background-color: #fce7f3 !important;
+  color: #9d174d !important;
+}
+[data-theme="pink"] .text-bg-warning {
+  background-color: #fce7f3 !important;
+  color: #9d174d !important;
+}
+
+/* btn-outline-secondary */
+[data-theme="pink"] .btn-outline-secondary {
+  color: #9d174d;
+  border-color: #f9a8d4;
+  background-color: transparent;
+}
+[data-theme="pink"] .btn-outline-secondary:hover,
+[data-theme="pink"] .btn-outline-secondary:focus {
+  background-color: #fce7f3;
+  border-color: #db2777;
+  color: #9d174d;
+}
+
+/* btn-secondary (used by active keyboard toggle) */
+[data-theme="pink"] .btn-secondary {
+  background-color: #f9a8d4;
+  border-color: #f472b6;
+  color: #5b0030;
+}
+[data-theme="pink"] .btn-secondary:hover {
+  background-color: #f472b6;
+  border-color: #db2777;
+  color: #5b0030;
+}
+
+/* Form switches (category toggles) */
+[data-theme="pink"] .form-check-input {
+  background-color: #fce7f3;
+  border-color: #f9a8d4;
+}
+[data-theme="pink"] .form-check-input:checked {
+  background-color: #ec4899;
+  border-color: #ec4899;
+}
+[data-theme="pink"] .form-check-input:disabled {
+  opacity: 0.45;
+}
+
+/* Range slider thumb */
+[data-theme="pink"] .form-range::-webkit-slider-thumb { background-color: #ec4899; }
+[data-theme="pink"] .form-range::-moz-range-thumb     { background-color: #ec4899; border-color: #ec4899; }
+[data-theme="pink"] .form-range::-webkit-slider-runnable-track { background-color: #fce7f3; }
