@@ -105,3 +105,7 @@ npm run build
 # Start production server
 npm start
 ```
+
+### To Do
+- Correct answer streak visual feedback/reward.
+- Add an option to disable gamification effects.
