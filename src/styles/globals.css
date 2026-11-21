@@ -101,14 +101,309 @@
   --placeholder-color:  #f9a8d4;
 }
 
+/* ---- Cyberpunk Terminal (Unlocked at Level 2) ---- */
+[data-theme="cyberpunk"] {
+  --bg-page:            #0d0204;
+  --bg-card:            #180407;
+  --bg-card-past:       rgba(255, 0, 60, 0.08);
+  --bg-input:           transparent;
+
+  --text-primary:       #ff2a55;
+  --text-muted:         #ff7590;
+  --text-past:          #7a1224;
+
+  --border-card:        #ff003c;
+  --border-past:        #4d0a15;
+  --border-focus:       #ff0055;
+  --shadow-focus:       rgba(255, 0, 60, 0.45);
+
+  --correct-bg:         #0a240e;
+  --correct-border:     #39ff14;
+  --correct-past-text:  #39ff14;
+  --wrong-bg:           #3a040d;
+  --wrong-border:       #ff003c;
+  --wrong-past-text:    #ff5277;
+
+  --small-kana-color:   #ff0055;
+  --small-kana-bg:      #26040a;
+  --small-kana-border:  #ff003c;
+  --small-kana-shadow:  rgba(255, 0, 60, 0.25);
+
+  --lookahead-color:    #8f1d32;
+  --placeholder-color:  #5c1321;
+}
+
+/* ---- The Matrix (Unlocked at Level 3) ---- */
+[data-theme="matrix"] {
+  --bg-page:            #030804;
+  --bg-card:            #07150a;
+  --bg-card-past:       rgba(0, 255, 100, 0.06);
+  --bg-input:           transparent;
+
+  --text-primary:       #00ff66;
+  --text-muted:         #00cc55;
+  --text-past:          #005522;
+
+  --border-card:        #00aa44;
+  --border-past:        #003816;
+  --border-focus:       #00ff66;
+  --shadow-focus:       rgba(0, 255, 100, 0.4);
+
+  --correct-bg:         #05280d;
+  --correct-border:     #00ff88;
+  --correct-past-text:  #55ffaa;
+  --wrong-bg:           #2b0606;
+  --wrong-border:       #ff2222;
+  --wrong-past-text:    #ff6666;
+
+  --small-kana-color:   #00ff88;
+  --small-kana-bg:      #051c0a;
+  --small-kana-border:  #00dd55;
+  --small-kana-shadow:  rgba(0, 255, 100, 0.25);
+
+  --lookahead-color:    #008833;
+  --placeholder-color:  #004d1f;
+}
+
+/* ---- Synthwave Neon (Unlocked at Level 4) ---- */
+[data-theme="synthwave"] {
+  --bg-page:            #0f051d;
+  --bg-card:            #1d0e38;
+  --bg-card-past:       rgba(0, 240, 255, 0.06);
+  --bg-input:           transparent;
+
+  --text-primary:       #00f0ff;
+  --text-muted:         #ff71ce;
+  --text-past:          #7928ca;
+
+  --border-card:        #b942ff;
+  --border-past:        #3d1a6d;
+  --border-focus:       #00f0ff;
+  --shadow-focus:       rgba(0, 240, 255, 0.45);
+
+  --correct-bg:         #08262b;
+  --correct-border:     #05d9e8;
+  --correct-past-text:  #05d9e8;
+  --wrong-bg:           #3b092b;
+  --wrong-border:       #ff2a85;
+  --wrong-past-text:    #ff71ce;
+
+  --small-kana-color:   #ff71ce;
+  --small-kana-bg:      #2b0b3d;
+  --small-kana-border:  #b942ff;
+  --small-kana-shadow:  rgba(255, 113, 206, 0.25);
+
+  --lookahead-color:    #9a42ff;
+  --placeholder-color:  #5c2494;
+}
+
+/* ---- Imperial Gold (Unlocked at Level 5) ---- */
+[data-theme="gold"] {
+  --bg-page:            #0c0a06;
+  --bg-card:            #1a160d;
+  --bg-card-past:       rgba(245, 197, 24, 0.06);
+  --bg-input:           transparent;
+
+  --text-primary:       #f5c518;
+  --text-muted:         #ffd54f;
+  --text-past:          #8c7326;
+
+  --border-card:        #d4af37;
+  --border-past:        #4d3f18;
+  --border-focus:       #ffd700;
+  --shadow-focus:       rgba(255, 215, 0, 0.4);
+
+  --correct-bg:         #12240e;
+  --correct-border:     #76c843;
+  --correct-past-text:  #9ccc65;
+  --wrong-bg:           #300d07;
+  --wrong-border:       #e64a19;
+  --wrong-past-text:    #ff7043;
+
+  --small-kana-color:   #ffd700;
+  --small-kana-bg:      #2b220d;
+  --small-kana-border:  #f5c518;
+  --small-kana-shadow:  rgba(245, 197, 24, 0.25);
+
+  --lookahead-color:    #bfa140;
+  --placeholder-color:  #5a4b1e;
+}
+
+/* ---- Sakura Zen (Unlocked at Level 6) ---- */
+[data-theme="sakura"] {
+  --bg-page:            #141318;
+  --bg-card:            #1d1b24;
+  --bg-card-past:       rgba(244, 114, 182, 0.06);
+  --bg-input:           transparent;
+
+  --text-primary:       #ffd1e3;
+  --text-muted:         #c29bb0;
+  --text-past:          #5f4555;
+
+  --border-card:        #c06c84;
+  --border-past:        #4a303e;
+  --border-focus:       #f472b6;
+  --shadow-focus:       rgba(244, 114, 182, 0.4);
+
+  --correct-bg:         #10261b;
+  --correct-border:     #34d399;
+  --correct-past-text:  #6ee7b7;
+  --wrong-bg:           #2e0e1a;
+  --wrong-border:       #f43f5e;
+  --wrong-past-text:    #fb7185;
+
+  --small-kana-color:   #f472b6;
+  --small-kana-bg:      #2b1420;
+  --small-kana-border:  #c06c84;
+  --small-kana-shadow:  rgba(244, 114, 182, 0.25);
+
+  --lookahead-color:    #82576f;
+  --placeholder-color:  #5c384e;
+}
+
+/* ---- 8-Bit Retro Arcade (Unlocked at Level 7) ---- */
+[data-theme="arcade"] {
+  --bg-page:            #090714;
+  --bg-card:            #120d24;
+  --bg-card-past:       rgba(57, 255, 20, 0.06);
+  --bg-input:           transparent;
+
+  --text-primary:       #39ff14;
+  --text-muted:         #00ffff;
+  --text-past:          #1b4d24;
+
+  --border-card:        #ff007f;
+  --border-past:        #4a0b2d;
+  --border-focus:       #00ffff;
+  --shadow-focus:       rgba(0, 255, 255, 0.45);
+
+  --correct-bg:         #0a2e0a;
+  --correct-border:     #39ff14;
+  --correct-past-text:  #39ff14;
+  --wrong-bg:           #3b0816;
+  --wrong-border:       #ff0055;
+  --wrong-past-text:    #ff4488;
+
+  --small-kana-color:   #ff007f;
+  --small-kana-bg:      #260515;
+  --small-kana-border:  #ff007f;
+  --small-kana-shadow:  rgba(255, 0, 127, 0.3);
+
+  --lookahead-color:    #1f7535;
+  --placeholder-color:  #13441f;
+}
+
+/* ---- Mystic Cosmic Nebula (Unlocked at Level 8) ---- */
+[data-theme="nebula"] {
+  --bg-page:            #080414;
+  --bg-card:            #13092b;
+  --bg-card-past:       rgba(192, 132, 252, 0.06);
+  --bg-input:           transparent;
+
+  --text-primary:       #e9d5ff;
+  --text-muted:         #c084fc;
+  --text-past:          #53347a;
+
+  --border-card:        #a855f7;
+  --border-past:        #3b1c61;
+  --border-focus:       #c084fc;
+  --shadow-focus:       rgba(192, 132, 252, 0.45);
+
+  --correct-bg:         #0e2920;
+  --correct-border:     #2dd4bf;
+  --correct-past-text:  #5eead4;
+  --wrong-bg:           #330a21;
+  --wrong-border:       #f43f5e;
+  --wrong-past-text:    #fb7185;
+
+  --small-kana-color:   #d8b4fe;
+  --small-kana-bg:      #220e3d;
+  --small-kana-border:  #a855f7;
+  --small-kana-shadow:  rgba(168, 85, 247, 0.25);
+
+  --lookahead-color:    #7e52b8;
+  --placeholder-color:  #4c2b75;
+}
+
+/* ---- Emerald Shrine (Unlocked at Level 9) ---- */
+[data-theme="emerald"] {
+  --bg-page:            #03120a;
+  --bg-card:            #082114;
+  --bg-card-past:       rgba(74, 222, 128, 0.06);
+  --bg-input:           transparent;
+
+  --text-primary:       #4ade80;
+  --text-muted:         #86efac;
+  --text-past:          #1d5733;
+
+  --border-card:        #22c55e;
+  --border-past:        #0e3d20;
+  --border-focus:       #4ade80;
+  --shadow-focus:       rgba(74, 222, 128, 0.45);
+
+  --correct-bg:         #063319;
+  --correct-border:     #4ade80;
+  --correct-past-text:  #86efac;
+  --wrong-bg:           #2e0b12;
+  --wrong-border:       #f87171;
+  --wrong-past-text:    #fca5a5;
+
+  --small-kana-color:   #86efac;
+  --small-kana-bg:      #0d2e1c;
+  --small-kana-border:  #22c55e;
+  --small-kana-shadow:  rgba(34, 197, 94, 0.25);
+
+  --lookahead-color:    #1f6d3d;
+  --placeholder-color:  #134426;
+}
+
+/* ---- Bloodmoon Samurai (Unlocked at Level 10) ---- */
+[data-theme="bloodmoon"] {
+  --bg-page:            #0f0203;
+  --bg-card:            #1f0508;
+  --bg-card-past:       rgba(255, 51, 68, 0.07);
+  --bg-input:           transparent;
+
+  --text-primary:       #ff4d5a;
+  --text-muted:         #ff858f;
+  --text-past:          #73161c;
+
+  --border-card:        #dc2626;
+  --border-past:        #4f0d12;
+  --border-focus:       #ff3344;
+  --shadow-focus:       rgba(255, 51, 68, 0.45);
+
+  --correct-bg:         #122416;
+  --correct-border:     #4ade80;
+  --correct-past-text:  #86efac;
+  --wrong-bg:           #3d070b;
+  --wrong-border:       #ef4444;
+  --wrong-past-text:    #f87171;
+
+  --small-kana-color:   #ff4d5a;
+  --small-kana-bg:      #2d080c;
+  --small-kana-border:  #dc2626;
+  --small-kana-shadow:  rgba(220, 38, 38, 0.3);
+
+  --lookahead-color:    #8a2128;
+  --placeholder-color:  #571419;
+}
+
 /* =============================================================================
    GLOBAL BASE
    ============================================================================= */
 
-html, body {
+html {
+  min-height: 100%;
   background-color: var(--bg-page);
+}
+
+body {
+  min-height: 100vh;
+  background-color: transparent !important;
   color: var(--text-primary);
-  transition: background-color 0.25s ease, color 0.25s ease;
+  font-family: var(--active-font, system-ui, -apple-system, sans-serif);
+  transition: color 0.25s ease;
 }
 
 main {
@@ -116,6 +411,15 @@ main {
   /* Sit above background particles */
   position: relative;
   z-index: 1;
+}
+
+/* Ensure Kana prompt, input, and previous answer cleanly inherit active font reward */
+.kana-prompt,
+.kana-next-question,
+.kana-questions-after,
+.kana-active-input,
+.kana-past-slot {
+  font-family: var(--active-font, inherit);
 }
 
 /* =============================================================================
@@ -167,21 +471,631 @@ main {
 }
 
 /* ---- Stars (dark mode) ---- */
-/* Stars twinkle in place: fade in, hold, fade out, repeat */
+/* Multi-tiered celestial starfield with distant shimmer, diamond twinkles, hero cross flares, and shooting meteors */
 .bg-particle--star {
-  color: #e2e8f0;
+  user-select: none;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* Distant micro-stars: subtle, quiet depth */
+.bg-particle--star-deep {
+  text-shadow: 0 0 3px rgba(255, 255, 255, 0.45);
+  animation-name: shimmer-deep;
+}
+
+@keyframes shimmer-deep {
+  0%, 100% {
+    opacity: 0.15;
+    transform: scale(0.65);
+  }
+  50% {
+    opacity: var(--particle-opacity, 0.55);
+    transform: scale(1.05);
+  }
+}
+
+/* Medium twinkling diamond stars: crisp sparkle with rotation */
+.bg-particle--star-twinkle {
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.85), 0 0 12px rgba(186, 230, 253, 0.5);
   animation-name: twinkle-star;
 }
 
 @keyframes twinkle-star {
   0%, 100% {
-    opacity: 0;
-    transform: scale(0.55);
+    opacity: 0.12;
+    transform: scale(0.6) rotate(0deg);
   }
   40%, 60% {
-    opacity: var(--particle-opacity, 0.65);
-    transform: scale(1.05);
+    opacity: var(--particle-opacity, 0.85);
+    transform: scale(1.15) rotate(18deg);
   }
+}
+
+/* Hero cross stars: radiant multi-pointed starbursts with pulsing cross-flare */
+.bg-particle--star-hero {
+  text-shadow: 0 0 8px #ffffff, 0 0 18px rgba(56, 189, 248, 0.85), 0 0 32px rgba(186, 230, 253, 0.65);
+  animation-name: flare-hero;
+}
+
+@keyframes flare-hero {
+  0%, 100% {
+    opacity: 0.25;
+    transform: scale(0.75) rotate(0deg);
+  }
+  30%, 70% {
+    opacity: var(--particle-opacity, 0.98);
+    transform: scale(1.35) rotate(45deg);
+  }
+}
+
+/* ---- Shooting Stars (Dark Mode) ---- */
+.shooting-star {
+  position: absolute;
+  height: 2px;
+  background: linear-gradient(90deg, #ffffff, rgba(56, 189, 248, 0.85), rgba(186, 230, 253, 0.4), transparent);
+  border-radius: 999px;
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.95));
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.shooting-star::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: -1.5px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 8px 2px #38bdf8, 0 0 16px 4px rgba(255, 255, 255, 0.9);
+}
+
+.shooting-star--1 {
+  top: 14%;
+  left: 68%;
+  width: 140px;
+  animation: streak-1 10s ease-in-out infinite;
+  animation-delay: 1.5s;
+}
+
+.shooting-star--2 {
+  top: 32%;
+  left: 88%;
+  width: 110px;
+  animation: streak-2 13s ease-in-out infinite;
+  animation-delay: 5.5s;
+}
+
+.shooting-star--3 {
+  top: 8%;
+  left: 42%;
+  width: 160px;
+  animation: streak-3 15s ease-in-out infinite;
+  animation-delay: 9.5s;
+}
+
+.shooting-star--4 {
+  top: 48%;
+  left: 78%;
+  width: 95px;
+  animation: streak-1 12s ease-in-out infinite;
+  animation-delay: 14s;
+}
+
+@keyframes streak-1 {
+  0% {
+    transform: translate(0, 0) rotate(-35deg);
+    opacity: 0;
+  }
+  3% {
+    opacity: 0.95;
+  }
+  8% {
+    transform: translate(-320px, 220px) rotate(-35deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-320px, 220px) rotate(-35deg);
+    opacity: 0;
+  }
+}
+
+@keyframes streak-2 {
+  0% {
+    transform: translate(0, 0) rotate(-32deg);
+    opacity: 0;
+  }
+  3% {
+    opacity: 0.9;
+  }
+  7% {
+    transform: translate(-270px, 170px) rotate(-32deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-270px, 170px) rotate(-32deg);
+    opacity: 0;
+  }
+}
+
+@keyframes streak-3 {
+  0% {
+    transform: translate(0, 0) rotate(-38deg);
+    opacity: 0;
+  }
+  2.5% {
+    opacity: 1;
+  }
+  6.5% {
+    transform: translate(-390px, 300px) rotate(-38deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-390px, 300px) rotate(-38deg);
+    opacity: 0;
+  }
+}
+
+/* ---- Clouds & Sparkles (light mode) ---- */
+.bg-particle--cloud {
+  color: #94a3b8;
+  animation-name: float-cloud;
+}
+
+@keyframes float-cloud {
+  0% {
+    transform: translateY(0) translateX(0) scale(0.9);
+    opacity: 0;
+  }
+  20%, 80% {
+    opacity: var(--particle-opacity, 0.4);
+  }
+  100% {
+    transform: translateY(-80px) translateX(30px) scale(1.1);
+    opacity: 0;
+  }
+}
+
+/* ---- Cyber Embers (cyberpunk mode) ---- */
+.bg-particle--ember {
+  bottom: -5%;
+  color: #ff003c;
+  text-shadow: 0 0 8px rgba(255, 0, 60, 0.7);
+  animation-name: float-ember;
+}
+
+@keyframes float-ember {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(0.8);
+    opacity: 0;
+  }
+  15% {
+    opacity: var(--particle-opacity, 0.7);
+  }
+  85% {
+    opacity: var(--particle-opacity, 0.7);
+  }
+  100% {
+    transform: translateY(-105vh) rotate(45deg) scale(1.2);
+    opacity: 0;
+  }
+}
+
+/* ---- Matrix Digital Rain (matrix mode) ---- */
+.bg-particle--matrix-stream {
+  top: -20%;
+  color: #00ff66;
+  font-family: monospace;
+  font-weight: bold;
+  letter-spacing: 0.15em;
+  writing-mode: vertical-rl;
+  text-shadow: 0 0 8px #00ff66, 0 0 16px rgba(0, 255, 102, 0.5);
+  animation-name: matrix-stream-fall;
+}
+
+@keyframes matrix-stream-fall {
+  0% {
+    transform: translateY(-20%);
+    opacity: 0;
+  }
+  10% {
+    opacity: var(--particle-opacity, 0.75);
+  }
+  90% {
+    opacity: var(--particle-opacity, 0.75);
+  }
+  100% {
+    transform: translateY(125vh);
+    opacity: 0;
+  }
+}
+
+/* ---- Synthwave Neon Diamonds (synthwave mode) ---- */
+.bg-particle--synth {
+  bottom: -6%;
+  color: #00f0ff;
+  text-shadow: 0 0 10px #ff007f;
+  animation-name: float-synth;
+}
+
+@keyframes float-synth {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(0.85);
+    opacity: 0;
+  }
+  20%, 80% {
+    opacity: var(--particle-opacity, 0.65);
+  }
+  100% {
+    transform: translateY(-108vh) rotate(90deg) scale(1.15);
+    opacity: 0;
+  }
+}
+
+/* ---- Imperial Gold Stars (gold mode) ---- */
+.bg-particle--gold {
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.75);
+  animation-name: sparkle-gold;
+}
+
+@keyframes sparkle-gold {
+  0%, 100% {
+    transform: scale(0.6) rotate(0deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) rotate(45deg);
+    opacity: var(--particle-opacity, 0.85);
+  }
+}
+
+/* ---- Sakura Blossom Petals (sakura mode) ---- */
+.bg-particle--sakura {
+  top: -10%;
+  color: #f472b6;
+  text-shadow: 0 0 6px rgba(244, 114, 182, 0.5);
+  animation-name: drift-sakura;
+}
+
+@keyframes drift-sakura {
+  0% {
+    transform: translateY(0) translateX(0) rotate(0deg) scale(0.8);
+    opacity: 0;
+  }
+  15% {
+    opacity: var(--particle-opacity, 0.7);
+  }
+  85% {
+    opacity: var(--particle-opacity, 0.7);
+  }
+  100% {
+    transform: translateY(115vh) translateX(60px) rotate(360deg) scale(1.1);
+    opacity: 0;
+  }
+}
+
+/* ---- 8-Bit Arcade Pixels (arcade mode) ---- */
+.bg-particle--arcade {
+  bottom: -8%;
+  color: #39ff14;
+  text-shadow: 0 0 8px #39ff14;
+  animation-name: float-arcade;
+}
+
+@keyframes float-arcade {
+  0% {
+    transform: translateY(0) scale(0.85);
+    opacity: 0;
+  }
+  15%, 85% {
+    opacity: var(--particle-opacity, 0.8);
+  }
+  100% {
+    transform: translateY(-110vh) scale(1.1);
+    opacity: 0;
+  }
+}
+
+/* ---- Mystic Nebula Stardust (nebula mode) ---- */
+.bg-particle--nebula {
+  color: #c084fc;
+  text-shadow: 0 0 12px rgba(192, 132, 252, 0.8), 0 0 20px rgba(168, 85, 247, 0.4);
+  animation-name: pulse-nebula;
+}
+
+@keyframes pulse-nebula {
+  0%, 100% {
+    transform: scale(0.7) rotate(0deg);
+    opacity: 0.15;
+  }
+  50% {
+    transform: scale(1.3) rotate(30deg);
+    opacity: var(--particle-opacity, 0.9);
+  }
+}
+
+/* ---- Bamboo Leaves & Fireflies (emerald mode) ---- */
+.bg-particle--emerald {
+  top: -10%;
+  color: #4ade80;
+  text-shadow: 0 0 8px rgba(74, 222, 128, 0.7);
+  animation-name: drift-emerald;
+}
+
+@keyframes drift-emerald {
+  0% {
+    transform: translateY(0) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  15%, 85% {
+    opacity: var(--particle-opacity, 0.75);
+  }
+  100% {
+    transform: translateY(115vh) translateX(-50px) rotate(180deg);
+    opacity: 0;
+  }
+}
+
+/* ---- Bloodmoon Maple Leaves (bloodmoon mode) ---- */
+.bg-particle--bloodmoon {
+  top: -10%;
+  color: #ff3344;
+  text-shadow: 0 0 10px rgba(255, 51, 68, 0.7);
+  animation-name: drift-bloodmoon;
+}
+
+@keyframes drift-bloodmoon {
+  0% {
+    transform: translateY(0) translateX(0) rotate(0deg) scale(0.9);
+    opacity: 0;
+  }
+  15%, 85% {
+    opacity: var(--particle-opacity, 0.8);
+  }
+  100% {
+    transform: translateY(115vh) translateX(45px) rotate(270deg) scale(1.1);
+    opacity: 0;
+  }
+}
+
+/* =============================================================================
+   SPECIAL CELEBRATORY LEVEL-UP MOVEMENT
+   When isLevelingUp is active, background elements accelerate and pulse
+   ============================================================================= */
+
+/* =============================================================================
+   LEVEL-UP CELEBRATION SHOWER
+   Visual form adapts to the active background effect reward:
+     streak  — diagonal meteor shower         (stars / dark)
+     rise    — symbols float upward           (hearts, sakura, embers, emerald, bloodmoon, clouds)
+     fall    — glyphs cascade downward fast   (matrix)
+     burst   — radial starburst from centre   (gold, nebula, synthwave, arcade)
+   ============================================================================= */
+
+.shower-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 998;
+  overflow: hidden;
+}
+
+/* Atmospheric sky flare pulse — base */
+.shower-sky-glow {
+  position: absolute;
+  inset: 0;
+  animation: shower-sky-pulse 3.6s ease-out forwards;
+  pointer-events: none;
+}
+/* Colour variants of the sky glow per celebration type */
+.shower-sky-glow--streak  { animation-name: shower-sky-pulse-streak; }
+.shower-sky-glow--rise    { animation-name: shower-sky-pulse-rise; }
+.shower-sky-glow--fall    { animation-name: shower-sky-pulse-fall; }
+.shower-sky-glow--burst   { animation-name: shower-sky-pulse-burst; }
+
+@keyframes shower-sky-pulse-streak {
+  0%   { background-color: transparent; }
+  8%   { background-color: rgba(56, 189, 248, 0.09); }
+  35%  { background-color: rgba(255, 255, 255, 0.04); }
+  100% { background-color: transparent; }
+}
+@keyframes shower-sky-pulse-rise {
+  0%   { background-color: transparent; }
+  10%  { background-color: rgba(255, 182, 220, 0.08); }
+  40%  { background-color: rgba(255, 255, 255, 0.03); }
+  100% { background-color: transparent; }
+}
+@keyframes shower-sky-pulse-fall {
+  0%   { background-color: transparent; }
+  8%   { background-color: rgba(0, 255, 100, 0.07); }
+  35%  { background-color: rgba(0, 255, 100, 0.02); }
+  100% { background-color: transparent; }
+}
+@keyframes shower-sky-pulse-burst {
+  0%   { background-color: transparent; }
+  8%   { background-color: rgba(192, 132, 252, 0.08); }
+  40%  { background-color: rgba(255, 255, 255, 0.03); }
+  100% { background-color: transparent; }
+}
+/* Legacy alias kept for safety */
+@keyframes shower-sky-pulse {
+  0%   { background-color: transparent; }
+  8%   { background-color: rgba(56, 189, 248, 0.09); }
+  35%  { background-color: rgba(255, 255, 255, 0.04); }
+  100% { background-color: transparent; }
+}
+
+/* ── Base shared state ───────────────────────────────────────────────────── */
+.shower-star {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  color: var(--shower-color, #38bdf8);
+  animation-delay: var(--shower-delay, 0s);
+  animation-fill-mode: forwards;
+}
+
+/* ── STREAK — diagonal comet (stars / dark) ─────────────────────────────── */
+.shower-star--streak {
+  border-radius: 999px;
+  transform-origin: left center;
+  filter: drop-shadow(0 0 10px var(--shower-color, #38bdf8));
+  background: linear-gradient(
+    90deg,
+    #ffffff 0%,
+    var(--shower-color, #38bdf8) 22%,
+    rgba(255, 255, 255, 0.35) 55%,
+    transparent 100%
+  );
+  animation: shower-streak var(--shower-duration, 0.85s) cubic-bezier(0.22, 0.1, 0.25, 1) forwards;
+  animation-delay: var(--shower-delay, 0s);
+}
+/* Radiant meteor nucleus */
+.shower-star--streak::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: calc(var(--shower-thickness, 2.5px) * 2.4);
+  height: calc(var(--shower-thickness, 2.5px) * 2.4);
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow:
+    0 0 8px 2px #ffffff,
+    0 0 16px 5px var(--shower-color, #38bdf8),
+    0 0 28px 8px rgba(255, 255, 255, 0.6);
+}
+@keyframes shower-streak {
+  0% {
+    transform: rotate(var(--shower-angle, -38deg)) translateX(0);
+    opacity: 0;
+  }
+  5%  { opacity: 1; }
+  70% { opacity: 0.95; }
+  100% {
+    transform: rotate(var(--shower-angle, -38deg)) translateX(calc(-1 * var(--shower-distance, 750px)));
+    opacity: 0;
+  }
+}
+
+/* ── RISE — symbol floats upward with drift (hearts, embers, sakura …) ──── */
+.shower-star--rise {
+  display: inline-block;
+  line-height: 1;
+  user-select: none;
+  text-shadow:
+    0 0 8px var(--shower-color, #f472b6),
+    0 0 18px var(--shower-color, #f472b6);
+  animation: shower-rise var(--shower-duration, 1.5s) ease-out forwards;
+  animation-delay: var(--shower-delay, 0s);
+}
+@keyframes shower-rise {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 0.85;
+  }
+  100% {
+    transform:
+      translateY(calc(-1 * var(--shower-distance, 500px)))
+      rotate(calc(var(--shower-drift, 8deg) * 2));
+    opacity: 0;
+  }
+}
+
+/* ── FALL — glyph drops top→bottom fast (matrix) ───────────────────────── */
+.shower-star--fall {
+  display: inline-block;
+  line-height: 1;
+  user-select: none;
+  font-family: var(--font-matrix, monospace);
+  text-shadow:
+    0 0 6px var(--shower-color, #00ff66),
+    0 0 20px var(--shower-color, #00ff66);
+  animation: shower-fall var(--shower-duration, 0.7s) linear forwards;
+  animation-delay: var(--shower-delay, 0s);
+}
+@keyframes shower-fall {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  8%  { opacity: 1; }
+  75% { opacity: 0.9; }
+  100% {
+    transform: translateY(var(--shower-distance, 700px));
+    opacity: 0;
+  }
+}
+
+/* ── BURST — particle radiates outward from screen centre ───────────────── */
+.shower-star--burst {
+  display: inline-block;
+  line-height: 1;
+  user-select: none;
+  transform-origin: center center;
+  text-shadow:
+    0 0 8px var(--shower-color, #c084fc),
+    0 0 20px var(--shower-color, #c084fc);
+  animation: shower-burst var(--shower-duration, 1.3s) cubic-bezier(0.15, 0.5, 0.3, 1) forwards;
+  animation-delay: var(--shower-delay, 0s);
+}
+@keyframes shower-burst {
+  0% {
+    transform: rotate(var(--shower-angle, 0deg)) translateX(0) scale(0.4);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  60% {
+    opacity: 0.9;
+    transform: rotate(var(--shower-angle, 0deg)) translateX(calc(var(--shower-distance, 400px) * 0.65)) scale(1);
+  }
+  100% {
+    transform: rotate(var(--shower-angle, 0deg)) translateX(var(--shower-distance, 400px)) scale(0.6);
+    opacity: 0;
+  }
+}
+
+
+/* =============================================================================
+   VIDEOGAME LEVEL-UP DROP BANNER
+   Drops down directly above the input box with arcade bounce and glow
+   ============================================================================= */
+
+/* Level-up banner: fixed overlay so it never shifts page elements */
+@keyframes level-up-fade {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(-6px); }
+  12%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+  80%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-6px); }
+}
+
+.level-up-banner {
+  position: fixed;
+  top: 65px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: level-up-fade 3.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  pointer-events: none;
+  z-index: 9999;
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 999px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
 }
 
 /* =============================================================================
@@ -197,14 +1111,16 @@ main {
 .kana-stage-grid {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
-  align-items: center;
+  align-items: start;
   width: 100%;
-  margin-top: 1rem;
+  margin-top: 0;
   margin-bottom: 2rem;
 }
 
 .kana-stage-left {
-  /* Empty spacer balancing the 3-column grid symmetrically */
+  /* GamificationBar lives here — pin to top of the column */
+  align-self: start;
+  padding-top: 0.25rem;
 }
 
 .kana-stage-center {
@@ -323,6 +1239,30 @@ main {
   border-color: var(--wrong-border);
 }
 
+/* Horizontal shake animation on incorrect answer */
+@keyframes kana-shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  15%, 45%, 75% {
+    transform: translateX(-6px);
+  }
+  30%, 60%, 90% {
+    transform: translateX(6px);
+  }
+}
+
+.kana-input-card.shake-wrong {
+  animation: kana-shake 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  box-shadow: 0 0 12px var(--wrong-border);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kana-input-card.shake-wrong {
+    animation: none;
+  }
+}
+
 /* Past character slot (pushed to the left, visually smaller and muted) */
 .kana-past-slot {
   width: 85px;
@@ -378,163 +1318,162 @@ main {
 
 
 /* =============================================================================
-   BOOTSTRAP COMPONENT OVERRIDES — DARK MODE
-   Bootstrap hardcodes colours on many utility classes and components.
-   These rules override them so the full UI responds to the dark theme.
+   UNIVERSAL BOOTSTRAP OVERRIDES ACROSS ALL THEMES
+   Every theme defines the full set of custom properties (--bg-page, --bg-card,
+   --text-primary, --text-muted, --border-card, --border-focus, etc.).
+   These universal rules ensure that every UI component seamlessly responds to
+   any active theme and never falls back to mismatched defaults.
    ============================================================================= */
 
-[data-theme="dark"] {
-  /* Tell the browser this is a dark surface so native controls (scrollbars,
-     select dropdowns, date pickers) also render in dark mode. */
+/* Dark color-scheme for all dark-based themes */
+[data-theme="dark"],
+[data-theme="cyberpunk"],
+[data-theme="matrix"],
+[data-theme="synthwave"],
+[data-theme="gold"],
+[data-theme="sakura"],
+[data-theme="arcade"],
+[data-theme="nebula"],
+[data-theme="emerald"],
+[data-theme="bloodmoon"] {
   color-scheme: dark;
 }
 
-/* Page & container backgrounds */
-[data-theme="dark"] body,
-[data-theme="dark"] .bg-light { background-color: #111827 !important; color: #e6edf3 !important; }
+/* Atmospheric celestial depth for midnight dark mode applied globally to root canvas */
+[data-theme="dark"] {
+  background-color: #080d13 !important;
+  background-image: radial-gradient(ellipse at 50% 12%, #0e1a2e 0%, #080d13 58%, #04070a 100%) !important;
+  background-attachment: fixed !important;
+}
 
-/* Generic border utility */
-[data-theme="dark"] .border,
-[data-theme="dark"] .border-bottom { border-color: #21262d !important; }
+[data-theme="dark"] body {
+  background-color: transparent !important;
+  background-image: none !important;
+}
 
-/* Text utilities */
-[data-theme="dark"] .text-muted    { color: #8b949e !important; }
-[data-theme="dark"] .text-dark     { color: #c9d1d9 !important; }
-[data-theme="dark"] .text-secondary { color: #8b949e !important; }
+/* Page, body, and container backgrounds */
+.bg-light {
+  background-color: var(--bg-card-past) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Card and dialog surfaces */
+.card {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-card) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Generic borders */
+.border,
+.border-bottom,
+.border-top,
+.border-start,
+.border-end {
+  border-color: var(--border-past) !important;
+}
+
+/* Text utility overrides */
+.text-muted {
+  color: var(--text-muted) !important;
+}
+.text-secondary {
+  color: var(--text-muted) !important;
+}
+.text-dark {
+  color: var(--text-primary) !important;
+}
+
+/* Vertical divider */
+.vr {
+  background-color: var(--border-card) !important;
+}
 
 /* Links */
-[data-theme="dark"] a { color: #58a6ff; }
-[data-theme="dark"] a:hover { color: #79b8ff; }
-
-/* VR divider */
-[data-theme="dark"] .vr { background-color: #30363d; }
+a {
+  color: var(--border-focus);
+}
+a:hover {
+  color: var(--text-primary);
+}
 
 /* Badges */
-[data-theme="dark"] .text-bg-light {
-  background-color: #21262d !important;
-  color: #c9d1d9 !important;
+.text-bg-light {
+  background-color: var(--bg-card-past) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-past) !important;
 }
-[data-theme="dark"] .text-bg-warning {
-  background-color: #2a1f00 !important;
-  color: #d29922 !important;
+.text-bg-warning {
+  background-color: var(--bg-card-past) !important;
+  color: var(--text-primary) !important;
 }
 
-/* btn-outline-secondary */
-[data-theme="dark"] .btn-outline-secondary {
-  color: #adbac7;
-  border-color: #30363d;
+/* Outline Secondary Button */
+.btn-outline-secondary {
+  color: var(--text-primary);
+  border-color: var(--border-card);
   background-color: transparent;
 }
-[data-theme="dark"] .btn-outline-secondary:hover,
-[data-theme="dark"] .btn-outline-secondary:focus {
-  background-color: #21262d;
-  border-color: #58a6ff;
-  color: #58a6ff;
+.btn-outline-secondary:hover,
+.btn-outline-secondary:focus {
+  background-color: var(--bg-card-past);
+  border-color: var(--border-focus);
+  color: var(--text-primary);
 }
 
-/* btn-secondary (used by active keyboard toggle) */
-[data-theme="dark"] .btn-secondary {
-  background-color: #21262d;
-  border-color: #30363d;
-  color: #adbac7;
+/* Solid Secondary Button (active toggle state) */
+.btn-secondary {
+  background-color: var(--border-card);
+  border-color: var(--border-card);
+  color: var(--text-primary);
 }
-[data-theme="dark"] .btn-secondary:hover {
-  background-color: #2d333b;
-  border-color: #58a6ff;
-  color: #58a6ff;
+.btn-secondary:hover {
+  background-color: var(--border-focus);
+  border-color: var(--border-focus);
+  color: var(--text-primary);
 }
 
-/* Form switches (category toggles) */
-[data-theme="dark"] .form-check-input {
-  background-color: #21262d;
-  border-color: #30363d;
+/* Form Select Controls */
+.form-select {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-card) !important;
+  color: var(--text-primary) !important;
 }
-[data-theme="dark"] .form-check-input:checked {
-  background-color: #388bfd;
-  border-color: #388bfd;
+.form-select:focus {
+  border-color: var(--border-focus) !important;
+  box-shadow: 0 0 0 0.25rem var(--shadow-focus) !important;
 }
-[data-theme="dark"] .form-check-input:disabled {
+.form-select option {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+}
+
+/* Form Switches (Category Toggles) */
+.form-check-input {
+  background-color: var(--bg-card-past);
+  border-color: var(--border-card);
+}
+.form-check-input:checked {
+  background-color: var(--border-focus);
+  border-color: var(--border-focus);
+}
+.form-check-input:disabled {
   opacity: 0.4;
 }
 
-/* Range slider thumb */
-[data-theme="dark"] .form-range::-webkit-slider-thumb { background-color: #388bfd; }
-[data-theme="dark"] .form-range::-moz-range-thumb     { background-color: #388bfd; border-color: #388bfd; }
-[data-theme="dark"] .form-range::-webkit-slider-runnable-track { background-color: #21262d; }
-
-/* =============================================================================
-   BOOTSTRAP COMPONENT OVERRIDES — PINK MODE
-   ============================================================================= */
-
-/* Page & container backgrounds */
-[data-theme="pink"] body,
-[data-theme="pink"] .bg-light { background-color: #ffe8f2 !important; color: #5b0030 !important; }
-
-/* Generic border utility */
-[data-theme="pink"] .border,
-[data-theme="pink"] .border-bottom { border-color: #f472b6 !important; }
-
-/* Text utilities */
-[data-theme="pink"] .text-muted     { color: #be5a84 !important; }
-[data-theme="pink"] .text-dark      { color: #5b0030 !important; }
-[data-theme="pink"] .text-secondary { color: #be5a84 !important; }
-
-/* Links */
-[data-theme="pink"] a { color: #db2777; }
-[data-theme="pink"] a:hover { color: #9d174d; }
-
-/* VR divider */
-[data-theme="pink"] .vr { background-color: #f472b6; }
-
-/* Badges */
-[data-theme="pink"] .text-bg-light {
-  background-color: #fce7f3 !important;
-  color: #9d174d !important;
+/* Form Range Controls */
+.form-range::-webkit-slider-thumb {
+  background-color: var(--border-focus);
 }
-[data-theme="pink"] .text-bg-warning {
-  background-color: #fce7f3 !important;
-  color: #9d174d !important;
+.form-range::-moz-range-thumb {
+  background-color: var(--border-focus);
+  border-color: var(--border-focus);
+}
+.form-range::-webkit-slider-runnable-track {
+  background-color: var(--border-card);
 }
 
-/* btn-outline-secondary */
-[data-theme="pink"] .btn-outline-secondary {
-  color: #9d174d;
-  border-color: #f9a8d4;
-  background-color: transparent;
+/* Custom modal close button */
+[data-theme]:not([data-theme="light"]) .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
 }
-[data-theme="pink"] .btn-outline-secondary:hover,
-[data-theme="pink"] .btn-outline-secondary:focus {
-  background-color: #fce7f3;
-  border-color: #db2777;
-  color: #9d174d;
-}
-
-/* btn-secondary (used by active keyboard toggle) */
-[data-theme="pink"] .btn-secondary {
-  background-color: #f9a8d4;
-  border-color: #f472b6;
-  color: #5b0030;
-}
-[data-theme="pink"] .btn-secondary:hover {
-  background-color: #f472b6;
-  border-color: #db2777;
-  color: #5b0030;
-}
-
-/* Form switches (category toggles) */
-[data-theme="pink"] .form-check-input {
-  background-color: #fce7f3;
-  border-color: #f9a8d4;
-}
-[data-theme="pink"] .form-check-input:checked {
-  background-color: #ec4899;
-  border-color: #ec4899;
-}
-[data-theme="pink"] .form-check-input:disabled {
-  opacity: 0.45;
-}
-
-/* Range slider thumb */
-[data-theme="pink"] .form-range::-webkit-slider-thumb { background-color: #ec4899; }
-[data-theme="pink"] .form-range::-moz-range-thumb     { background-color: #ec4899; border-color: #ec4899; }
-[data-theme="pink"] .form-range::-webkit-slider-runnable-track { background-color: #fce7f3; }

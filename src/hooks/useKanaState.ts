@@ -1,8 +1,7 @@
 import { useReducer, useMemo, Dispatch } from 'react';
-// import useLocalStorageState from 'use-local-storage-state';
 import { KanaState, KanaAction, KanaCategoryId } from '@/types/kana';
-import { LOOKAHEAD, initialState, allInputCharactersArray } from '@/constants/kanas';
-import { repositionKana, getActiveQueue } from '@/utils/srs';
+import { LOOKAHEAD, initialState } from '@/constants/kanas';
+import { repositionKana, getActiveQueue, migrateLoadedState } from '@/utils/srs';
 
 // Re-export types and constants so existing consumers can import from either location
 export { LOOKAHEAD };
@@ -12,15 +11,14 @@ export type { KanaState, KanaAction, KanaCategoryId };
  * Custom hook managing the Kana training session and SRS algorithm.
  *
  * Provides:
- * - `state`: current master queue, ease factors, priority values, answer count, and category switch states.
- * - `dispatch`: action dispatcher for 'correct', 'wrong', 'loadState', 'toggleCategory', and 'setCategories'.
+ * - `state`: current queue, Leitner stages, due steps, mistakes, answer count, categories, and settings.
+ * - `dispatch`: action dispatcher for 'correct', 'wrong', 'loadState', 'toggleCategory', 'setCategories', 'updateSettings'.
  * - `lookahead`: count of upcoming items displayed to the user.
  * - `activeQueue`: characters currently enabled for the quiz, derived from master queue and category switches.
  *
  * @returns [state, dispatch, LOOKAHEAD, activeQueue]
  */
 export default function useKanaState(): [KanaState, Dispatch<KanaAction>, number, string[]] {
-  // Reducer strictly typed with KanaState and KanaAction
   const reducer = (state: KanaState, action: KanaAction): KanaState => {
     // Current active prompt is the first character in the enabled category queue
     const activeQueue = getActiveQueue(state.queue, state.enabledCategories);
@@ -28,58 +26,69 @@ export default function useKanaState(): [KanaState, Dispatch<KanaAction>, number
 
     switch (action.type) {
       case 'correct': {
-        // If active queue is empty or prompt is undefined, return unchanged state
         if (!prompt) {
           return state;
         }
 
-        // Reposition returns both the re-sorted queue AND the updated priority map
-        const { queue: newQueue, priority: newPriority } = repositionKana({
+        // Reschedule the answered character using the Leitner-interval spaced repetition algorithm
+        const {
+          queue: newQueue,
+          stages: newStages,
+          dueSteps: newDueSteps,
+          mistakes: newMistakes,
+          hasLapsed: newHasLapsed,
+          ease: newEase,
+          priority: newPriority,
+        } = repositionKana({
           queue: state.queue,
+          stages: state.stages,
+          dueSteps: state.dueSteps,
+          mistakes: state.mistakes,
+          hasLapsed: state.hasLapsed,
+          charsAnswered: state.charsAnswered,
+          enabledCategories: state.enabledCategories,
           ease: state.ease,
           priority: state.priority,
-          enabledCategories: state.enabledCategories,
         });
 
-        // On correct answer: ease doubles, causing the kana to reappear less frequently
-        const currentEaseVal = state.ease[prompt] ?? 2;
-        const newEaseVal = currentEaseVal * 2;
-        const newEase = { ...state.ease, [prompt]: newEaseVal };
         const newState: KanaState = {
           ...state,
-          ease: newEase,
           queue: newQueue,
-          priority: newPriority, // Save the updated priorities so characters advance!
+          stages: newStages,
+          dueSteps: newDueSteps,
+          mistakes: newMistakes,
+          hasLapsed: newHasLapsed,
+          ease: newEase,
+          priority: newPriority,
           charsAnswered: state.charsAnswered + 1,
         };
-        console.log({ newState });
         return newState;
       }
+
       case 'wrong': {
-        // If active queue is empty or prompt is undefined, return unchanged state
         if (!prompt) {
           return state;
         }
 
-        // On wrong answer: ease is divided by 8 (min 1) so it reappears much sooner
-        const currentEaseVal = state.ease[prompt] ?? 2;
-        const newEase = {
-          ...state.ease,
-          [prompt]: Math.max(1, Math.floor(currentEaseVal / 8)), //,
-          //[action.ans]: Math.max(1, Math.floor(state.ease[action.ans] / 1))
+        // On mistake: flag active attempt as lapsed and record mistake count
+        const newMistakes = {
+          ...state.mistakes,
+          [prompt]: (state.mistakes[prompt] ?? 0) + 1,
         };
+
         const newState: KanaState = {
           ...state,
-          ease: newEase,
+          mistakes: newMistakes,
+          hasLapsed: true,
         };
-        console.log({ newState });
         return newState;
       }
+
       case 'toggleCategory': {
         const current = state.enabledCategories[action.category];
-        // Calculate total count of enabled categories
         const enabledCount = Object.values(state.enabledCategories).filter(Boolean).length;
-        // Safety guard: prevent disabling the last remaining active category so the quiz is never empty
+
+        // Prevent disabling the last remaining active category
         if (current && enabledCount <= 1) {
           return state;
         }
@@ -94,37 +103,49 @@ export default function useKanaState(): [KanaState, Dispatch<KanaAction>, number
           enabledCategories: newEnabledCategories,
         };
       }
+
       case 'setCategories': {
         return {
           ...state,
           enabledCategories: action.categories,
         };
       }
-      case 'loadState': {
-        // Backward-compatibility: support loading old save files seamlessly
-        const loadedQueue = action.state.queue ?? [];
-        // If loading an older save file with fewer characters, gracefully append newly supported characters
-        const missingChars = allInputCharactersArray.filter((c) => !loadedQueue.includes(c));
-        const mergedQueue = [...loadedQueue, ...missingChars];
-        const mergedEase = { ...initialState.ease, ...action.state.ease };
-        const mergedPriority = { ...initialState.priority, ...action.state.priority };
-        // Fall back to initialState defaults if loaded file predates category switch feature
-        const mergedCategories = {
-          ...initialState.enabledCategories,
-          ...action.state.enabledCategories,
-        };
 
+      case 'updateSettings': {
         return {
-          ...initialState,
-          ...action.state,
-          queue: mergedQueue,
-          ease: mergedEase,
-          priority: mergedPriority,
-          enabledCategories: mergedCategories,
+          ...state,
+          settings: {
+            ...state.settings,
+            ...action.settings,
+          },
         };
       }
+
+      case 'resetProgress': {
+        return {
+          ...initialState,
+          enabledCategories: state.enabledCategories,
+          settings: {
+            ...initialState.settings,
+            ...state.settings,
+          },
+        };
+      }
+
+      case 'loadState': {
+        // Robust backward-compatible migration of legacy or current save states
+        const migrated = migrateLoadedState(action.state);
+        return {
+          ...migrated,
+          settings: {
+            ...state.settings,
+            ...(migrated.settings ?? {}),
+          },
+        };
+      }
+
       default:
-        console.log('unrecognized action type:', (action as any).type);
+        console.warn('Unrecognized action type:', (action as any).type);
         return state;
     }
   };

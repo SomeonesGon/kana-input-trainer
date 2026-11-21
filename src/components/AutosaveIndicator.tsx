@@ -48,7 +48,7 @@ export default function AutosaveIndicator({ status }: AutosaveIndicatorProps) {
         className="badge bg-danger-subtle text-danger border border-danger-subtle d-inline-flex align-items-center gap-1"
         title="Could not save to browser storage (storage may be disabled or full)"
       >
-        <span>⚠️</span>
+        <span>!</span>
         <span>Autosave failed</span>
       </span>
     );

@@ -58,7 +58,7 @@ export default function KanaPrompt({ currentKana, lookaheadKanas = '' }: KanaPro
       <div className="kana-badge-container d-flex justify-content-center align-items-center" style={{ minHeight: '32px' }}>
         {smallKanaInfo && !smallKanaSeen ? (
           <span className="badge text-bg-warning px-3 py-1 fw-semibold shadow-sm">
-            ⭐ Small Kana / 小文字 ({smallKanaInfo.label})
+            Small Kana / 小文字 ({smallKanaInfo.label})
           </span>
         ) : null}
       </div>

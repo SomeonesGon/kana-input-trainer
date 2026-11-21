@@ -7,9 +7,32 @@ export const LOOKAHEAD = 1;
 
 /**
  * Baseline ease score assigned to each character at the start.
- * Correct answers double this value; wrong answers divide it by 8 (minimum 1).
+ * Retained for backward-compatible save state exports.
  */
 export const DEFAULT_INITIAL_EASE = 2;
+
+/**
+ * Baseline Leitner stage assigned to each character at the start (Stage 0).
+ */
+export const DEFAULT_INITIAL_STAGE = 0;
+
+/**
+ * Keystroke interval configuration for each Leitner stage:
+ * - Stage 0 (Lapse / New): review immediately within 2 to 3 characters.
+ * - Stage 1 (Reinforce): review in 5 to 7 characters.
+ * - Stage 2 (Familiar): review in 12 to 16 characters.
+ * - Stage 3 (Proficient): review in 25 to 35 characters.
+ * - Stage 4 (Mastered): review in 50 to 70 characters.
+ * - Stage 5 (Retained): review in 100 to 140 characters.
+ */
+export const STAGE_INTERVALS: Record<number, { min: number; max: number }> = {
+  0: { min: 2, max: 3 },
+  1: { min: 5, max: 7 },
+  2: { min: 12, max: 16 },
+  3: { min: 25, max: 35 },
+  4: { min: 50, max: 70 },
+  5: { min: 100, max: 140 },
+};
 
 // =============================================================================
 // Character Sets for Japanese Kana Keyboard (JIS Kana Layout)
@@ -33,7 +56,7 @@ export const BASIC_KANA_CHARACTERS =
  * Total: 13 characters.
  */
 export const SHIFT_MODIFIER_CHARACTERS =
-  'をぁぃぅぇぉっゃゅょゎゕゖ';
+  'をぁぃぅぇぉっゃゅょ';
 
 /**
  * Mapping connecting each small kana character (小文字 / 小書き) to its regular counterpart
@@ -188,6 +211,31 @@ export const allInputCharactersArray: string[] = ALL_KANA_INPUT_CHARACTERS_IN_OR
 export const kanasArray: string[] = allInputCharactersArray;
 
 /**
+ * Initial Leitner stages (0 for all characters).
+ */
+export const initialStages: Record<string, number> = allInputCharactersArray.reduce(
+  (acc, key) => ({ ...acc, [key]: DEFAULT_INITIAL_STAGE }),
+  {}
+);
+
+/**
+ * Initial due steps staggered across the character array so that items
+ * are introduced progressively in touch-typing order.
+ */
+export const initialDueSteps: Record<string, number> = allInputCharactersArray.reduce(
+  (acc, key, i) => ({ ...acc, [key]: i }),
+  {}
+);
+
+/**
+ * Initial mistake counters (0 for all characters).
+ */
+export const initialMistakes: Record<string, number> = allInputCharactersArray.reduce(
+  (acc, key) => ({ ...acc, [key]: 0 }),
+  {}
+);
+
+/**
  * Initial priority map where each character's initial priority is staggered
  * based on its initial index (index * 5), creating a gentle staggered introduction.
  */
@@ -200,9 +248,17 @@ export const initialPriority: Record<string, number> = allInputCharactersArray.r
  * Default initial state for the SRS trainer populated with all kana keyboard input characters.
  */
 export const initialState: KanaState = {
+  stages: initialStages,
+  dueSteps: initialDueSteps,
+  mistakes: initialMistakes,
+  hasLapsed: false,
   ease: allInputCharactersArray.reduce((acc, key) => ({ ...acc, [key]: DEFAULT_INITIAL_EASE }), {}),
   queue: allInputCharactersArray,
   priority: initialPriority,
   charsAnswered: 0,
   enabledCategories: DEFAULT_ENABLED_CATEGORIES,
+  settings: {
+    theme: 'light',
+    showKeyboard: true,
+  },
 };

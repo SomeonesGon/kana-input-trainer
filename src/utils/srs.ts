@@ -1,5 +1,16 @@
-import { LOOKAHEAD, CHARACTER_CATEGORY_MAP, COMPOUND_KANA_BASE_MAP } from '@/constants/kanas';
-import { KanaCategoryId } from '@/types/kana';
+import {
+  LOOKAHEAD,
+  CHARACTER_CATEGORY_MAP,
+  COMPOUND_KANA_BASE_MAP,
+  STAGE_INTERVALS,
+  allInputCharactersArray,
+  initialStages,
+  initialDueSteps,
+  initialMistakes,
+  DEFAULT_ENABLED_CATEGORIES,
+} from '@/constants/kanas';
+import { KanaCategoryId, KanaState, KanaSettings } from '@/types/kana';
+import { Theme } from '@/hooks/useTheme';
 
 /**
  * Result of evaluating user input against the expected prompt.
@@ -56,16 +67,26 @@ export function evaluateKanaInput(
  */
 export interface RepositionKanaParams {
   queue: string[];
-  ease: Record<string, number>;
-  priority: Record<string, number>;
+  stages: Record<string, number>;
+  dueSteps: Record<string, number>;
+  mistakes: Record<string, number>;
+  hasLapsed: boolean;
+  charsAnswered: number;
   enabledCategories: Record<KanaCategoryId, boolean>;
+  ease?: Record<string, number>;
+  priority?: Record<string, number>;
 }
 
 /**
- * Result returned by repositionKana, containing the updated queue and updated priority map.
+ * Result returned by repositionKana, containing the updated queue and SRS records.
  */
 export interface RepositionKanaResult {
   queue: string[];
+  stages: Record<string, number>;
+  dueSteps: Record<string, number>;
+  mistakes: Record<string, number>;
+  hasLapsed: boolean;
+  ease: Record<string, number>;
   priority: Record<string, number>;
 }
 
@@ -96,60 +117,254 @@ export function getActiveQueue(
 }
 
 /**
- * // reposition the first kana in the queue depending on its ease
- *
  * Spaced Repetition (SRS) queue rescheduling algorithm:
- * 1. Takes the currently answered character from the front of the active (enabled) queue.
- * 2. Increments its priority by its ease score plus a random variance (jitter)
- *    to prevent deterministic clumped repetition:
- *    priority += ease + floor(random * (ease / 2))
- * 3. Preserves immediate lookahead characters from the active queue so the next
- *    previewed question doesn't unexpectedly jump away.
- * 4. Re-inserts the answered character into the remaining backlog and sorts all backlog
- *    characters (enabled and disabled) in ascending priority order.
- * 5. Returns both the new master queue and the updated priority map.
  *
- * @param params Object containing current master queue, ease map, priority map, and enabled categories.
- * @returns { queue, priority } updated master queue and priority map.
+ * In-Session Leitner Spaced-Interval Scheduler:
+ * 1. Takes the currently answered character from the front of the active (enabled) queue.
+ * 2. Evaluates mastery progress:
+ *    - If `hasLapsed` is true (user made an error during this attempt):
+ *      drops character to Stage 0 (Lapse) with an immediate re-test interval (2-3 characters)
+ *      to consolidate physical muscle memory.
+ *    - If `hasLapsed` is false:
+ *      promotes character up one stage (up to Stage 5), assigning an exponentially larger interval.
+ * 3. Assigns `newDueStep = charsAnswered + 1 + interval + jitter`.
+ * 4. Preserves the active lookahead character (`activeQueue[1]`) so the upcoming prompt preview
+ *    remains completely stable without jarring jumps.
+ * 5. Selects the next lookahead character by prioritizing characters that are due, while enforcing
+ *    anti-repeat rules to prevent direct echoic repeats.
+ * 6. Sorts the backlog by scheduled due steps so failed characters reappear promptly and mastered
+ *    characters are spaced out.
+ * 7. Maintains backward-compatible `ease` and `priority` fields for compatibility with older save states.
+ *
+ * @param params Full SRS state parameters
+ * @returns Updated queue and SRS scheduling maps
  */
 export function repositionKana({
   queue,
-  ease,
-  priority,
+  stages,
+  dueSteps,
+  mistakes,
+  hasLapsed,
+  charsAnswered,
   enabledCategories,
+  ease = {},
+  priority = {},
 }: RepositionKanaParams): RepositionKanaResult {
-  // Determine which characters are currently enabled for the quiz
   const activeQueue = getActiveQueue(queue, enabledCategories);
-  const kana = activeQueue[0];
-  if (!kana) {
-    return { queue, priority };
+  const currentKana = activeQueue[0];
+
+  if (!currentKana) {
+    return {
+      queue,
+      stages,
+      dueSteps,
+      mistakes,
+      hasLapsed,
+      ease,
+      priority,
+    };
   }
 
-  // Clone priority map to maintain reducer immutability
-  const newPriority = { ...priority };
+  // 1. Calculate stage advancement or lapse reset
+  const currentStage = stages[currentKana] ?? 0;
+  let newStage: number;
 
-  // Fallbacks handle cases where ease or priority might not be initialized
-  const currentEase = ease[kana] ?? 2;
-  const currentPriority = newPriority[kana] ?? 0;
+  if (hasLapsed) {
+    // Lapse penalty: reset to Stage 0 for immediate interleaving re-test
+    newStage = 0;
+  } else {
+    // Successful recall on first attempt: advance up to Stage 5
+    newStage = Math.min(5, currentStage + 1);
+  }
 
-  // Calculate new priority with jitter
-  newPriority[kana] = currentPriority + currentEase + Math.floor((Math.random() * currentEase) / 2);
+  // 2. Calculate interval and new due step
+  const intervalConfig = STAGE_INTERVALS[newStage] ?? { min: 2, max: 3 };
+  const jitterRange = intervalConfig.max - intervalConfig.min;
+  const interval = intervalConfig.min + Math.floor(Math.random() * (jitterRange + 1));
+  const newDueStep = charsAnswered + 1 + interval;
 
-  // Preserve the immediate lookahead character from the active queue so user preview stays stable
+  // Clone records for immutability
+  const newStages = { ...stages, [currentKana]: newStage };
+  const newDueSteps = { ...dueSteps, [currentKana]: newDueStep };
+  const newMistakes = { ...mistakes };
+
+  // Calculate backward-compatible ease and priority
+  const newEase = {
+    ...ease,
+    [currentKana]: Math.pow(2, newStage + 1),
+  };
+  const newPriority = {
+    ...priority,
+    [currentKana]: newDueStep,
+  };
+
+  // 3. Preserve the immediate lookahead character from the active queue
+  // activeQueue[1] is guaranteed to be the next active prompt
   const nextLookahead = activeQueue.slice(1, 1 + LOOKAHEAD);
-  const protectedSet = new Set(nextLookahead);
+  const nextPrompt = nextLookahead[0];
 
-  // Collect all other characters from the master queue (excluding answered kana and protected lookahead)
-  const remaining = queue.filter((c) => c !== kana && !protectedSet.has(c));
+  // If there are no other active characters enabled, keep the single character
+  if (!nextPrompt) {
+    return {
+      queue,
+      stages: newStages,
+      dueSteps: newDueSteps,
+      mistakes: newMistakes,
+      hasLapsed: false,
+      ease: newEase,
+      priority: newPriority,
+    };
+  }
 
-  // Re-insert the answered kana into the backlog
-  remaining.push(kana);
+  // 4. Organize backlog of all other characters (excluding the new prompt)
+  const otherChars = queue.filter((c) => c !== nextPrompt);
+  const enabledCandidates = otherChars.filter((c) => isCharacterEnabled(c, enabledCategories));
+  const disabledCandidates = otherChars.filter((c) => !isCharacterEnabled(c, enabledCategories));
 
-  // Sort backlog in ascending order of priority (lower priority score = tested sooner)
-  remaining.sort((a, b) => (newPriority[a] ?? 0) - (newPriority[b] ?? 0));
+  // 5. Select the NEW lookahead character (to follow nextPrompt)
+  // Ensure the answered character does not immediately repeat as lookahead if its interval > 1
+  const eligibleForLookahead = enabledCandidates.filter(
+    (c) => c !== currentKana || interval <= 1
+  );
 
-  // Construct new master queue: protected lookahead first, followed by priority-sorted backlog
-  const newQueue = [...nextLookahead, ...remaining];
+  let chosenNewLookahead: string | undefined;
+  if (eligibleForLookahead.length > 0) {
+    // Sort eligible candidates: lowest dueStep first (most overdue)
+    const sortedEligible = [...eligibleForLookahead].sort((a, b) => {
+      const dueA = newDueSteps[a] ?? 0;
+      const dueB = newDueSteps[b] ?? 0;
+      return dueA - dueB;
+    });
+    chosenNewLookahead = sortedEligible[0];
+  } else if (enabledCandidates.length > 0) {
+    chosenNewLookahead = enabledCandidates[0];
+  }
 
-  return { queue: newQueue, priority: newPriority };
+  // 6. Sort the remaining backlog in ascending order of dueSteps
+  const remainingEnabled = enabledCandidates.filter((c) => c !== chosenNewLookahead);
+  remainingEnabled.sort((a, b) => {
+    const dueA = newDueSteps[a] ?? 0;
+    const dueB = newDueSteps[b] ?? 0;
+    return dueA - dueB;
+  });
+
+  disabledCandidates.sort((a, b) => {
+    const dueA = newDueSteps[a] ?? 0;
+    const dueB = newDueSteps[b] ?? 0;
+    return dueA - dueB;
+  });
+
+  // 7. Construct new master queue:
+  // [nextPrompt, chosenNewLookahead, ...remainingEnabled, ...disabledCandidates]
+  const newActivePortion = [
+    nextPrompt,
+    ...(chosenNewLookahead ? [chosenNewLookahead] : []),
+    ...remainingEnabled,
+  ];
+  const newQueue = [...newActivePortion, ...disabledCandidates];
+
+  return {
+    queue: newQueue,
+    stages: newStages,
+    dueSteps: newDueSteps,
+    mistakes: newMistakes,
+    hasLapsed: false,
+    ease: newEase,
+    priority: newPriority,
+  };
+}
+
+/**
+ * Migrates any version of saved state (legacy v1 or v2 with settings) into a complete,
+ * strongly-typed KanaState without losing user progress.
+ */
+export function migrateLoadedState(
+  loaded: Partial<KanaState> & { theme?: Theme; showKeyboard?: boolean; settings?: KanaSettings }
+): KanaState {
+  const charsAnswered = typeof loaded.charsAnswered === 'number' ? loaded.charsAnswered : 0;
+
+  // 1. Queue: keep loaded order, append any missing supported characters
+  const loadedQueue = Array.isArray(loaded.queue) ? loaded.queue : [];
+  const missingChars = allInputCharactersArray.filter((c) => !loadedQueue.includes(c));
+  const queue = [...loadedQueue, ...missingChars];
+
+  // 2. Categories: merge with defaults
+  const enabledCategories = {
+    ...DEFAULT_ENABLED_CATEGORIES,
+    ...(loaded.enabledCategories ?? {}),
+  };
+
+  // 3. Stages: if stages exists use it; otherwise map legacy ease to Leitner stage
+  const stages: Record<string, number> = {};
+  const loadedStages = loaded.stages;
+  const loadedEase = loaded.ease ?? {};
+
+  for (const char of allInputCharactersArray) {
+    if (loadedStages && typeof loadedStages[char] === 'number') {
+      stages[char] = Math.max(0, Math.min(5, Math.floor(loadedStages[char])));
+    } else if (loadedEase[char] !== undefined) {
+      const e = loadedEase[char];
+      if (e >= 32) stages[char] = 4;
+      else if (e >= 16) stages[char] = 3;
+      else if (e >= 8) stages[char] = 2;
+      else if (e >= 4) stages[char] = 1;
+      else stages[char] = 0;
+    } else {
+      stages[char] = initialStages[char] ?? 0;
+    }
+  }
+
+  // 4. DueSteps: if dueSteps exists use it; otherwise map legacy priority or stagger
+  const dueSteps: Record<string, number> = {};
+  const loadedDueSteps = loaded.dueSteps;
+  const loadedPriority = loaded.priority ?? {};
+
+  for (let i = 0; i < allInputCharactersArray.length; i++) {
+    const char = allInputCharactersArray[i];
+    if (!char) continue;
+    const charDue = loadedDueSteps?.[char];
+    const charPrio = loadedPriority[char];
+    if (typeof charDue === 'number') {
+      dueSteps[char] = charDue;
+    } else if (typeof charPrio === 'number') {
+      dueSteps[char] = charsAnswered + Math.max(0, Math.floor(charPrio / 5));
+    } else {
+      dueSteps[char] = charsAnswered + i;
+    }
+  }
+
+  // 5. Mistakes
+  const mistakes: Record<string, number> = {
+    ...initialMistakes,
+    ...(loaded.mistakes ?? {}),
+  };
+
+  // 6. Ease & Priority for backward compatibility
+  const ease: Record<string, number> = {};
+  const priority: Record<string, number> = {};
+  for (const char of allInputCharactersArray) {
+    ease[char] = Math.pow(2, (stages[char] ?? 0) + 1);
+    priority[char] = dueSteps[char] ?? 0;
+  }
+
+  // 7. Settings (theme, showKeyboard)
+  const settings: KanaSettings = {
+    theme: loaded.settings?.theme ?? loaded.theme ?? 'light',
+    showKeyboard:
+      loaded.settings?.showKeyboard ??
+      (typeof loaded.showKeyboard === 'boolean' ? loaded.showKeyboard : true),
+  };
+
+  return {
+    stages,
+    dueSteps,
+    mistakes,
+    hasLapsed: false,
+    ease,
+    priority,
+    queue,
+    charsAnswered,
+    enabledCategories,
+    settings,
+  };
 }
