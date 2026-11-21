@@ -107,5 +107,6 @@ npm start
 ```
 
 ### To Do
+- Better the pink theme.
 - Correct answer streak visual feedback/reward.
 - Add an option to disable gamification effects.
