@@ -7,6 +7,7 @@ Built with **Next.js**, **React 19**, and **TypeScript** (Strict mode with `noUn
 Forked, parsed into typescript manually, and vibecoded new features.
 ---
 
+
 ## Features
 
 - **Spaced Repetition Algorithm (SRS)**: Dynamically adjusts character presentation frequency based on user recall ease.
@@ -21,6 +22,7 @@ Forked, parsed into typescript manually, and vibecoded new features.
   - **Semi-voiced Kana / Handakuten** (5 chars: `ぱぴぷぺぽ`)
   - **Punctuation & Symbols** (8 chars: `ー`, `、`, `。`, `・`, `「`, `」`, `゛`, `゜`)
 - **Full TypeScript Type Safety**: Fully typed with strict null and unchecked index access checking.
+
 
 ---
 
@@ -106,7 +108,17 @@ npm run build
 npm start
 ```
 
+
+---
+
+## Vercel demo
+[Available here!](https://kana-input-trainer-omega.vercel.app/)
+
+---
 ### To Do
 - Better the pink theme.
 - Correct answer streak visual feedback/reward.
 - Add an option to disable gamification effects.
+- Auto switch theme on level up (disabled by default).
+- Other input modes (add support for pure hiragana and IME inputs).
+
