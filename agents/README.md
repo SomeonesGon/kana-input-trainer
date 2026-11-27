@@ -41,7 +41,18 @@ If you are stepping in to continue or replace another agent's work:
 3. Read the relevant `agents/<previous-pseudonym>.md` log(s) to check for any `IN PROGRESS` or `HANDOFF` entries and verify whether the working tree matches the logged changes.
 4. Ask the owner for your own pseudonym (unless one was already provided), create/update `agents/<your-pseudonym>.md`, and reference the handoff in your first entry.
 
-## 5. Log Entry Template
+## 5. Git Workflow & Commit Rules
+
+1. **Always Pull from `develop` First:** Before creating a branch or starting work, pull the latest changes from `develop` (e.g. `git fetch origin && git checkout develop && git pull origin develop`).
+2. **Work on Feature Branches:** Never commit directly to `main` or `develop`. Create a dedicated feature branch for your task (e.g. `git checkout -b feature/<short-topic>`).
+3. **Minimal Commits:** Keep commits small, focused, and scoped strictly to the changes required for the current step/task—avoid bundling unrelated edits or leftover files.
+4. **Co-Author Attribution:** Every commit message **must** list your agent pseudonym as a co-author using a `Co-authored-by:` trailer at the end of the commit message:
+
+   ```text
+   Co-authored-by: <pseudonym> <<pseudonym>@users.noreply.github.com>
+   ```
+
+## 6. Log Entry Template
 
 ```markdown
 ## YYYY-MM-DD — <Short Task Title>
