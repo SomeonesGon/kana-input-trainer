@@ -1702,104 +1702,19 @@ a,
 
 /* =============================================================================
    CLASSIC MINIMALIST MODE
-   Overrides all themes, gradients, particles, glows, and extra visual jargon
-   to resemble the original clean minimalist Kana Input Trainer.
+   Preserves the active theme's color palette while stripping background
+   gradients, particles, glows, custom fonts, and extra visual jargon to
+   resemble the original clean minimalist Kana Input Trainer.
    ============================================================================= */
 
 html[data-classic="true"] {
-  --bg-page:            #ffffff;
-  --bg-card:            #ffffff;
-  --bg-card-past:       #f8f9fa;
-  --bg-input:           transparent;
-
-  --text-primary:       #212529;
-  --text-muted:         #6c757d;
-  --text-past:          #adb5bd;
-
-  --border-card:        #ced4da;
-  --border-past:        #dee2e6;
-  --border-focus:       #86b7fe;
-  --shadow-focus:       rgba(13, 110, 253, 0.2);
-
-  --correct-bg:         #f8fff9;
-  --correct-border:     #a3cfbb;
-  --correct-past-text:  #6c757d;
-  --wrong-bg:           #fff8f8;
-  --wrong-border:       #f1aeb5;
-  --wrong-past-text:    #a35d64;
-
-  --small-kana-color:   #212529;
   --small-kana-bg:      transparent;
   --small-kana-border:  transparent;
   --small-kana-shadow:  none;
-
-  --lookahead-color:    #adb5bd;
-  --placeholder-color:  #ced4da;
   --active-font:        system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
   background-color: var(--bg-page) !important;
   background-image: none !important;
-  color-scheme: light;
-}
-
-/* Classic Minimalist Dark */
-html[data-classic="true"][data-theme="dark"] {
-  --bg-page:            #0d1117;
-  --bg-card:            #161b22;
-  --bg-card-past:       #161b22;
-  --bg-input:           transparent;
-
-  --text-primary:       #e6edf3;
-  --text-muted:         #8b949e;
-  --text-past:          #6e7681;
-
-  --border-card:        #30363d;
-  --border-past:        #21262d;
-  --border-focus:       #58a6ff;
-  --shadow-focus:       rgba(88, 166, 255, 0.2);
-
-  --correct-bg:         #0f2417;
-  --correct-border:     #2ea043;
-  --correct-past-text:  #56d364;
-  --wrong-bg:           #281012;
-  --wrong-border:       #f85149;
-  --wrong-past-text:    #ff7b72;
-
-  --small-kana-color:   #e6edf3;
-  --lookahead-color:    #6e7681;
-  --placeholder-color:  #484f58;
-
-  color-scheme: dark;
-}
-
-/* Classic Minimalist Pink */
-html[data-classic="true"][data-theme="pink"] {
-  --bg-page:            #ffd6e7;
-  --bg-card:            #fff4f9;
-  --bg-card-past:       #ffe8f2;
-  --bg-input:           transparent;
-
-  --text-primary:       #4a0428;
-  --text-muted:         #9d265c;
-  --text-past:          #c06c96;
-
-  --border-card:        #f472b6;
-  --border-past:        #f9a8d4;
-  --border-focus:       #db2777;
-  --shadow-focus:       rgba(219, 39, 119, 0.22);
-
-  --correct-bg:         #ecfdf5;
-  --correct-border:     #4ade80;
-  --correct-past-text:  #15803d;
-  --wrong-bg:           #fff1f2;
-  --wrong-border:       #fb7185;
-  --wrong-past-text:    #be123c;
-
-  --small-kana-color:   #4a0428;
-  --lookahead-color:    #b84a7e;
-  --placeholder-color:  #f472b6;
-
-  color-scheme: light;
 }
 
 html[data-classic="true"]::before,
@@ -1830,14 +1745,6 @@ html[data-classic="true"] .kana-category-switches {
   background-color: var(--bg-card-past) !important;
   box-shadow: none !important;
   backdrop-filter: none !important;
-}
-
-html[data-classic="true"] .btn-close {
-  filter: none !important;
-}
-
-html[data-classic="true"][data-theme="dark"] .btn-close {
-  filter: invert(1) grayscale(100%) brightness(200%) !important;
 }
 
 /* =============================================================================
