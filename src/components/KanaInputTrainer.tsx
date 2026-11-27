@@ -68,10 +68,13 @@ export default function KanaInputTrainer({
     setBackground,
     triggerLevelUpAnimation,
     setStreakIntensity,
+    triggerStreakBreak,
   } = useTheme();
   const [wasCorrect, setWasCorrect] = useState<boolean>(true);
   const [isShaking, setIsShaking] = useState<boolean>(false);
   const [streakPulseTick, setStreakPulseTick] = useState<number>(0);
+  const [brokenStreak, setBrokenStreak] = useState<number | null>(null);
+  const [streakBreakTick, setStreakBreakTick] = useState<number>(0);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   // Controlled input value ensuring the active typing slot stays clean
   const [inputValue, setInputValue] = useState<string>('');
@@ -112,6 +115,7 @@ export default function KanaInputTrainer({
   const previousLevelRef = useRef<number | null>(null);
   const pendingThemeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const levelUpBannerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const streakBreakTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Whether to automatically switch to newly unlocked themes on level-up (disabled by default)
   const autoSwitchTheme: boolean = state.settings?.autoSwitchTheme ?? false;
@@ -147,8 +151,25 @@ export default function KanaInputTrainer({
       if (levelUpBannerTimerRef.current) {
         clearTimeout(levelUpBannerTimerRef.current);
       }
+      if (streakBreakTimerRef.current) {
+        clearTimeout(streakBreakTimerRef.current);
+      }
     };
   }, []);
+
+  function triggerStreakBreakEffect(lostStreak: number) {
+    if (classicMode || disableGamificationEffects || lostStreak < 20) return;
+    setBrokenStreak(lostStreak);
+    setStreakBreakTick((t) => t + 1);
+    triggerStreakBreak();
+    if (streakBreakTimerRef.current) {
+      clearTimeout(streakBreakTimerRef.current);
+    }
+    streakBreakTimerRef.current = setTimeout(() => {
+      streakBreakTimerRef.current = null;
+      setBrokenStreak(null);
+    }, 1400);
+  }
 
   function triggerDevLevelUpReplay() {
     if (!IS_DEVELOPER_MODE || classicMode || disableGamificationEffects) return;
@@ -464,6 +485,7 @@ export default function KanaInputTrainer({
       dispatch({ type: 'correct' });
       setWasCorrect(true);
       setIsShaking(false);
+      setBrokenStreak(null);
       if (!classicMode && !disableGamificationEffects && streak + 1 >= 20) {
         setStreakPulseTick((t) => t + 1);
       }
@@ -480,8 +502,12 @@ export default function KanaInputTrainer({
     } else if (result === 'wrong') {
       const ans = val.length > 0 ? val[val.length - 1] : undefined;
       console.log('dispatch wrong');
+      const lostStreak = streak;
       dispatch({ type: 'wrong', ans });
       setWasCorrect(false);
+      if (lostStreak >= 20) {
+        triggerStreakBreakEffect(lostStreak);
+      }
       if (!classicMode) {
         // Trigger horizontal shake animation (resetting first to guarantee re-trigger on consecutive mistakes)
         setIsShaking(false);
@@ -573,6 +599,7 @@ export default function KanaInputTrainer({
               stats={gamificationStats}
               statsOnly={disableGamificationEffects}
               streakInfo={streakInfo}
+              brokenStreak={brokenStreak}
             />
           )}
 
@@ -627,6 +654,19 @@ export default function KanaInputTrainer({
                     {val}
                   </button>
                 ))}
+                <button
+                  type="button"
+                  className="btn btn-outline-danger btn-sm py-0 px-2"
+                  style={{ fontSize: '0.7rem' }}
+                  onClick={() => {
+                    const lost = streak >= 20 ? streak : 25;
+                    dispatch({ type: 'setStreak', streak: 0 });
+                    triggerStreakBreakEffect(lost);
+                  }}
+                  title="Reset streak to 0 and preview the streak break effect"
+                >
+                  Break
+                </button>
               </div>
 
               {/* Developer Mode Level & Level-Up/Down Controls */}
@@ -746,11 +786,20 @@ export default function KanaInputTrainer({
                 aria-hidden="true"
               />
             )}
+            {!classicMode && !disableGamificationEffects && brokenStreak !== null && streakBreakTick > 0 && (
+              <div
+                key={`break-ring-${streakBreakTick}`}
+                className="kana-streak-break-ring"
+                aria-hidden="true"
+              />
+            )}
             <div
               className={`kana-input-card ${wasCorrect ? 'was-correct' : 'was-wrong'} ${
                 isShaking ? 'shake-wrong' : ''
               } ${
                 !classicMode && !disableGamificationEffects && streakInfo.isActive ? 'is-streaking' : ''
+              } ${
+                !classicMode && !disableGamificationEffects && brokenStreak !== null ? 'is-streak-broken' : ''
               }`}
               style={
                 !classicMode && !disableGamificationEffects && streakInfo.isActive

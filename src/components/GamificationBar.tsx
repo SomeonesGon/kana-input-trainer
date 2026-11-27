@@ -7,6 +7,8 @@ interface GamificationBarProps {
   statsOnly?: boolean;
   /** Active streak intensity details (effects activate at 20+ consecutive correct answers) */
   streakInfo?: StreakInfo;
+  /** Non-null briefly after a 20+ streak is broken to show a streak-lost indicator */
+  brokenStreak?: number | null;
 }
 
 /**
@@ -18,6 +20,7 @@ export default function GamificationBar({
   stats,
   statsOnly = false,
   streakInfo,
+  brokenStreak = null,
 }: GamificationBarProps) {
   const {
     level,
@@ -33,11 +36,14 @@ export default function GamificationBar({
   } = stats;
 
   const isStreaking = !statsOnly && Boolean(streakInfo?.isActive);
+  const isStreakBroken = !statsOnly && !isStreaking && brokenStreak !== null && brokenStreak >= 20;
   const streakIntensity = streakInfo?.intensity ?? 0;
 
   return (
     <div
-      className={`gamification-bar p-2 rounded-2 ${isStreaking ? 'is-streaking' : ''}`}
+      className={`gamification-bar p-2 rounded-2 ${isStreaking ? 'is-streaking' : ''} ${
+        isStreakBroken ? 'is-streak-broken' : ''
+      }`}
       style={
         {
           maxWidth: '380px',
@@ -49,7 +55,7 @@ export default function GamificationBar({
     >
       {!statsOnly && (
         <>
-          {/* Top line: Level badge, optional 20+ Streak badge, and XP text */}
+          {/* Top line: Level badge, optional 20+ Streak / Streak Lost badge, and XP text */}
           <div className="d-flex align-items-center justify-content-between gap-2 mb-1">
             <div className="d-flex align-items-center gap-1">
               <span
@@ -65,6 +71,15 @@ export default function GamificationBar({
                   title={`Correct answer streak: ${streakInfo.streak}`}
                 >
                   {streakInfo.streak} STREAK
+                </span>
+              )}
+              {isStreakBroken && (
+                <span
+                  className="badge px-2 py-0 fw-bold gamification-streak-broken-badge"
+                  style={{ fontSize: '0.7rem', letterSpacing: '0.04em' }}
+                  title={`Streak of ${brokenStreak} broken`}
+                >
+                  {brokenStreak} STREAK LOST
                 </span>
               )}
             </div>

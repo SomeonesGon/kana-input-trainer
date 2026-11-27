@@ -35,6 +35,7 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
   const [isLevelingUp, setIsLevelingUp] = useState<boolean>(false);
   const [levelUpTick, setLevelUpTick] = useState<number>(0);
   const [streakIntensity, setStreakIntensity] = useState<number>(0);
+  const [streakBreakTick, setStreakBreakTick] = useState<number>(0);
   const levelUpTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Compute resolved font and background
@@ -137,6 +138,10 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
     }, 4200);
   }, []);
 
+  const triggerStreakBreak = useCallback(() => {
+    setStreakBreakTick((c) => c + 1);
+  }, []);
+
   return (
     <ThemeContext.Provider
       value={{
@@ -153,6 +158,8 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
         triggerLevelUpAnimation,
         streakIntensity,
         setStreakIntensity,
+        streakBreakTick,
+        triggerStreakBreak,
       }}
     >
       {children}

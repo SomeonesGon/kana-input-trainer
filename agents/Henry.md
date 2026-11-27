@@ -1,5 +1,34 @@
 # Agent Log — Henry
 
+## 2026-11-27 — Streak Break Visual Effect
+
+- **Pseudonym:** Henry
+- **Model:** Gemini 4 Hydrogen
+- **Status:** `COMPLETED`
+- **Branch / Base Commit:** `feature/correct-answer-streak` (`51fd8ca`)
+
+### Goal
+Add a visual **streak break effect** when a user breaks an active `20+` correct-answer streak (via a wrong answer or developer test trigger), visible on the GamificationBar, input box, and background (disabled in Classic / Disable Gamification Effects modes).
+
+### Planned Steps
+- [x] Add `streakBreakTick` / `triggerStreakBreak()` to `ThemeContext` (`src/hooks/useTheme.ts`, `src/components/ThemeProvider.tsx`) and render `.bg-streak-break-flash` in `src/components/BackgroundParticles.tsx`.
+- [x] Track `brokenStreak` / `streakBreakTick` in `src/components/KanaInputTrainer.tsx` when breaking a `20+` streak on `'wrong'` (plus a Dev `Break` test button in `IS_DEVELOPER_MODE`).
+- [x] Show temporary `STREAK LOST` badge & flash on `src/components/GamificationBar.tsx` and `.kana-streak-break-ring` on `.kana-input-card`.
+- [x] Add CSS animations in `src/styles/globals.css` (with `prefers-reduced-motion` support).
+- [x] Verify with `npx tsc --noEmit`, update `agents/Henry.md` to `COMPLETED`, and commit minimally with `Co-authored-by: Henry <Henry@users.noreply.github.com>`.
+
+### Changes Made
+- `src/hooks/useTheme.ts` & `src/components/ThemeProvider.tsx` — Added `streakBreakTick` and `triggerStreakBreak()`.
+- `src/components/BackgroundParticles.tsx` — Added temporary `.bg-streak-break-flash` radial crimson flash when `streakBreakTick` increments.
+- `src/components/GamificationBar.tsx` — Added `brokenStreak` prop showing a `{brokenStreak} STREAK LOST` badge and `.is-streak-broken` flash.
+- `src/components/KanaInputTrainer.tsx` — Triggered `triggerStreakBreakEffect(lostStreak)` on `'wrong'` when `streak >= 20`, rendered `.kana-streak-break-ring` + `.is-streak-broken`, and added a **Break** button in the Dev Streak Preview controls.
+- `src/styles/globals.css` — Added streak break animations across GamificationBar, input card, and background, plus `prefers-reduced-motion` guards.
+
+### Verification
+- `npx tsc --noEmit` — passed (exit code `0`).
+
+---
+
 ## 2026-11-27 — Developer Invincible Mode
 
 - **Pseudonym:** Henry

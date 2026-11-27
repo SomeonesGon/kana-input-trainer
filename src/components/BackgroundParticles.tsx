@@ -597,12 +597,18 @@ function renderLayerParticles(layer: ParticleLayer, animClass: string) {
  * On Level-Up, triggers a celebratory shower streaking across the sky!
  */
 export default function BackgroundParticles() {
-  const { effectiveBackground, levelUpTick = 0, streakIntensity = 0 } = useTheme();
+  const {
+    effectiveBackground,
+    levelUpTick = 0,
+    streakIntensity = 0,
+    streakBreakTick = 0,
+  } = useTheme();
   const [activeLayer, setActiveLayer] = useState<ParticleLayer | null>(null);
   const [outgoingLayer, setOutgoingLayer] = useState<ParticleLayer | null>(null);
   const [isEntering, setIsEntering] = useState(false);
   const [celebrationBatches, setCelebrationBatches] = useState<CelebrationBatch[]>([]);
   const [streakSparks, setStreakSparks] = useState<Particle[]>([]);
+  const [activeBreakTick, setActiveBreakTick] = useState<number>(0);
   const [mounted, setMounted] = useState(false);
 
   const layerSeqRef = useRef(0);
@@ -680,6 +686,16 @@ export default function BackgroundParticles() {
     batchTimersRef.current.push(timer);
   }, [levelUpTick, mounted]);
 
+  // Trigger a brief crimson flash across the background when a 20+ streak is broken
+  useEffect(() => {
+    if (!mounted || streakBreakTick <= 0) return;
+    setActiveBreakTick(streakBreakTick);
+    const timer = setTimeout(() => {
+      setActiveBreakTick(0);
+    }, 950);
+    return () => clearTimeout(timer);
+  }, [streakBreakTick, mounted]);
+
   if (!mounted || !activeLayer) return null;
 
   const hasStreak = streakIntensity > 0;
@@ -692,6 +708,9 @@ export default function BackgroundParticles() {
       aria-hidden="true"
     >
       {hasStreak && <div className="bg-streak-aura" />}
+      {activeBreakTick > 0 && (
+        <div key={`break-flash-${activeBreakTick}`} className="bg-streak-break-flash" />
+      )}
       {outgoingLayer && renderLayerParticles(outgoingLayer, 'bg-particles-layer--leaving')}
       {renderLayerParticles(activeLayer, isEntering ? 'bg-particles-layer--entering' : '')}
 

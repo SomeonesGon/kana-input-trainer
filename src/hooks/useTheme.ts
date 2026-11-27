@@ -398,6 +398,9 @@ export interface ThemeContextValue {
   /** Normalized streak intensity (0 when streak < 20 or effects disabled, up to 1 at 100+) */
   streakIntensity: number;
   setStreakIntensity: (intensity: number) => void;
+  /** Monotonically incremented when a 20+ streak is broken */
+  streakBreakTick: number;
+  triggerStreakBreak: () => void;
 }
 
 /**
@@ -417,6 +420,8 @@ export const ThemeContext = createContext<ThemeContextValue>({
   triggerLevelUpAnimation: () => undefined,
   streakIntensity: 0,
   setStreakIntensity: () => undefined,
+  streakBreakTick: 0,
+  triggerStreakBreak: () => undefined,
 });
 
 /**
