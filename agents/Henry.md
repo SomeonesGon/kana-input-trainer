@@ -1,5 +1,29 @@
 # Agent Log — Henry
 
+## 2026-11-27 — Developer Invincible Mode
+
+- **Pseudonym:** Henry
+- **Model:** Gemini 4 Hydrogen
+- **Status:** `COMPLETED`
+- **Branch / Base Commit:** `feature/correct-answer-streak` (`40f6e1a`)
+
+### Goal
+Add an **Invincible Mode** toggle to the `DEVELOPER_MODE=true` panel so that any non-empty input counts as a correct answer (for fast testing of streaks, levels, and effects).
+
+### Planned Steps
+- [x] Add `devInvincibleMode` state in `src/components/KanaInputTrainer.tsx` (only effective when `IS_DEVELOPER_MODE` is true).
+- [x] Treat any non-empty input as `'correct'` in `handleInputChange` when `IS_DEVELOPER_MODE && devInvincibleMode` is enabled.
+- [x] Add an **Invincible Mode** toggle switch in the `IS_DEVELOPER_MODE` developer panel.
+- [x] Verify with `npx tsc --noEmit`, update `agents/Henry.md` to `COMPLETED`, and commit minimally with `Co-authored-by: Henry <Henry@users.noreply.github.com>`.
+
+### Changes Made
+- `src/components/KanaInputTrainer.tsx` — Added `devInvincibleMode` state (default `false`), bypassed `evaluateKanaInput` with `'correct'` on any non-empty input when `IS_DEVELOPER_MODE && devInvincibleMode` is active, and added the **Dev: Invincible Mode** toggle switch in the developer panel.
+
+### Verification
+- `npx tsc --noEmit` — passed (exit code `0`).
+
+---
+
 ## 2026-11-27 — Developer Level Controls (Change Level, Level Up / Level Down Events)
 
 - **Pseudonym:** Henry

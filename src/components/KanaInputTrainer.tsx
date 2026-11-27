@@ -84,8 +84,9 @@ export default function KanaInputTrainer({
   const keystrokeTimestampsRef = useRef<number[]>([]);
   const [speedCPM, setSpeedCPM] = useState<number>(0);
 
-  // Developer Mode level override (null = use real computed level)
+  // Developer Mode overrides (only active when IS_DEVELOPER_MODE is true)
   const [devLevelOverride, setDevLevelOverride] = useState<number | null>(null);
+  const [devInvincibleMode, setDevInvincibleMode] = useState<boolean>(false);
 
   // Computed gamification metrics (Level, XP, Coverage, Accuracy, Speed)
   const baseGamificationStats = useMemo(
@@ -439,7 +440,10 @@ export default function KanaInputTrainer({
     const val = e.target.value;
     const targetKana = activePrompt;
 
-    const result = evaluateKanaInput(val, targetKana, inputMode);
+    const result =
+      IS_DEVELOPER_MODE && devInvincibleMode && val.length > 0 && targetKana
+        ? 'correct'
+        : evaluateKanaInput(val, targetKana, inputMode);
 
     if (result === 'correct') {
       console.log('dispatch correct');
@@ -695,6 +699,31 @@ export default function KanaInputTrainer({
                     </button>
                   ))}
                 </div>
+              </div>
+
+              {/* Developer Mode Invincible Mode Toggle */}
+              <div className="form-check form-switch d-flex align-items-center justify-content-between ps-0 pt-2 mt-2 border-top">
+                <label
+                  className="form-check-label user-select-none mb-0"
+                  htmlFor="dev-invincible-mode-toggle"
+                  style={{ cursor: 'pointer', color: 'var(--text-primary)' }}
+                >
+                  <span className="fw-bold text-uppercase" style={{ letterSpacing: '0.04em' }}>
+                    Dev: Invincible Mode
+                  </span>
+                  <span className="d-block" style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
+                    Every keystroke counts as correct
+                  </span>
+                </label>
+                <input
+                  className="form-check-input ms-2 flex-shrink-0"
+                  type="checkbox"
+                  role="switch"
+                  id="dev-invincible-mode-toggle"
+                  checked={devInvincibleMode}
+                  onChange={() => setDevInvincibleMode((v) => !v)}
+                  style={{ cursor: 'pointer' }}
+                />
               </div>
             </div>
           )}
