@@ -189,7 +189,7 @@ export default function SettingsModal({
               >
                 <span className="fw-medium">Classic minimalist mode</span>
                 <span className="d-block text-muted" style={{ fontSize: '0.75rem' }}>
-                  Disables all themes, animations, and extra UI for a clean original look
+                  Keeps active theme colors while disabling animations, particles, and extra UI
                 </span>
               </label>
               <input
