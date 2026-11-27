@@ -6,6 +6,7 @@ import KanaPrompt from '@/components/KanaPrompt';
 import KanaCategorySwitches from '@/components/KanaCategorySwitches';
 import AutosaveIndicator from '@/components/AutosaveIndicator';
 import SettingsModal from '@/components/SettingsModal';
+import { AppearanceCustomizer } from '@/components/ThemeSelector';
 import GamificationBar from '@/components/GamificationBar';
 import LevelUpBanner from '@/components/LevelUpBanner';
 import { evaluateKanaInput } from '@/utils/srs';
@@ -87,9 +88,11 @@ export default function KanaInputTrainer({
   const keystrokeTimestampsRef = useRef<number[]>([]);
   const [speedCPM, setSpeedCPM] = useState<number>(0);
 
-  // Developer Mode overrides (only active when IS_DEVELOPER_MODE is true)
+  // Developer Mode overrides & collapsible panel states (only active when IS_DEVELOPER_MODE is true)
   const [devLevelOverride, setDevLevelOverride] = useState<number | null>(null);
   const [devInvincibleMode, setDevInvincibleMode] = useState<boolean>(false);
+  const [devToolsOpen, setDevToolsOpen] = useState<boolean>(true);
+  const [devSettingsOpen, setDevSettingsOpen] = useState<boolean>(false);
 
   // Computed gamification metrics (Level, XP, Coverage, Accuracy, Speed)
   const baseGamificationStats = useMemo(
@@ -603,169 +606,302 @@ export default function KanaInputTrainer({
             />
           )}
 
-          {/* Developer Mode Streak Switcher (only enabled when DEVELOPER_MODE=true in .env) */}
+          {/* Developer Mode Tools & Quick Settings (only enabled when DEVELOPER_MODE=true in .env) */}
           {IS_DEVELOPER_MODE && (
-            <div
-              className="mt-2 p-2 rounded-2 border"
-              style={{
-                maxWidth: '380px',
-                backgroundColor: 'var(--bg-card-past, rgba(0, 0, 0, 0.04))',
-                borderColor: 'var(--border-past, rgba(0, 0, 0, 0.15))',
-                fontSize: '0.75rem',
-              }}
-            >
-              <div className="d-flex align-items-center justify-content-between mb-1">
-                <span className="fw-bold text-uppercase" style={{ letterSpacing: '0.04em', color: 'var(--text-primary)' }}>
-                  Dev: Streak Preview
-                </span>
-                <span style={{ color: 'var(--text-muted)' }}>
-                  {streak} ({Math.round(streakInfo.intensity * 100)}%)
-                </span>
-              </div>
-              <input
-                type="range"
-                className="form-range mb-1"
-                min={0}
-                max={120}
-                value={Math.min(120, streak)}
-                onChange={(e) => {
-                  const next = Number(e.target.value);
-                  dispatch({ type: 'setStreak', streak: next });
-                  if (next >= 20 && !classicMode && !disableGamificationEffects) {
-                    setStreakPulseTick((t) => t + 1);
-                  }
+            <>
+              <div
+                className="mt-2 p-2 rounded-2 border"
+                style={{
+                  maxWidth: '380px',
+                  backgroundColor: 'var(--bg-card-past, rgba(0, 0, 0, 0.04))',
+                  borderColor: 'var(--border-past, rgba(0, 0, 0, 0.15))',
+                  fontSize: '0.75rem',
                 }}
-                aria-label="Developer streak value slider"
-              />
-              <div className="d-flex flex-wrap gap-1 mb-2">
-                {[0, 20, 35, 50, 80, 100].map((val) => (
-                  <button
-                    key={val}
-                    type="button"
-                    className={`btn btn-sm py-0 px-2 ${streak === val ? 'btn-primary' : 'btn-outline-secondary'}`}
-                    style={{ fontSize: '0.7rem' }}
-                    onClick={() => {
-                      dispatch({ type: 'setStreak', streak: val });
-                      if (val >= 20 && !classicMode && !disableGamificationEffects) {
-                        setStreakPulseTick((t) => t + 1);
-                      }
-                    }}
-                  >
-                    {val}
-                  </button>
-                ))}
+              >
                 <button
                   type="button"
-                  className="btn btn-outline-danger btn-sm py-0 px-2"
-                  style={{ fontSize: '0.7rem' }}
-                  onClick={() => {
-                    const lost = streak >= 20 ? streak : 25;
-                    dispatch({ type: 'setStreak', streak: 0 });
-                    triggerStreakBreakEffect(lost);
-                  }}
-                  title="Reset streak to 0 and preview the streak break effect"
-                >
-                  Break
-                </button>
-              </div>
-
-              {/* Developer Mode Level & Level-Up/Down Controls */}
-              <div className="pt-2 mt-2 border-top">
-                <div className="d-flex align-items-center justify-content-between mb-1">
-                  <span className="fw-bold text-uppercase" style={{ letterSpacing: '0.04em', color: 'var(--text-primary)' }}>
-                    Dev: Level &amp; Events
-                  </span>
-                  <div className="d-flex align-items-center gap-1">
-                    <span style={{ color: 'var(--text-muted)' }}>
-                      Lvl {gamificationStats.level} ({devLevelOverride !== null ? 'Override' : 'Real'})
-                    </span>
-                    {devLevelOverride !== null && (
-                      <button
-                        type="button"
-                        className="btn btn-outline-secondary btn-sm py-0 px-1"
-                        style={{ fontSize: '0.65rem' }}
-                        onClick={() => setDevLevelOverride(null)}
-                        title="Restore real computed level"
-                      >
-                        Reset
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                <div className="d-flex flex-wrap gap-1 mb-1">
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary btn-sm py-0 px-2"
-                    style={{ fontSize: '0.7rem' }}
-                    disabled={gamificationStats.level <= 1}
-                    onClick={() => setDevLevelOverride(Math.max(1, gamificationStats.level - 1))}
-                    title="Trigger level down (-1)"
-                  >
-                    -1 Level Down
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-outline-primary btn-sm py-0 px-2"
-                    style={{ fontSize: '0.7rem' }}
-                    onClick={() => setDevLevelOverride(gamificationStats.level + 1)}
-                    title="Trigger level up (+1)"
-                  >
-                    +1 Level Up
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary btn-sm py-0 px-2"
-                    style={{ fontSize: '0.7rem' }}
-                    onClick={triggerDevLevelUpReplay}
-                    title="Replay level-up banner & background shower at current level"
-                  >
-                    Replay FX
-                  </button>
-                </div>
-
-                <div className="d-flex flex-wrap gap-1">
-                  {[1, 2, 3, 5, 7, 10, 11].map((lvl) => (
-                    <button
-                      key={lvl}
-                      type="button"
-                      className={`btn btn-sm py-0 px-2 ${
-                        gamificationStats.level === lvl ? 'btn-primary' : 'btn-outline-secondary'
-                      }`}
-                      style={{ fontSize: '0.7rem' }}
-                      onClick={() => setDevLevelOverride(lvl)}
-                    >
-                      L{lvl}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Developer Mode Invincible Mode Toggle */}
-              <div className="form-check form-switch d-flex align-items-center justify-content-between ps-0 pt-2 mt-2 border-top">
-                <label
-                  className="form-check-label user-select-none mb-0"
-                  htmlFor="dev-invincible-mode-toggle"
-                  style={{ cursor: 'pointer', color: 'var(--text-primary)' }}
+                  className="btn btn-link p-0 w-100 d-flex align-items-center justify-content-between text-decoration-none"
+                  style={{ fontSize: '0.75rem', color: 'var(--text-primary)' }}
+                  onClick={() => setDevToolsOpen((o) => !o)}
+                  aria-expanded={devToolsOpen}
                 >
                   <span className="fw-bold text-uppercase" style={{ letterSpacing: '0.04em' }}>
-                    Dev: Invincible Mode
+                    Dev Tools
                   </span>
-                  <span className="d-block" style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
-                    Every keystroke counts as correct
-                  </span>
-                </label>
-                <input
-                  className="form-check-input ms-2 flex-shrink-0"
-                  type="checkbox"
-                  role="switch"
-                  id="dev-invincible-mode-toggle"
-                  checked={devInvincibleMode}
-                  onChange={() => setDevInvincibleMode((v) => !v)}
-                  style={{ cursor: 'pointer' }}
-                />
+                  <span style={{ color: 'var(--text-muted)' }}>{devToolsOpen ? '▾' : '▸'}</span>
+                </button>
+
+                {devToolsOpen && (
+                  <div className="pt-2 mt-1 border-top">
+                    <div className="d-flex align-items-center justify-content-between mb-1">
+                      <span className="fw-bold text-uppercase" style={{ letterSpacing: '0.04em', color: 'var(--text-primary)' }}>
+                        Dev: Streak Preview
+                      </span>
+                      <span style={{ color: 'var(--text-muted)' }}>
+                        {streak} ({Math.round(streakInfo.intensity * 100)}%)
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      className="form-range mb-1"
+                      min={0}
+                      max={120}
+                      value={Math.min(120, streak)}
+                      onChange={(e) => {
+                        const next = Number(e.target.value);
+                        dispatch({ type: 'setStreak', streak: next });
+                        if (next >= 20 && !classicMode && !disableGamificationEffects) {
+                          setStreakPulseTick((t) => t + 1);
+                        }
+                      }}
+                      aria-label="Developer streak value slider"
+                    />
+                    <div className="d-flex flex-wrap gap-1 mb-2">
+                      {[0, 20, 35, 50, 80, 100].map((val) => (
+                        <button
+                          key={val}
+                          type="button"
+                          className={`btn btn-sm py-0 px-2 ${streak === val ? 'btn-primary' : 'btn-outline-secondary'}`}
+                          style={{ fontSize: '0.7rem' }}
+                          onClick={() => {
+                            dispatch({ type: 'setStreak', streak: val });
+                            if (val >= 20 && !classicMode && !disableGamificationEffects) {
+                              setStreakPulseTick((t) => t + 1);
+                            }
+                          }}
+                        >
+                          {val}
+                        </button>
+                      ))}
+                      <button
+                        type="button"
+                        className="btn btn-outline-danger btn-sm py-0 px-2"
+                        style={{ fontSize: '0.7rem' }}
+                        onClick={() => {
+                          const lost = streak >= 20 ? streak : 25;
+                          dispatch({ type: 'setStreak', streak: 0 });
+                          triggerStreakBreakEffect(lost);
+                        }}
+                        title="Reset streak to 0 and preview the streak break effect"
+                      >
+                        Break
+                      </button>
+                    </div>
+
+                    {/* Developer Mode Level & Level-Up/Down Controls */}
+                    <div className="pt-2 mt-2 border-top">
+                      <div className="d-flex align-items-center justify-content-between mb-1">
+                        <span className="fw-bold text-uppercase" style={{ letterSpacing: '0.04em', color: 'var(--text-primary)' }}>
+                          Dev: Level &amp; Events
+                        </span>
+                        <div className="d-flex align-items-center gap-1">
+                          <span style={{ color: 'var(--text-muted)' }}>
+                            Lvl {gamificationStats.level} ({devLevelOverride !== null ? 'Override' : 'Real'})
+                          </span>
+                          {devLevelOverride !== null && (
+                            <button
+                              type="button"
+                              className="btn btn-outline-secondary btn-sm py-0 px-1"
+                              style={{ fontSize: '0.65rem' }}
+                              onClick={() => setDevLevelOverride(null)}
+                              title="Restore real computed level"
+                            >
+                              Reset
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="d-flex flex-wrap gap-1 mb-1">
+                        <button
+                          type="button"
+                          className="btn btn-outline-secondary btn-sm py-0 px-2"
+                          style={{ fontSize: '0.7rem' }}
+                          disabled={gamificationStats.level <= 1}
+                          onClick={() => setDevLevelOverride(Math.max(1, gamificationStats.level - 1))}
+                          title="Trigger level down (-1)"
+                        >
+                          -1 Level Down
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-outline-primary btn-sm py-0 px-2"
+                          style={{ fontSize: '0.7rem' }}
+                          onClick={() => setDevLevelOverride(gamificationStats.level + 1)}
+                          title="Trigger level up (+1)"
+                        >
+                          +1 Level Up
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-outline-secondary btn-sm py-0 px-2"
+                          style={{ fontSize: '0.7rem' }}
+                          onClick={triggerDevLevelUpReplay}
+                          title="Replay level-up banner & background shower at current level"
+                        >
+                          Replay FX
+                        </button>
+                      </div>
+
+                      <div className="d-flex flex-wrap gap-1">
+                        {[1, 2, 3, 5, 7, 10, 11].map((lvl) => (
+                          <button
+                            key={lvl}
+                            type="button"
+                            className={`btn btn-sm py-0 px-2 ${
+                              gamificationStats.level === lvl ? 'btn-primary' : 'btn-outline-secondary'
+                            }`}
+                            style={{ fontSize: '0.7rem' }}
+                            onClick={() => setDevLevelOverride(lvl)}
+                          >
+                            L{lvl}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Developer Mode Invincible Mode Toggle */}
+                    <div className="form-check form-switch d-flex align-items-center justify-content-between ps-0 pt-2 mt-2 border-top">
+                      <label
+                        className="form-check-label user-select-none mb-0"
+                        htmlFor="dev-invincible-mode-toggle"
+                        style={{ cursor: 'pointer', color: 'var(--text-primary)' }}
+                      >
+                        <span className="fw-bold text-uppercase" style={{ letterSpacing: '0.04em' }}>
+                          Dev: Invincible Mode
+                        </span>
+                        <span className="d-block" style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
+                          Every keystroke counts as correct
+                        </span>
+                      </label>
+                      <input
+                        className="form-check-input ms-2 flex-shrink-0"
+                        type="checkbox"
+                        role="switch"
+                        id="dev-invincible-mode-toggle"
+                        checked={devInvincibleMode}
+                        onChange={() => setDevInvincibleMode((v) => !v)}
+                        style={{ cursor: 'pointer' }}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
+
+              {/* Collapsible Quick Settings below Dev Tools (Dev Mode Only) */}
+              <div
+                className="mt-2 p-2 rounded-2 border"
+                style={{
+                  maxWidth: '380px',
+                  backgroundColor: 'var(--bg-card-past, rgba(0, 0, 0, 0.04))',
+                  borderColor: 'var(--border-past, rgba(0, 0, 0, 0.15))',
+                  fontSize: '0.75rem',
+                }}
+              >
+                <button
+                  type="button"
+                  className="btn btn-link p-0 w-100 d-flex align-items-center justify-content-between text-decoration-none"
+                  style={{ fontSize: '0.75rem', color: 'var(--text-primary)' }}
+                  onClick={() => setDevSettingsOpen((o) => !o)}
+                  aria-expanded={devSettingsOpen}
+                >
+                  <span className="fw-bold text-uppercase" style={{ letterSpacing: '0.04em' }}>
+                    Dev: Quick Settings
+                  </span>
+                  <span style={{ color: 'var(--text-muted)' }}>{devSettingsOpen ? '▾' : '▸'}</span>
+                </button>
+
+                {devSettingsOpen && (
+                  <div className="pt-2 mt-1 border-top d-flex flex-column gap-2">
+                    <AppearanceCustomizer userLevel={gamificationStats.level} />
+
+                    <div className="form-check form-switch d-flex align-items-center justify-content-between ps-0 pt-2 border-top mb-0">
+                      <label
+                        className="form-check-label user-select-none mb-0"
+                        htmlFor="dev-auto-switch-theme-toggle"
+                        style={{ cursor: 'pointer', color: 'var(--text-primary)' }}
+                      >
+                        Auto-switch unlocked themes
+                      </label>
+                      <input
+                        className="form-check-input ms-2 flex-shrink-0"
+                        type="checkbox"
+                        role="switch"
+                        id="dev-auto-switch-theme-toggle"
+                        checked={autoSwitchTheme}
+                        onChange={handleToggleAutoSwitchTheme}
+                        style={{ cursor: 'pointer' }}
+                      />
+                    </div>
+
+                    <div className="form-check form-switch d-flex align-items-center justify-content-between ps-0 mb-0">
+                      <label
+                        className="form-check-label user-select-none mb-0"
+                        htmlFor="dev-disable-gamification-toggle"
+                        style={{ cursor: 'pointer', color: 'var(--text-primary)' }}
+                      >
+                        Disable gamification effects
+                      </label>
+                      <input
+                        className="form-check-input ms-2 flex-shrink-0"
+                        type="checkbox"
+                        role="switch"
+                        id="dev-disable-gamification-toggle"
+                        checked={disableGamificationEffects}
+                        onChange={handleToggleDisableGamificationEffects}
+                        style={{ cursor: 'pointer' }}
+                      />
+                    </div>
+
+                    <div className="form-check form-switch d-flex align-items-center justify-content-between ps-0 mb-0">
+                      <label
+                        className="form-check-label user-select-none mb-0"
+                        htmlFor="dev-classic-mode-toggle"
+                        style={{ cursor: 'pointer', color: 'var(--text-primary)' }}
+                      >
+                        Classic minimalist mode
+                      </label>
+                      <input
+                        className="form-check-input ms-2 flex-shrink-0"
+                        type="checkbox"
+                        role="switch"
+                        id="dev-classic-mode-toggle"
+                        checked={classicMode}
+                        onChange={handleToggleClassicMode}
+                        style={{ cursor: 'pointer' }}
+                      />
+                    </div>
+
+                    <div className="d-flex gap-1 pt-2 border-top">
+                      <button
+                        type="button"
+                        className="btn btn-outline-secondary btn-sm flex-fill py-0"
+                        style={{ fontSize: '0.72rem' }}
+                        onClick={exportState}
+                      >
+                        Export
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-outline-secondary btn-sm flex-fill py-0"
+                        style={{ fontSize: '0.72rem' }}
+                        onClick={importState}
+                      >
+                        Import
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-outline-danger btn-sm flex-fill py-0"
+                        style={{ fontSize: '0.72rem' }}
+                        onClick={() => setIsSettingsOpen(true)}
+                      >
+                        Reset…
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>
           )}
         </div>
 

@@ -1,5 +1,30 @@
 # Agent Log — Henry
 
+## 2026-11-27 — Collapsible Dev Tools & Inline Quick Settings (Dev Mode Only)
+
+- **Pseudonym:** Henry
+- **Model:** Gemini 4 Hydrogen
+- **Status:** `COMPLETED`
+- **Branch / Base Commit:** `feature/correct-answer-streak` (`87386de`)
+
+### Goal
+- Make the `IS_DEVELOPER_MODE` Dev Tools panel collapsible.
+- Add a collapsible **Quick Settings** panel directly below the Dev Tools panel on the main screen (visible only when `DEVELOPER_MODE=true`), reusing `AppearanceCustomizer` and the existing settings/backup handlers.
+
+### Planned Steps
+- [x] Add `devToolsOpen` and `devSettingsOpen` toggle states in `src/components/KanaInputTrainer.tsx`.
+- [x] Wrap the existing `IS_DEVELOPER_MODE` Dev Tools panel in a collapsible header/body.
+- [x] Add a collapsible **Dev: Quick Settings** card below it using `AppearanceCustomizer` + toggle switches (`autoSwitchTheme`, `disableGamificationEffects`, `classicMode`) + `Export` / `Import` buttons.
+- [x] Verify with `npx tsc --noEmit`, update `agents/Henry.md` to `COMPLETED`, and commit minimally with `Co-authored-by: Henry <Henry@users.noreply.github.com>`.
+
+### Changes Made
+- `src/components/KanaInputTrainer.tsx` — Added `devToolsOpen` (default `true`) and `devSettingsOpen` (default `false`) collapsible panels inside `IS_DEVELOPER_MODE`, wrapping the Dev Tools card and adding a **Dev: Quick Settings** card below it reusing `AppearanceCustomizer`, settings toggles, and backup/reset triggers.
+
+### Verification
+- `npx tsc --noEmit` — passed (exit code `0`).
+
+---
+
 ## 2026-11-27 — Streak Break Visual Effect
 
 - **Pseudonym:** Henry
