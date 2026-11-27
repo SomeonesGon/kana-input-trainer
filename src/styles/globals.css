@@ -434,6 +434,27 @@ main {
   font-family: var(--active-font, inherit);
 }
 
+/* Normalize 8-Bit Arcade font ('Press Start 2P') whose glyphs are ~1.5x wider */
+html[data-font="arcade"]:not([data-classic="true"]) {
+  font-size: 11.5px;
+}
+
+html[data-font="arcade"]:not([data-classic="true"]) body {
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+}
+
+html[data-font="arcade"]:not([data-classic="true"]) .kana-stage-right {
+  width: fit-content;
+  min-width: 260px;
+  max-width: 100%;
+}
+
+html[data-font="arcade"]:not([data-classic="true"]) .gamification-bar {
+  max-width: 420px !important;
+  width: 100%;
+}
+
 /* =============================================================================
    BACKGROUND PARTICLES  (dark mode: stars | pink mode: hearts)
    ============================================================================= */
