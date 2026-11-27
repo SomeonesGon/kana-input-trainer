@@ -1,5 +1,6 @@
 import React from 'react';
 import { getUnlockedRewardsForLevel } from '@/utils/gamification';
+import SweepText from '@/components/SweepText';
 
 interface LevelUpBannerProps {
   level: number;
@@ -22,11 +23,11 @@ export default function LevelUpBanner({ level }: LevelUpBannerProps) {
       aria-live="polite"
     >
       <span className="fw-bold" style={{ fontSize: '0.8rem', letterSpacing: '0.05em' }}>
-        LEVEL {level} REACHED
+        <SweepText>{`LEVEL ${level} REACHED`}</SweepText>
       </span>
       {unlockedName && (
         <span className="text-muted ms-2" style={{ fontSize: '0.76rem' }}>
-          | Unlocked: {unlockedName}
+          <SweepText>{`| Unlocked: ${unlockedName}`}</SweepText>
         </span>
       )}
     </div>

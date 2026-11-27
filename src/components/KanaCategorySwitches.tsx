@@ -1,6 +1,7 @@
 import React from 'react';
 import { getKanaCategoriesForMode } from '@/constants/kanas';
 import { InputMode, KanaCategoryId } from '@/types/kana';
+import SweepText from '@/components/SweepText';
 
 interface KanaCategorySwitchesProps {
   /** Map of category IDs to their boolean enabled states */
@@ -29,10 +30,10 @@ export default function KanaCategorySwitches({
     <div className="kana-category-switches p-3 border rounded-3 bg-light shadow-sm">
       <div className="d-flex align-items-center justify-content-between border-bottom pb-2 mb-3">
         <span className="text-secondary small fw-bold text-uppercase" style={{ letterSpacing: '0.04em' }}>
-          Categories
+          <SweepText>Categories</SweepText>
         </span>
         <span className="badge text-bg-light border text-muted" style={{ fontSize: '0.75rem' }}>
-          {enabledCount} of {categories.length} active
+          <SweepText>{`${enabledCount} of ${categories.length} active`}</SweepText>
         </span>
       </div>
 
@@ -53,9 +54,9 @@ export default function KanaCategorySwitches({
                 htmlFor={`category-switch-${cat.id}`}
                 style={{ cursor: isOnlyActive ? 'not-allowed' : 'pointer' }}
               >
-                <span className="fw-medium text-dark">{cat.label}</span>{' '}
+                <span className="fw-medium text-dark"><SweepText>{cat.label}</SweepText></span>{' '}
                 <span className="text-muted" style={{ fontSize: '0.75rem' }}>
-                  ({cat.characters.length})
+                  <SweepText>{`(${cat.characters.length})`}</SweepText>
                 </span>
               </label>
               <input

@@ -401,6 +401,10 @@ export interface ThemeContextValue {
   /** Monotonically incremented when a 20+ streak is broken */
   streakBreakTick: number;
   triggerStreakBreak: () => void;
+  /** True while a sequential left-to-right font transition sweep is active */
+  isFontSweeping: boolean;
+  /** Monotonically incremented on each font transition sweep */
+  fontSweepTick: number;
 }
 
 /**
@@ -422,6 +426,8 @@ export const ThemeContext = createContext<ThemeContextValue>({
   setStreakIntensity: () => undefined,
   streakBreakTick: 0,
   triggerStreakBreak: () => undefined,
+  isFontSweeping: false,
+  fontSweepTick: 0,
 });
 
 /**

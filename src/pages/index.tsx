@@ -2,6 +2,7 @@ import Head from 'next/head';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import KanaInputTrainer from '@/components/KanaInputTrainer';
+import SweepText from '@/components/SweepText';
 import kanaInputLayout from '@/images/kana-input-layout.png';
 import { useKeyboardSetting } from '@/hooks/useKeyboardSetting';
 
@@ -81,7 +82,7 @@ export default function Home() {
             }}
           >
             <div className="d-flex align-items-center justify-content-between mb-2">
-              <h5 className="mb-0">How to use</h5>
+              <h5 className="mb-0"><SweepText>How to use</SweepText></h5>
               <button
                 type="button"
                 className="btn btn-outline-secondary btn-sm px-2 py-0"
@@ -89,17 +90,23 @@ export default function Home() {
                 onClick={handleHideHowToUse}
                 title="Hide this guide permanently"
               >
-                Hide Guide (Don&apos;t show again)
+                <SweepText>Hide Guide (Don&apos;t show again)</SweepText>
               </button>
             </div>
-            <p>Click on the text box. Type the kana as shown on the center of the screen.</p>
+            <p><SweepText>Click on the text box. Type the kana as shown on the center of the screen.</SweepText></p>
             <p>
-              Ignore the textbox. Ignore the IME. No need to press backspace, enter, tab, or space. Just focus on pressing the correct key. If experiencing issues try pressing enter to &quot;reset&quot; the IME.
+              <SweepText>Ignore the textbox. Ignore the IME. No need to press backspace, enter, tab, or space. Just focus on pressing the correct key. If experiencing issues try pressing enter to &quot;reset&quot; the IME.</SweepText>
             </p>
-            <h5 className="mt-3">Progress &amp; Backups</h5>
+            <h5 className="mt-3"><SweepText>Progress &amp; Backups</SweepText></h5>
             <ul className="mb-0">
-              <li>Progress and settings (theme, keyboard visibility, category switches) automatically save to your browser&apos;s local storage after every question.</li>
-              <li>Use <strong>Export State</strong> and <strong>Import State</strong> in the top right to download backup files or transfer your training progress across different devices and browsers.</li>
+              <li><SweepText>Progress and settings (theme, keyboard visibility, category switches) automatically save to your browser&apos;s local storage after every question.</SweepText></li>
+              <li>
+                <SweepText>Use </SweepText>
+                <strong><SweepText>Export State</SweepText></strong>
+                <SweepText> and </SweepText>
+                <strong><SweepText>Import State</SweepText></strong>
+                <SweepText> in the top right to download backup files or transfer your training progress across different devices and browsers.</SweepText>
+              </li>
             </ul>
           </div>
         )}

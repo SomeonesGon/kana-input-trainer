@@ -1,5 +1,34 @@
 # Agent Log — Henry
 
+## 2026-11-27 — Sequential Left-to-Right Font Transition on Theme Change
+
+- **Pseudonym:** Henry
+- **Model:** Gemini 4 Hydrogen
+- **Status:** `COMPLETED`
+- **Branch / Base Commit:** `feature/sequential-font-transition` (`ff9b4f6`)
+
+### Goal
+When transitioning between themes (or fonts), switch the font sequentially character-by-character from left to right at a reasonable speed instead of snapping all text at once.
+
+### Planned Steps
+- [x] Add `prevFontFamily`, `isFontSweeping`, and `fontSweepTick` to `ThemeContext` (`src/hooks/useTheme.ts`, `src/components/ThemeProvider.tsx`) so `--prev-font` and sweep state are tracked whenever the resolved font changes after mount (skipped in `classicMode`).
+- [x] Add `@keyframes font-sweep-switch` and `.font-sweep-char` in `src/styles/globals.css` (with `classicMode` and `prefers-reduced-motion: reduce` guards).
+- [x] Create `src/components/SweepText.tsx` to render per-character `<span className="font-sweep-char">` elements with left-to-right `--sweep-delay` only during an active font sweep (returning plain text otherwise).
+- [x] Apply `<SweepText>` across the UI components (`KanaInputTrainer`, `GamificationBar`, `KanaCategorySwitches`, `KanaPrompt`, `SettingsModal`, `ThemeSelector`, `AutosaveIndicator`, `LevelUpBanner`, and `index.tsx`).
+- [x] Verify with `npx tsc --noEmit` and `npm run build`, update `agents/Henry.md` to `COMPLETED`, and commit minimally with `Co-authored-by: Henry <Henry@users.noreply.github.com>`.
+
+### Changes Made
+- `src/hooks/useTheme.ts` & `src/components/ThemeProvider.tsx` — Added `isFontSweeping` and `fontSweepTick` to `ThemeContext`, setting `--prev-font` and triggering a `1250ms` sweep whenever `effectiveFontFamily` changes after hydration (skipped in `classicMode` and `prefers-reduced-motion: reduce`).
+- `src/styles/globals.css` — Added `@keyframes font-sweep-switch` and `.font-sweep-char` (`steps(1, end)` discrete `font-family` switch delayed by `--sweep-delay`), disabled in `html[data-classic="true"]` and `@media (prefers-reduced-motion: reduce)`.
+- `src/components/SweepText.tsx` — Added `SweepText` component that renders plain text at rest and splits characters into inline `.font-sweep-char` spans with viewport-X + character-index delays during an active font sweep.
+- `src/components/KanaInputTrainer.tsx`, `src/components/GamificationBar.tsx`, `src/components/KanaCategorySwitches.tsx`, `src/components/KanaPrompt.tsx`, `src/components/SettingsModal.tsx`, `src/components/ThemeSelector.tsx`, `src/components/AutosaveIndicator.tsx`, `src/components/LevelUpBanner.tsx`, & `src/pages/index.tsx` — Wrapped visible UI text in `<SweepText>`.
+
+### Verification
+- `npx tsc --noEmit` — passed (exit code `0`).
+- `npm run build` — passed (exit code `0`).
+
+---
+
 ## 2026-11-27 — Preserve All Theme Colors in Classic Minimalist Mode
 
 - **Pseudonym:** Henry

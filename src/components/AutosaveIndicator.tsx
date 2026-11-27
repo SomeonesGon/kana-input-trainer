@@ -1,5 +1,6 @@
 import React from 'react';
 import { AutosaveStatus } from '@/hooks/useAutosave';
+import SweepText from '@/components/SweepText';
 
 interface AutosaveIndicatorProps {
   status: AutosaveStatus;
@@ -24,7 +25,7 @@ export default function AutosaveIndicator({ status }: AutosaveIndicatorProps) {
           role="status"
           style={{ width: '0.65rem', height: '0.65rem', borderWidth: '1.5px' }}
         />
-        <span>Saving...</span>
+        <span><SweepText>Saving...</SweepText></span>
       </span>
     );
   }
@@ -37,7 +38,7 @@ export default function AutosaveIndicator({ status }: AutosaveIndicatorProps) {
         style={{ transition: 'all 0.2s ease' }}
       >
         <span>✓</span>
-        <span>Autosaved</span>
+        <span><SweepText>Autosaved</SweepText></span>
       </span>
     );
   }
@@ -49,7 +50,7 @@ export default function AutosaveIndicator({ status }: AutosaveIndicatorProps) {
         title="Could not save to browser storage (storage may be disabled or full)"
       >
         <span>!</span>
-        <span>Autosave failed</span>
+        <span><SweepText>Autosave failed</SweepText></span>
       </span>
     );
   }
@@ -62,7 +63,7 @@ export default function AutosaveIndicator({ status }: AutosaveIndicatorProps) {
       style={{ opacity: 0.85, transition: 'all 0.3s ease' }}
     >
       <span>✓</span>
-      <span>Autosaved</span>
+      <span><SweepText>Autosaved</SweepText></span>
     </span>
   );
 }

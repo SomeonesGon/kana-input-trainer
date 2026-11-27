@@ -1,5 +1,6 @@
 import React from 'react';
 import { GamificationStats, StreakInfo } from '@/utils/gamification';
+import SweepText from '@/components/SweepText';
 
 interface GamificationBarProps {
   stats: GamificationStats;
@@ -62,7 +63,7 @@ export default function GamificationBar({
                 className="badge text-bg-primary px-2 py-0 fw-bold d-flex align-items-center gap-1"
                 style={{ fontSize: '0.72rem', letterSpacing: '0.04em' }}
               >
-                LEVEL {level}
+                <SweepText>{`LEVEL ${level}`}</SweepText>
               </span>
               {isStreaking && streakInfo && (
                 <span
@@ -70,7 +71,7 @@ export default function GamificationBar({
                   style={{ fontSize: '0.7rem', letterSpacing: '0.04em' }}
                   title={`Correct answer streak: ${streakInfo.streak}`}
                 >
-                  {streakInfo.streak} STREAK
+                  <SweepText>{`${streakInfo.streak} STREAK`}</SweepText>
                 </span>
               )}
               {isStreakBroken && (
@@ -79,12 +80,12 @@ export default function GamificationBar({
                   style={{ fontSize: '0.7rem', letterSpacing: '0.04em' }}
                   title={`Streak of ${brokenStreak} broken`}
                 >
-                  {brokenStreak} STREAK LOST
+                  <SweepText>{`${brokenStreak} STREAK LOST`}</SweepText>
                 </span>
               )}
             </div>
             <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-              {currentXP} / {nextLevelXP} XP
+              <SweepText>{`${currentXP} / ${nextLevelXP} XP`}</SweepText>
             </span>
           </div>
 
@@ -111,23 +112,23 @@ export default function GamificationBar({
         style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}
       >
         <span title={`Practiced ${coverageCount} of ${totalCharacters} Kana characters`}>
-          Coverage:{' '}
+          <SweepText>Coverage: </SweepText>
           <strong style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
-            {coveragePercent}%
+            <SweepText>{`${coveragePercent}%`}</SweepText>
           </strong>
         </span>
         <span style={{ opacity: 0.4, color: 'var(--text-muted)' }}>•</span>
         <span title={`All-time typing accuracy: ${stats.totalCorrect} correct, ${stats.totalMistakes} mistakes`}>
-          Accuracy:{' '}
+          <SweepText>Accuracy: </SweepText>
           <strong style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
-            {accuracyPercent}%
+            <SweepText>{`${accuracyPercent}%`}</SweepText>
           </strong>
         </span>
         <span style={{ opacity: 0.4, color: 'var(--text-muted)' }}>•</span>
         <span title={`Typing speed: ${speedCPM} characters/min (~${speedWPM} WPM)`}>
-          Speed:{' '}
+          <SweepText>Speed: </SweepText>
           <strong style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
-            {speedCPM} CPM
+            <SweepText>{`${speedCPM} CPM`}</SweepText>
           </strong>
         </span>
       </div>

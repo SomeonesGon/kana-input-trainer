@@ -1955,7 +1955,25 @@ html[data-classic="true"] .kana-category-switches {
   animation: bg-streak-break-vignette 0.9s ease-out forwards;
 }
 
+@keyframes font-sweep-switch {
+  0% {
+    font-family: var(--prev-font, inherit);
+  }
+  100% {
+    font-family: var(--active-font, inherit);
+  }
+}
+
+.font-sweep-char {
+  animation: font-sweep-switch 1ms steps(1, end) var(--sweep-delay, 0ms) both;
+}
+
+html[data-classic="true"] .font-sweep-char {
+  animation: none !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .font-sweep-char,
   .kana-enter-from-preview,
   .kana-preview-enter,
   .kana-streak-pulse-ring,

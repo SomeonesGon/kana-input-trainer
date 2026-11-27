@@ -1,4 +1,5 @@
 import React from 'react';
+import SweepText from '@/components/SweepText';
 import {
   useTheme,
   THEME_CONFIGS,
@@ -131,15 +132,15 @@ export function AppearanceCustomizer({ userLevel = 1 }: SelectorProps) {
       <div>
         <div className="d-flex align-items-center justify-content-between mb-1">
           <label className="form-label small fw-semibold text-secondary mb-0">
-            Color Palette Theme
+            <SweepText>Color Palette Theme</SweepText>
           </label>
           <span className="badge text-bg-light border small" style={{ fontSize: '0.7rem' }}>
-            {themeObj?.label}
+            <SweepText>{themeObj?.label ?? ''}</SweepText>
           </span>
         </div>
         <ThemeSelector userLevel={userLevel} />
         <small className="text-muted d-block mt-1" style={{ fontSize: '0.76rem' }}>
-          {themeObj?.description}
+          <SweepText>{themeObj?.description ?? ''}</SweepText>
         </small>
       </div>
 
@@ -147,18 +148,19 @@ export function AppearanceCustomizer({ userLevel = 1 }: SelectorProps) {
       <div>
         <div className="d-flex align-items-center justify-content-between mb-1">
           <label className="form-label small fw-semibold text-secondary mb-0">
-            Font Style Reward
+            <SweepText>Font Style Reward</SweepText>
           </label>
           <span className="badge text-bg-light border small" style={{ fontSize: '0.7rem' }}>
-            {font === 'theme' ? 'Auto: ' : ''}
-            {fontObj?.label}
+            <SweepText>{`${font === 'theme' ? 'Auto: ' : ''}${fontObj?.label ?? ''}`}</SweepText>
           </span>
         </div>
         <FontSelector userLevel={userLevel} />
         <small className="text-muted d-block mt-1" style={{ fontSize: '0.76rem' }}>
-          {font === 'theme'
-            ? `Syncs with ${themeObj?.label}: ${fontObj?.description}`
-            : fontObj?.description}
+          <SweepText>
+            {font === 'theme'
+              ? `Syncs with ${themeObj?.label}: ${fontObj?.description}`
+              : (fontObj?.description ?? '')}
+          </SweepText>
         </small>
       </div>
 
@@ -166,18 +168,19 @@ export function AppearanceCustomizer({ userLevel = 1 }: SelectorProps) {
       <div>
         <div className="d-flex align-items-center justify-content-between mb-1">
           <label className="form-label small fw-semibold text-secondary mb-0">
-            Background Effect Reward
+            <SweepText>Background Effect Reward</SweepText>
           </label>
           <span className="badge text-bg-light border small" style={{ fontSize: '0.7rem' }}>
-            {background === 'theme' ? 'Auto: ' : ''}
-            {bgObj?.label}
+            <SweepText>{`${background === 'theme' ? 'Auto: ' : ''}${bgObj?.label ?? ''}`}</SweepText>
           </span>
         </div>
         <BackgroundSelector userLevel={userLevel} />
         <small className="text-muted d-block mt-1" style={{ fontSize: '0.76rem' }}>
-          {background === 'theme'
-            ? `Syncs with ${themeObj?.label}: ${bgObj?.description}`
-            : bgObj?.description}
+          <SweepText>
+            {background === 'theme'
+              ? `Syncs with ${themeObj?.label}: ${bgObj?.description}`
+              : (bgObj?.description ?? '')}
+          </SweepText>
         </small>
       </div>
 
@@ -190,12 +193,12 @@ export function AppearanceCustomizer({ userLevel = 1 }: SelectorProps) {
           fontSize: '0.76rem',
         }}
       >
-        <span className="fw-semibold">Active: </span>
-        <span>{themeObj?.label}</span>
+        <span className="fw-semibold"><SweepText>Active: </SweepText></span>
+        <span><SweepText>{themeObj?.label ?? ''}</SweepText></span>
         <span className="mx-1 opacity-50">/</span>
-        <span>{fontObj?.label}</span>
+        <span><SweepText>{fontObj?.label ?? ''}</SweepText></span>
         <span className="mx-1 opacity-50">/</span>
-        <span>{bgObj?.label}</span>
+        <span><SweepText>{bgObj?.label ?? ''}</SweepText></span>
       </div>
     </div>
   );

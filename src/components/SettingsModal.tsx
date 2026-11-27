@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AppearanceCustomizer } from '@/components/ThemeSelector';
+import SweepText from '@/components/SweepText';
 
 interface SettingsModalProps {
   /** Whether the settings modal is currently visible */
@@ -110,7 +111,7 @@ export default function SettingsModal({
         {/* Modal Header */}
         <div className="d-flex align-items-center justify-content-between pb-2 mb-3 border-bottom">
           <h2 id="settings-modal-title" className="h5 mb-0 fw-bold">
-            Settings &amp; Customization
+            <SweepText>Settings &amp; Customization</SweepText>
           </h2>
           <button
             type="button"
@@ -126,10 +127,10 @@ export default function SettingsModal({
           <div>
             <div className="d-flex align-items-center justify-content-between mb-2">
               <span className="small fw-bold text-uppercase" style={{ letterSpacing: '0.05em' }}>
-                Appearance &amp; Rewards
+                <SweepText>Appearance &amp; Rewards</SweepText>
               </span>
               <span className="badge text-bg-primary" style={{ fontSize: '0.72rem' }}>
-                Level {userLevel}
+                <SweepText>{`Level ${userLevel}`}</SweepText>
               </span>
             </div>
             <AppearanceCustomizer userLevel={userLevel} />
@@ -141,9 +142,9 @@ export default function SettingsModal({
                 htmlFor="auto-switch-theme-toggle"
                 style={{ cursor: 'pointer' }}
               >
-                <span className="fw-medium">Auto-switch to unlocked themes</span>
+                <span className="fw-medium"><SweepText>Auto-switch to unlocked themes</SweepText></span>
                 <span className="d-block text-muted" style={{ fontSize: '0.75rem' }}>
-                  Automatically equips a new theme when you level up and unlock it
+                  <SweepText>Automatically equips a new theme when you level up and unlock it</SweepText>
                 </span>
               </label>
               <input
@@ -164,9 +165,9 @@ export default function SettingsModal({
                 htmlFor="disable-gamification-toggle"
                 style={{ cursor: 'pointer' }}
               >
-                <span className="fw-medium">Disable gamification effects</span>
+                <span className="fw-medium"><SweepText>Disable gamification effects</SweepText></span>
                 <span className="d-block text-muted" style={{ fontSize: '0.75rem' }}>
-                  Hides the level/XP bar, level-up effects, and notifications while keeping stats
+                  <SweepText>Hides the level/XP bar, level-up effects, and notifications while keeping stats</SweepText>
                 </span>
               </label>
               <input
@@ -187,9 +188,9 @@ export default function SettingsModal({
                 htmlFor="classic-mode-toggle"
                 style={{ cursor: 'pointer' }}
               >
-                <span className="fw-medium">Classic minimalist mode</span>
+                <span className="fw-medium"><SweepText>Classic minimalist mode</SweepText></span>
                 <span className="d-block text-muted" style={{ fontSize: '0.75rem' }}>
-                  Keeps active theme colors while disabling animations, particles, and extra UI
+                  <SweepText>Keeps active theme colors while disabling animations, particles, and extra UI</SweepText>
                 </span>
               </label>
               <input
@@ -209,7 +210,7 @@ export default function SettingsModal({
           {/* Section 2: Backup & Restore */}
           <div>
             <label className="form-label small fw-semibold text-secondary mb-1">
-              Data &amp; Backup
+              <SweepText>Data &amp; Backup</SweepText>
             </label>
             <div className="d-flex gap-2">
               <button
@@ -220,7 +221,7 @@ export default function SettingsModal({
                 }}
                 title="Download training state as a JSON backup file"
               >
-                Export State
+                <SweepText>Export State</SweepText>
               </button>
               <button
                 type="button"
@@ -230,11 +231,11 @@ export default function SettingsModal({
                 }}
                 title="Upload training state from a JSON backup file"
               >
-                Import State
+                <SweepText>Import State</SweepText>
               </button>
             </div>
             <small className="text-muted d-block mt-1" style={{ fontSize: '0.78rem' }}>
-              Transfer your progress, SRS levels, theme, and custom styles across devices.
+              <SweepText>Transfer your progress, SRS levels, theme, and custom styles across devices.</SweepText>
             </small>
           </div>
 
@@ -243,7 +244,7 @@ export default function SettingsModal({
           {/* Section 3: Reset Progress */}
           <div>
             <label className="form-label small fw-semibold text-danger mb-1">
-              Reset Training Progress
+              <SweepText>Reset Training Progress</SweepText>
             </label>
             {!showConfirmReset ? (
               <button
@@ -251,12 +252,12 @@ export default function SettingsModal({
                 className="btn btn-outline-danger btn-sm w-100 d-flex align-items-center justify-content-center"
                 onClick={() => setShowConfirmReset(true)}
               >
-                Reset All Progress
+                <SweepText>Reset All Progress</SweepText>
               </button>
             ) : (
               <div className="p-2 border border-danger rounded bg-danger-subtle">
                 <p className="small text-danger mb-2 fw-medium">
-                  Are you sure? This will reset all your SRS character mastery stages, due steps, and answer counts back to zero.
+                  <SweepText>Are you sure? This will reset all your SRS character mastery stages, due steps, and answer counts back to zero.</SweepText>
                 </p>
                 <div className="d-flex gap-2">
                   <button
@@ -264,20 +265,20 @@ export default function SettingsModal({
                     className="btn btn-danger btn-sm flex-fill fw-semibold"
                     onClick={handleConfirmReset}
                   >
-                    Yes, Reset Progress
+                    <SweepText>Yes, Reset Progress</SweepText>
                   </button>
                   <button
                     type="button"
                     className="btn btn-secondary btn-sm flex-fill"
                     onClick={() => setShowConfirmReset(false)}
                   >
-                    Cancel
+                    <SweepText>Cancel</SweepText>
                   </button>
                 </div>
               </div>
             )}
             <small className="text-muted d-block mt-1" style={{ fontSize: '0.78rem' }}>
-              Clears spaced repetition learning history so you can restart from scratch.
+              <SweepText>Clears spaced repetition learning history so you can restart from scratch.</SweepText>
             </small>
           </div>
         </div>
@@ -289,7 +290,7 @@ export default function SettingsModal({
             className="btn btn-secondary btn-sm px-3"
             onClick={onClose}
           >
-            Done
+            <SweepText>Done</SweepText>
           </button>
         </div>
       </div>

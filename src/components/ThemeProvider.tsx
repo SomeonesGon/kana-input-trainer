@@ -36,7 +36,12 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
   const [levelUpTick, setLevelUpTick] = useState<number>(0);
   const [streakIntensity, setStreakIntensity] = useState<number>(0);
   const [streakBreakTick, setStreakBreakTick] = useState<number>(0);
+  const [isFontSweeping, setIsFontSweeping] = useState<boolean>(false);
+  const [fontSweepTick, setFontSweepTick] = useState<number>(0);
   const levelUpTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fontSweepTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hasHydratedRef = useRef<boolean>(false);
+  const prevFontFamilyRef = useRef<string>('');
 
   // Compute resolved font and background
   const { fontId: effectiveFont, fontFamily: effectiveFontFamily } = useMemo(
@@ -89,6 +94,8 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
     const resolvedBg = resolveEffectiveBackground(initialTheme, initialBg);
 
     applyVisuals(initialTheme, resolvedFamily, resolvedFontId, resolvedBg);
+    prevFontFamilyRef.current = resolvedFamily;
+    hasHydratedRef.current = true;
     setThemeState(initialTheme);
     setFontState(initialFont);
     setBackgroundState(initialBg);
@@ -96,7 +103,37 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
 
   // Sync DOM whenever theme, effectiveFont, or effectiveBackground change
   useEffect(() => {
+    const prevFamily = prevFontFamilyRef.current;
     applyVisuals(theme, effectiveFontFamily, effectiveFont, effectiveBackground);
+
+    if (!hasHydratedRef.current) {
+      return;
+    }
+
+    if (prevFamily && prevFamily !== effectiveFontFamily) {
+      const root = document.documentElement;
+      const isClassic = root.getAttribute('data-classic') === 'true';
+      const prefersReducedMotion =
+        typeof window !== 'undefined' &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (!isClassic && !prefersReducedMotion) {
+        root.style.setProperty('--prev-font', prevFamily);
+        setFontSweepTick((c) => c + 1);
+        setIsFontSweeping(true);
+
+        if (fontSweepTimerRef.current) {
+          clearTimeout(fontSweepTimerRef.current);
+        }
+        fontSweepTimerRef.current = setTimeout(() => {
+          fontSweepTimerRef.current = null;
+          setIsFontSweeping(false);
+          document.documentElement.style.removeProperty('--prev-font');
+        }, 1250);
+      }
+    }
+
+    prevFontFamilyRef.current = effectiveFontFamily;
   }, [theme, effectiveFontFamily, effectiveFont, effectiveBackground, applyVisuals]);
 
   function setTheme(t: Theme) {
@@ -142,6 +179,17 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
     setStreakBreakTick((c) => c + 1);
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (fontSweepTimerRef.current) {
+        clearTimeout(fontSweepTimerRef.current);
+      }
+      if (levelUpTimerRef.current) {
+        clearTimeout(levelUpTimerRef.current);
+      }
+    };
+  }, []);
+
   return (
     <ThemeContext.Provider
       value={{
@@ -160,6 +208,8 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
         setStreakIntensity,
         streakBreakTick,
         triggerStreakBreak,
+        isFontSweeping,
+        fontSweepTick,
       }}
     >
       {children}

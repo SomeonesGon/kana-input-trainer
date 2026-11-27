@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { SMALL_KANA_MAP } from '@/constants/kanas';
+import SweepText from '@/components/SweepText';
 
 /** localStorage key used to remember that the user has already seen the small-kana notice. */
 const SMALL_KANA_SEEN_KEY = 'kana_small_seen';
@@ -70,7 +71,7 @@ export default function KanaPrompt({
       <div className="kana-badge-container d-flex justify-content-center align-items-center" style={{ minHeight: '32px' }}>
         {smallKanaInfo && !smallKanaSeen ? (
           <span className="badge text-bg-warning px-3 py-1 fw-semibold shadow-sm">
-            Small Kana / 小文字 ({smallKanaInfo.label})
+            <SweepText>{`Small Kana / 小文字 (${smallKanaInfo.label})`}</SweepText>
           </span>
         ) : null}
       </div>
@@ -84,7 +85,7 @@ export default function KanaPrompt({
             key={shouldAnimate ? `q-${transitionKey}` : 'q-static'}
             className={shouldAnimate ? 'kana-enter-from-preview' : undefined}
           >
-            {currentKana ?? ''}
+            <SweepText>{currentKana ?? ''}</SweepText>
           </span>
         </div>
         <div className={`kana-questions-after ${isLookaheadSmall ? 'is-small-preview' : ''}`}>
@@ -92,7 +93,7 @@ export default function KanaPrompt({
             key={shouldAnimate ? `p-${transitionKey}` : 'p-static'}
             className={shouldAnimate ? 'kana-preview-enter' : undefined}
           >
-            {lookaheadKanas}
+            <SweepText>{lookaheadKanas}</SweepText>
           </span>
         </div>
       </div>

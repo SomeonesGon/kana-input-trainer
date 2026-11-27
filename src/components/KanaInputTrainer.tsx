@@ -9,6 +9,7 @@ import SettingsModal from '@/components/SettingsModal';
 import { AppearanceCustomizer } from '@/components/ThemeSelector';
 import GamificationBar from '@/components/GamificationBar';
 import LevelUpBanner from '@/components/LevelUpBanner';
+import SweepText from '@/components/SweepText';
 import { evaluateKanaInput } from '@/utils/srs';
 import { InputMode, KanaState, KanaSettings } from '@/types/kana';
 import {
@@ -536,11 +537,11 @@ export default function KanaInputTrainer({
       <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 pb-2 border-bottom w-100">
         {/* Left: Page title & subtitle */}
         <div>
-          <h1 className="h4 mb-0 lh-sm">Kana Input Trainer with SRS</h1>
+          <h1 className="h4 mb-0 lh-sm"><SweepText>Kana Input Trainer with SRS</SweepText></h1>
           <p className="text-muted small mb-0">
-            Uses an in-session Leitner SRS algorithm.{' '}
-            <a href='https://github.com/SomeonesGon/kana-input-trainer' target="_blank" rel="noreferrer">Source Code</a>.{' '}
-            <a href='https://github.com/justremember/kana-input-trainer' target="_blank" rel="noreferrer">Forked from original</a>.
+            <SweepText>Uses an in-session Leitner SRS algorithm. </SweepText>
+            <a href='https://github.com/SomeonesGon/kana-input-trainer' target="_blank" rel="noreferrer"><SweepText>Source Code</SweepText></a>.{' '}
+            <a href='https://github.com/justremember/kana-input-trainer' target="_blank" rel="noreferrer"><SweepText>Forked from original</SweepText></a>.
           </p>
         </div>
 
@@ -556,7 +557,7 @@ export default function KanaInputTrainer({
                 : 'Desktop JIS Mode active (click to switch to Mobile 12-Key Flick)'
             }
           >
-            {inputMode === 'mobile' ? '📱 12-Key' : '⌨️ JIS'}
+            <SweepText>{inputMode === 'mobile' ? '📱 12-Key' : '⌨️ JIS'}</SweepText>
           </button>
 
           {/* Toggle keyboard reference image */}
@@ -565,7 +566,7 @@ export default function KanaInputTrainer({
             onClick={onToggleKeyboard}
             title={showKeyboard ? 'Hide keyboard reference image' : 'Show keyboard reference image'}
           >
-            {showKeyboard ? 'Hide Keyboard' : 'Show Keyboard'}
+            <SweepText>{showKeyboard ? 'Hide Keyboard' : 'Show Keyboard'}</SweepText>
           </button>
 
           {/* Settings button */}
@@ -574,7 +575,7 @@ export default function KanaInputTrainer({
             onClick={() => setIsSettingsOpen(true)}
             title="Open Settings (Theme, Backup, Reset)"
           >
-            Settings
+            <SweepText>Settings</SweepText>
           </button>
 
           <div className="vr d-none d-sm-block my-1" style={{ height: '18px' }} />
@@ -582,7 +583,8 @@ export default function KanaInputTrainer({
           <div className="d-flex align-items-center gap-2">
             {!classicMode && <AutosaveIndicator status={autosaveStatus} />}
             <span className="badge text-bg-light border text-secondary fw-normal px-2 py-1">
-              Answered: <strong className="text-dark">{ state.charsAnswered }</strong>
+              <SweepText>Answered: </SweepText>
+              <strong className="text-dark"><SweepText>{state.charsAnswered}</SweepText></strong>
             </span>
           </div>
         </div>
