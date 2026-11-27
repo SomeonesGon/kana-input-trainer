@@ -20,8 +20,9 @@ export type { KanaState, KanaAction, KanaCategoryId };
  */
 export default function useKanaState(): [KanaState, Dispatch<KanaAction>, number, string[]] {
   const reducer = (state: KanaState, action: KanaAction): KanaState => {
+    const inputMode = state.settings?.inputMode ?? 'desktop';
     // Current active prompt is the first character in the enabled category queue
-    const activeQueue = getActiveQueue(state.queue, state.enabledCategories);
+    const activeQueue = getActiveQueue(state.queue, state.enabledCategories, inputMode);
     const prompt = activeQueue[0];
 
     switch (action.type) {
@@ -47,6 +48,7 @@ export default function useKanaState(): [KanaState, Dispatch<KanaAction>, number
           hasLapsed: state.hasLapsed,
           charsAnswered: state.charsAnswered,
           enabledCategories: state.enabledCategories,
+          inputMode,
           ease: state.ease,
           priority: state.priority,
         });
@@ -140,6 +142,7 @@ export default function useKanaState(): [KanaState, Dispatch<KanaAction>, number
           settings: {
             ...state.settings,
             ...(migrated.settings ?? {}),
+            inputMode: migrated.settings?.inputMode ?? state.settings?.inputMode,
           },
         };
       }
@@ -152,10 +155,12 @@ export default function useKanaState(): [KanaState, Dispatch<KanaAction>, number
 
   const [state, dispatch] = useReducer(reducer, initialState);
 
+  const inputMode = state.settings?.inputMode ?? 'desktop';
+
   // Memoize activeQueue so components can consume the filtered queue efficiently
   const activeQueue = useMemo(
-    () => getActiveQueue(state.queue, state.enabledCategories),
-    [state.queue, state.enabledCategories]
+    () => getActiveQueue(state.queue, state.enabledCategories, inputMode),
+    [state.queue, state.enabledCategories, inputMode]
   );
 
   return [state, dispatch, LOOKAHEAD, activeQueue];

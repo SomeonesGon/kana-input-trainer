@@ -1,23 +1,27 @@
 import React from 'react';
-import { KANA_CATEGORIES } from '@/constants/kanas';
-import { KanaCategoryId } from '@/types/kana';
+import { getKanaCategoriesForMode } from '@/constants/kanas';
+import { InputMode, KanaCategoryId } from '@/types/kana';
 
 interface KanaCategorySwitchesProps {
   /** Map of category IDs to their boolean enabled states */
   enabledCategories: Record<KanaCategoryId, boolean>;
   /** Callback invoked when user toggles a category switch */
   onToggle: (category: KanaCategoryId) => void;
+  /** Active keyboard input mode ('desktop' JIS or 'mobile' 12-key flick) */
+  inputMode?: InputMode;
 }
 
 /**
  * Vertical category switch panel displayed on the right side of the trainer.
- * Allows users to selectively test specific character groups (Basic, Dakuten, Handakuten, Shift, Punctuation)
- * in a clean, stacked vertical layout.
+ * Allows users to selectively test specific character groups (Basic, Dakuten, Handakuten, Small/Shift, Punctuation)
+ * in a clean, stacked vertical layout, adjusting labels & counts for Desktop vs Mobile 12-key mode.
  */
 export default function KanaCategorySwitches({
   enabledCategories,
   onToggle,
+  inputMode = 'desktop',
 }: KanaCategorySwitchesProps) {
+  const categories = getKanaCategoriesForMode(inputMode);
   // Count how many categories are currently active
   const enabledCount = Object.values(enabledCategories).filter(Boolean).length;
 
@@ -28,12 +32,12 @@ export default function KanaCategorySwitches({
           Categories
         </span>
         <span className="badge text-bg-light border text-muted" style={{ fontSize: '0.75rem' }}>
-          {enabledCount} of {KANA_CATEGORIES.length} active
+          {enabledCount} of {categories.length} active
         </span>
       </div>
 
       <div className="d-flex flex-column gap-2">
-        {KANA_CATEGORIES.map((cat) => {
+        {categories.map((cat) => {
           const isEnabled = enabledCategories[cat.id] ?? true;
           // Prevent turning off the last remaining active category
           const isOnlyActive = isEnabled && enabledCount <= 1;

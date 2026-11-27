@@ -71,19 +71,19 @@
 
 /* ---- Pink ---- */
 [data-theme="pink"] {
-  --bg-page:            #ffd6e7;
-  --bg-card:            #ffe8f2;
-  --bg-card-past:       rgba(236, 72, 153, 0.05);
+  --bg-page:            #ffc2dd;
+  --bg-card:            #fff4f9;
+  --bg-card-past:       rgba(255, 242, 248, 0.72);
   --bg-input:           transparent;
 
-  --text-primary:       #5b0030;
-  --text-muted:         #9d4a72;
-  --text-past:          #e4a0c0;
+  --text-primary:       #4a0428;
+  --text-muted:         #9d265c;
+  --text-past:          #c06c96;
 
   --border-card:        #f472b6;
-  --border-past:        #fbcfe8;
+  --border-past:        #f9a8d4;
   --border-focus:       #db2777;
-  --shadow-focus:       rgba(219, 39, 119, 0.28);
+  --shadow-focus:       rgba(219, 39, 119, 0.32);
 
   --correct-bg:         #dcfce7;
   --correct-border:     #4ade80;
@@ -93,12 +93,12 @@
   --wrong-past-text:    #be123c;
 
   --small-kana-color:   #9d174d;
-  --small-kana-bg:      #fce7f3;
+  --small-kana-bg:      #fff0f7;
   --small-kana-border:  #ec4899;
-  --small-kana-shadow:  rgba(236, 72, 153, 0.2);
+  --small-kana-shadow:  rgba(236, 72, 153, 0.28);
 
-  --lookahead-color:    #db93b8;
-  --placeholder-color:  #f9a8d4;
+  --lookahead-color:    #b84a7e;
+  --placeholder-color:  #f472b6;
 }
 
 /* ---- Cyberpunk Terminal (Unlocked at Level 2) ---- */
@@ -396,6 +396,18 @@
 html {
   min-height: 100%;
   background-color: var(--bg-page);
+  transition: background-color 1.65s cubic-bezier(0.22, 1, 0.36, 1), color 1.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Fixed radial atmospheric overlay whose opacity fades smoothly across themes */
+html::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 1.65s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 body {
@@ -403,7 +415,7 @@ body {
   background-color: transparent !important;
   color: var(--text-primary);
   font-family: var(--active-font, system-ui, -apple-system, sans-serif);
-  transition: color 0.25s ease;
+  transition: color 1.55s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 main {
@@ -435,6 +447,47 @@ main {
   overflow: hidden;
 }
 
+/* Cross-morphing layers so the previous background effect dissolves into the new one */
+.bg-particles-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.bg-particles-layer--entering {
+  animation: bg-layer-enter 1.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.bg-particles-layer--leaving {
+  animation: bg-layer-leave 1.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes bg-layer-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0px);
+  }
+}
+
+@keyframes bg-layer-leave {
+  from {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0px);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.04);
+    filter: blur(5px);
+  }
+}
+
 .bg-particle {
   position: absolute;
   user-select: none;
@@ -446,26 +499,69 @@ main {
 }
 
 /* ---- Hearts (pink mode) ---- */
-/* Hearts start below the viewport and drift upward, fading in then out */
+/* Layered floating hearts with gentle horizontal sway and depth tiers */
 .bg-particle--heart {
   bottom: -8%;
   color: #f472b6;
   animation-name: float-heart;
 }
 
+.bg-particle--heart-deep {
+  filter: blur(1px);
+  animation-name: float-heart-sway;
+}
+
+.bg-particle--heart-twinkle {
+  text-shadow: 0 2px 6px rgba(236, 72, 153, 0.28);
+}
+
+.bg-particle--heart-hero {
+  text-shadow: 0 0 12px rgba(219, 39, 119, 0.5), 0 0 22px rgba(244, 114, 182, 0.35);
+  animation-name: float-heart-sway;
+}
+
 @keyframes float-heart {
   0% {
-    transform: translateY(0) rotate(-8deg) scale(1);
+    transform: translate3d(0, 0, 0) rotate(-8deg) scale(0.9);
+    opacity: 0;
+  }
+  12% {
+    opacity: var(--particle-opacity, 0.6);
+  }
+  35% {
+    transform: translate3d(16px, -36vh, 0) rotate(6deg) scale(1.02);
+  }
+  65% {
+    transform: translate3d(-14px, -70vh, 0) rotate(-6deg) scale(0.95);
+  }
+  88% {
+    opacity: var(--particle-opacity, 0.6);
+  }
+  100% {
+    transform: translate3d(8px, -108vh, 0) rotate(10deg) scale(0.75);
+    opacity: 0;
+  }
+}
+
+@keyframes float-heart-sway {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(8deg) scale(0.85);
     opacity: 0;
   }
   12% {
     opacity: var(--particle-opacity, 0.55);
   }
+  35% {
+    transform: translate3d(-18px, -34vh, 0) rotate(-7deg) scale(1.05);
+  }
+  65% {
+    transform: translate3d(18px, -68vh, 0) rotate(8deg) scale(0.95);
+  }
   88% {
     opacity: var(--particle-opacity, 0.55);
   }
   100% {
-    transform: translateY(-108vh) rotate(10deg) scale(0.7);
+    transform: translate3d(-10px, -108vh, 0) rotate(-10deg) scale(0.72);
     opacity: 0;
   }
 }
@@ -1189,10 +1285,19 @@ main {
   border-radius: 14px;
   padding: 0 16px;
   box-shadow: 0 2px 8px var(--small-kana-shadow);
+  transform: translateY(0.22em);
 }
 
 .kana-questions-after {
   color: var(--lookahead-color);
+}
+
+/* Smaller size, subtle tint, and slight downward offset when the preview lookahead character is a small kana */
+.kana-questions-after.is-small-preview {
+  font-size: 2rem;
+  color: var(--small-kana-color);
+  opacity: 0.72;
+  transform: translateY(0.25em);
 }
 
 /* =============================================================================
@@ -1339,16 +1444,54 @@ main {
   color-scheme: dark;
 }
 
-/* Atmospheric celestial depth for midnight dark mode applied globally to root canvas */
-[data-theme="dark"] {
-  background-color: #080d13 !important;
-  background-image: radial-gradient(ellipse at 50% 12%, #0e1a2e 0%, #080d13 58%, #04070a 100%) !important;
-  background-attachment: fixed !important;
+/* Atmospheric celestial depth for midnight dark mode applied via smooth opacity overlay */
+[data-theme="dark"]::before {
+  opacity: 1;
+  background-image: radial-gradient(ellipse at 50% 12%, rgba(56, 189, 248, 0.08) 0%, transparent 58%, rgba(0, 0, 0, 0.45) 100%);
 }
 
 [data-theme="dark"] body {
   background-color: transparent !important;
   background-image: none !important;
+}
+
+/* Rich multi-stop rose-blossom depth for Pink mode applied via smooth opacity overlay */
+[data-theme="pink"]::before {
+  opacity: 1;
+  background-image: radial-gradient(ellipse at 50% 15%, rgba(255, 255, 255, 0.55) 0%, transparent 55%, rgba(219, 39, 119, 0.14) 100%);
+}
+
+[data-theme="pink"] body {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+[data-theme="pink"] .kana-input-card,
+[data-theme="pink"] .kana-category-switches,
+[data-theme="pink"] .gamification-bar {
+  box-shadow: 0 8px 24px rgba(190, 24, 93, 0.12), 0 2px 6px rgba(236, 72, 153, 0.1) !important;
+  backdrop-filter: blur(8px);
+}
+
+[data-theme="pink"] .kana-next-question {
+  text-shadow: 0 2px 12px rgba(219, 39, 119, 0.18);
+}
+
+[data-theme="pink"] .btn-secondary {
+  background-color: #db2777;
+  border-color: #db2777;
+  color: #ffffff;
+}
+
+[data-theme="pink"] .btn-secondary:hover {
+  background-color: #be185d;
+  border-color: #be185d;
+  color: #ffffff;
+}
+
+[data-theme="pink"] .bg-particle--heart {
+  color: #ec4899;
+  filter: drop-shadow(0 2px 6px rgba(219, 39, 119, 0.25));
 }
 
 /* Page, body, and container backgrounds */
@@ -1473,7 +1616,183 @@ a:hover {
   background-color: var(--border-card);
 }
 
+/* Smooth global color/surface transitions when switching or unlocking themes */
+.bg-light,
+.card,
+.border,
+.border-bottom,
+.border-top,
+.border-start,
+.border-end,
+.text-muted,
+.text-secondary,
+.text-dark,
+.vr,
+a,
+.text-bg-light,
+.text-bg-warning,
+.btn-outline-secondary,
+.btn-secondary,
+.form-select,
+.form-check-input,
+.kana-prompt,
+.kana-next-question,
+.kana-questions-after,
+.kana-active-input,
+.gamification-bar,
+.kana-category-switches,
+.badge,
+.progress,
+.progress-bar {
+  transition:
+    background-color 1.55s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 1.55s cubic-bezier(0.22, 1, 0.36, 1),
+    color 1.55s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 1.55s cubic-bezier(0.22, 1, 0.36, 1),
+    text-shadow 1.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 /* Custom modal close button */
-[data-theme]:not([data-theme="light"]) .btn-close {
+[data-theme]:not([data-theme="light"]):not([data-theme="pink"]) .btn-close {
   filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* =============================================================================
+   CLASSIC MINIMALIST MODE
+   Overrides all themes, gradients, particles, glows, and extra visual jargon
+   to resemble the original clean minimalist Kana Input Trainer.
+   ============================================================================= */
+
+html[data-classic="true"] {
+  --bg-page:            #ffffff;
+  --bg-card:            #ffffff;
+  --bg-card-past:       #f8f9fa;
+  --bg-input:           transparent;
+
+  --text-primary:       #212529;
+  --text-muted:         #6c757d;
+  --text-past:          #adb5bd;
+
+  --border-card:        #ced4da;
+  --border-past:        #dee2e6;
+  --border-focus:       #86b7fe;
+  --shadow-focus:       rgba(13, 110, 253, 0.2);
+
+  --correct-bg:         #f8fff9;
+  --correct-border:     #a3cfbb;
+  --correct-past-text:  #6c757d;
+  --wrong-bg:           #fff8f8;
+  --wrong-border:       #f1aeb5;
+  --wrong-past-text:    #a35d64;
+
+  --small-kana-color:   #212529;
+  --small-kana-bg:      transparent;
+  --small-kana-border:  transparent;
+  --small-kana-shadow:  none;
+
+  --lookahead-color:    #adb5bd;
+  --placeholder-color:  #ced4da;
+  --active-font:        system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  background-color: var(--bg-page) !important;
+  background-image: none !important;
+  color-scheme: light;
+}
+
+/* Classic Minimalist Dark */
+html[data-classic="true"][data-theme="dark"] {
+  --bg-page:            #0d1117;
+  --bg-card:            #161b22;
+  --bg-card-past:       #161b22;
+  --bg-input:           transparent;
+
+  --text-primary:       #e6edf3;
+  --text-muted:         #8b949e;
+  --text-past:          #6e7681;
+
+  --border-card:        #30363d;
+  --border-past:        #21262d;
+  --border-focus:       #58a6ff;
+  --shadow-focus:       rgba(88, 166, 255, 0.2);
+
+  --correct-bg:         #0f2417;
+  --correct-border:     #2ea043;
+  --correct-past-text:  #56d364;
+  --wrong-bg:           #281012;
+  --wrong-border:       #f85149;
+  --wrong-past-text:    #ff7b72;
+
+  --small-kana-color:   #e6edf3;
+  --lookahead-color:    #6e7681;
+  --placeholder-color:  #484f58;
+
+  color-scheme: dark;
+}
+
+/* Classic Minimalist Pink */
+html[data-classic="true"][data-theme="pink"] {
+  --bg-page:            #ffd6e7;
+  --bg-card:            #fff4f9;
+  --bg-card-past:       #ffe8f2;
+  --bg-input:           transparent;
+
+  --text-primary:       #4a0428;
+  --text-muted:         #9d265c;
+  --text-past:          #c06c96;
+
+  --border-card:        #f472b6;
+  --border-past:        #f9a8d4;
+  --border-focus:       #db2777;
+  --shadow-focus:       rgba(219, 39, 119, 0.22);
+
+  --correct-bg:         #ecfdf5;
+  --correct-border:     #4ade80;
+  --correct-past-text:  #15803d;
+  --wrong-bg:           #fff1f2;
+  --wrong-border:       #fb7185;
+  --wrong-past-text:    #be123c;
+
+  --small-kana-color:   #4a0428;
+  --lookahead-color:    #b84a7e;
+  --placeholder-color:  #f472b6;
+
+  color-scheme: light;
+}
+
+html[data-classic="true"]::before,
+html[data-classic="true"] .bg-particles,
+html[data-classic="true"] .kana-badge-container {
+  display: none !important;
+}
+
+html[data-classic="true"] .kana-next-question {
+  text-shadow: none !important;
+}
+
+html[data-classic="true"] .kana-next-question.is-small-kana {
+  font-size: 3.5rem;
+  color: var(--text-primary);
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  box-shadow: none;
+}
+
+html[data-classic="true"] .kana-input-card {
+  border-radius: 6px;
+  box-shadow: none !important;
+}
+
+html[data-classic="true"] .kana-category-switches {
+  background-color: var(--bg-card-past) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+html[data-classic="true"] .btn-close {
+  filter: none !important;
+}
+
+html[data-classic="true"][data-theme="dark"] .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%) !important;
 }

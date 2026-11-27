@@ -5,6 +5,13 @@ import { Theme, FontId, BackgroundId } from '@/hooks/useTheme';
  */
 
 /**
+ * Valid keyboard input modes:
+ * - 'desktop': Standard physical Japanese JIS Kana keyboard
+ * - 'mobile': Mobile 12-key flick keyboard (12キー / フリック入力)
+ */
+export type InputMode = 'desktop' | 'mobile';
+
+/**
  * Valid category identifiers for grouping characters on a Kana keyboard.
  */
 export type KanaCategoryId = 'basic' | 'shift' | 'dakuten' | 'handakuten' | 'punctuation';
@@ -35,6 +42,14 @@ export interface KanaSettings {
   background?: BackgroundId;
   /** Whether the JIS keyboard layout reference image is visible */
   showKeyboard?: boolean;
+  /** Active keyboard input mode ('desktop' JIS or 'mobile' 12-key flick) */
+  inputMode?: InputMode;
+  /** Whether to automatically switch to a newly unlocked theme on level-up (default: false) */
+  autoSwitchTheme?: boolean;
+  /** Whether to hide gamification visuals (level/XP bar, level-up effects & notifications) while keeping stats */
+  disableGamificationEffects?: boolean;
+  /** Whether Classic minimalist mode is enabled (disables all effects, themes, and extra UI) */
+  classicMode?: boolean;
 }
 
 /**
@@ -111,7 +126,7 @@ export type KanaAction =
   /** Dispatched when the user inputs an incorrect character */
   | { type: 'wrong'; ans?: string }
   /** Dispatched when loading state from a saved JSON backup file or localStorage */
-  | { type: 'loadState'; state: Partial<KanaState> & { theme?: Theme; showKeyboard?: boolean; settings?: KanaSettings } }
+  | { type: 'loadState'; state: Partial<KanaState> & { theme?: Theme; showKeyboard?: boolean; inputMode?: InputMode; settings?: KanaSettings } }
   /** Dispatched when toggling a category switch on or off */
   | { type: 'toggleCategory'; category: KanaCategoryId }
   /** Dispatched when replacing all category switch settings */

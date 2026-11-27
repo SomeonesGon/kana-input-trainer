@@ -1,4 +1,4 @@
-import { KanaState, KanaCategoryId, KanaCategoryConfig } from '@/types/kana';
+import { KanaState, KanaCategoryId, KanaCategoryConfig, InputMode } from '@/types/kana';
 
 /**
  * Number of upcoming kana characters shown ahead of the current active prompt.
@@ -127,6 +127,35 @@ export const COMPOUND_KANA_BASE_MAP: Record<string, string> = {
 };
 
 /**
+ * Characters from the desktop JIS set that are NOT available on the basic
+ * mobile 12-key flick screen (they require switching to a symbol page, or in the
+ * case of standalone ゛/゜, do not exist as standalone typable keys because ゛゜小
+ * only modifies the preceding kana).
+ */
+export const MOBILE_UNAVAILABLE_CHARACTERS = new Set(['・', '「', '」', '゛', '゜']);
+
+/**
+ * Intermediate characters produced while tapping/cycling the `゛゜小` key on a
+ * mobile 12-key flick keyboard before reaching the target character.
+ * - Small kana (ぁぃぅぇぉっゃゅょ): base -> small (2 inputs)
+ * - Dakuten (が..ぼ): base -> dakuten (2 inputs); づ & ゔ pass through small kana (3 inputs)
+ * - Handakuten (ぱ..ぽ): base -> dakuten -> handakuten (3 inputs)
+ */
+export const MOBILE_INTERMEDIATE_MAP: Record<string, string[]> = {
+  // Small kana
+  'ぁ': ['あ'], 'ぃ': ['い'], 'ぅ': ['う'], 'ぇ': ['え'], 'ぉ': ['お'],
+  'っ': ['つ'], 'ゃ': ['や'], 'ゅ': ['ゆ'], 'ょ': ['よ'],
+  // Dakuten
+  'が': ['か'], 'ぎ': ['き'], 'ぐ': ['く'], 'げ': ['け'], 'ご': ['こ'],
+  'ざ': ['さ'], 'じ': ['し'], 'ず': ['す'], 'ぜ': ['せ'], 'ぞ': ['そ'],
+  'だ': ['た'], 'ぢ': ['ち'], 'づ': ['つ', 'っ'], 'で': ['て'], 'ど': ['と'],
+  'ば': ['は'], 'び': ['ひ'], 'ぶ': ['ふ'], 'べ': ['へ'], 'ぼ': ['ほ'],
+  'ゔ': ['う', 'ぅ'],
+  // Handakuten
+  'ぱ': ['は', 'ば'], 'ぴ': ['ひ', 'び'], 'ぷ': ['ふ', 'ぶ'], 'ぺ': ['へ', 'べ'], 'ぽ': ['ほ', 'ぼ'],
+};
+
+/**
  * Metadata configuration for each selectable quiz category switch.
  */
 export const KANA_CATEGORIES: KanaCategoryConfig[] = [
@@ -161,6 +190,52 @@ export const KANA_CATEGORIES: KanaCategoryConfig[] = [
     sample: 'ー、。...',
   },
 ];
+
+/**
+ * Returns the category metadata adjusted for the active keyboard input mode.
+ * In mobile 12-key flick mode:
+ * - `を` moves into Basic Kana (it is a single flick on the わ key).
+ * - Small Kana (`ぁぃぅぇぉっゃゅょ`) are modified via `゛゜小` instead of Shift.
+ * - Punctuation only includes `ー、。` available on the basic 12-key screen.
+ */
+export function getKanaCategoriesForMode(inputMode: InputMode): KanaCategoryConfig[] {
+  if (inputMode !== 'mobile') {
+    return KANA_CATEGORIES;
+  }
+
+  return [
+    {
+      id: 'basic',
+      label: 'Basic Kana',
+      characters: BASIC_KANA_CHARACTERS + 'を',
+      sample: 'あいう...',
+    },
+    {
+      id: 'dakuten',
+      label: 'Dakuten (゛)',
+      characters: DAKUTEN_CHARACTERS,
+      sample: 'がぎぐ...',
+    },
+    {
+      id: 'handakuten',
+      label: 'Handakuten (゜)',
+      characters: HANDAKUTEN_CHARACTERS,
+      sample: 'ぱぴぷ...',
+    },
+    {
+      id: 'shift',
+      label: 'Small Kana (小)',
+      characters: SHIFT_MODIFIER_CHARACTERS.replace('を', ''),
+      sample: 'ぁっゃ...',
+    },
+    {
+      id: 'punctuation',
+      label: 'Punctuation',
+      characters: 'ー、。',
+      sample: 'ー、。',
+    },
+  ];
+}
 
 /**
  * Default category switch states: all categories enabled by default.
@@ -260,5 +335,9 @@ export const initialState: KanaState = {
   settings: {
     theme: 'light',
     showKeyboard: true,
+    inputMode: 'desktop',
+    autoSwitchTheme: false,
+    disableGamificationEffects: false,
+    classicMode: false,
   },
 };

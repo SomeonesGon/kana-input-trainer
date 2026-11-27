@@ -6,6 +6,18 @@ interface SettingsModalProps {
   isOpen: boolean;
   /** Current player level to determine unlocked themes */
   userLevel?: number;
+  /** Whether newly unlocked themes are automatically applied on level-up */
+  autoSwitchTheme?: boolean;
+  /** Callback to toggle auto-switching to newly unlocked themes */
+  onToggleAutoSwitchTheme?: () => void;
+  /** Whether gamification visuals (level/XP bar, level-up effects, notifications) are hidden */
+  disableGamificationEffects?: boolean;
+  /** Callback to toggle disabling gamification visuals */
+  onToggleDisableGamificationEffects?: () => void;
+  /** Whether Classic minimalist mode is enabled */
+  classicMode?: boolean;
+  /** Callback to toggle Classic minimalist mode */
+  onToggleClassicMode?: () => void;
   /** Callback to close the modal */
   onClose: () => void;
   /** Callback to trigger exporting progress to a JSON backup file */
@@ -27,6 +39,12 @@ interface SettingsModalProps {
 export default function SettingsModal({
   isOpen,
   userLevel = 1,
+  autoSwitchTheme = false,
+  onToggleAutoSwitchTheme,
+  disableGamificationEffects = false,
+  onToggleDisableGamificationEffects,
+  classicMode = false,
+  onToggleClassicMode,
   onClose,
   onExport,
   onImport,
@@ -115,6 +133,75 @@ export default function SettingsModal({
               </span>
             </div>
             <AppearanceCustomizer userLevel={userLevel} />
+
+            {/* Toggle for automatic theme switching upon unlocking a new theme */}
+            <div className="form-check form-switch d-flex align-items-center justify-content-between ps-0 mt-3 pt-2 border-top">
+              <label
+                className="form-check-label small user-select-none mb-0"
+                htmlFor="auto-switch-theme-toggle"
+                style={{ cursor: 'pointer' }}
+              >
+                <span className="fw-medium">Auto-switch to unlocked themes</span>
+                <span className="d-block text-muted" style={{ fontSize: '0.75rem' }}>
+                  Automatically equips a new theme when you level up and unlock it
+                </span>
+              </label>
+              <input
+                className="form-check-input ms-3 flex-shrink-0"
+                type="checkbox"
+                role="switch"
+                id="auto-switch-theme-toggle"
+                checked={autoSwitchTheme}
+                onChange={onToggleAutoSwitchTheme}
+                style={{ cursor: 'pointer' }}
+              />
+            </div>
+
+            {/* Toggle for hiding gamification visuals while keeping stats & background progress */}
+            <div className="form-check form-switch d-flex align-items-center justify-content-between ps-0 mt-2 pt-2 border-top">
+              <label
+                className="form-check-label small user-select-none mb-0"
+                htmlFor="disable-gamification-toggle"
+                style={{ cursor: 'pointer' }}
+              >
+                <span className="fw-medium">Disable gamification effects</span>
+                <span className="d-block text-muted" style={{ fontSize: '0.75rem' }}>
+                  Hides the level/XP bar, level-up effects, and notifications while keeping stats
+                </span>
+              </label>
+              <input
+                className="form-check-input ms-3 flex-shrink-0"
+                type="checkbox"
+                role="switch"
+                id="disable-gamification-toggle"
+                checked={disableGamificationEffects}
+                onChange={onToggleDisableGamificationEffects}
+                style={{ cursor: 'pointer' }}
+              />
+            </div>
+
+            {/* Toggle for Classic minimalist mode */}
+            <div className="form-check form-switch d-flex align-items-center justify-content-between ps-0 mt-2 pt-2 border-top">
+              <label
+                className="form-check-label small user-select-none mb-0"
+                htmlFor="classic-mode-toggle"
+                style={{ cursor: 'pointer' }}
+              >
+                <span className="fw-medium">Classic minimalist mode</span>
+                <span className="d-block text-muted" style={{ fontSize: '0.75rem' }}>
+                  Disables all themes, animations, and extra UI for a clean original look
+                </span>
+              </label>
+              <input
+                className="form-check-input ms-3 flex-shrink-0"
+                type="checkbox"
+                role="switch"
+                id="classic-mode-toggle"
+                checked={classicMode}
+                onChange={onToggleClassicMode}
+                style={{ cursor: 'pointer' }}
+              />
+            </div>
           </div>
 
           <hr className="my-1" />

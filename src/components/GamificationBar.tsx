@@ -3,6 +3,8 @@ import { GamificationStats } from '@/utils/gamification';
 
 interface GamificationBarProps {
   stats: GamificationStats;
+  /** When true, hides the Level badge and XP progress bar and shows only the plain stats row */
+  statsOnly?: boolean;
 }
 
 /**
@@ -10,7 +12,7 @@ interface GamificationBarProps {
  * Shows player Level, XP bar progress, and live metrics for Coverage, Accuracy, and Speed.
  * All text colours reference CSS custom properties so they remain legible on every theme.
  */
-export default function GamificationBar({ stats }: GamificationBarProps) {
+export default function GamificationBar({ stats, statsOnly = false }: GamificationBarProps) {
   const {
     level,
     currentXP,
@@ -33,37 +35,41 @@ export default function GamificationBar({ stats }: GamificationBarProps) {
         border: '1px solid var(--border-past, rgba(0, 0, 0, 0.1))',
       }}
     >
-      {/* Top line: Level badge and XP text */}
-      <div className="d-flex align-items-center justify-content-between mb-1">
-        <span
-          className="badge text-bg-primary px-2 py-0 fw-bold d-flex align-items-center gap-1"
-          style={{ fontSize: '0.72rem', letterSpacing: '0.04em' }}
-        >
-          LEVEL {level}
-        </span>
-        <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-          {currentXP} / {nextLevelXP} XP
-        </span>
-      </div>
+      {!statsOnly && (
+        <>
+          {/* Top line: Level badge and XP text */}
+          <div className="d-flex align-items-center justify-content-between mb-1">
+            <span
+              className="badge text-bg-primary px-2 py-0 fw-bold d-flex align-items-center gap-1"
+              style={{ fontSize: '0.72rem', letterSpacing: '0.04em' }}
+            >
+              LEVEL {level}
+            </span>
+            <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+              {currentXP} / {nextLevelXP} XP
+            </span>
+          </div>
 
-      {/* Progress Bar (Small) */}
-      <div
-        className="progress"
-        style={{ height: '5px', backgroundColor: 'var(--border-card, #e2e8f0)' }}
-      >
-        <div
-          className="progress-bar bg-primary"
-          role="progressbar"
-          style={{ width: `${progressPercent}%`, transition: 'width 0.4s ease' }}
-          aria-valuenow={progressPercent}
-          aria-valuemin={0}
-          aria-valuemax={100}
-        />
-      </div>
+          {/* Progress Bar (Small) */}
+          <div
+            className="progress"
+            style={{ height: '5px', backgroundColor: 'var(--border-card, #e2e8f0)' }}
+          >
+            <div
+              className="progress-bar bg-primary"
+              role="progressbar"
+              style={{ width: `${progressPercent}%`, transition: 'width 0.4s ease' }}
+              aria-valuenow={progressPercent}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            />
+          </div>
+        </>
+      )}
 
       {/* Bottom stats row: Coverage, Accuracy, Speed */}
       <div
-        className="d-flex align-items-center justify-content-between mt-1 px-1"
+        className={`d-flex align-items-center justify-content-between px-1 ${statsOnly ? '' : 'mt-1'}`}
         style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}
       >
         <span title={`Practiced ${coverageCount} of ${totalCharacters} Kana characters`}>

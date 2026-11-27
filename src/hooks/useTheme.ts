@@ -392,6 +392,8 @@ export interface ThemeContextValue {
   effectiveFont: FontId;
   effectiveBackground: BackgroundId;
   isLevelingUp: boolean;
+  /** Monotonically incremented each time a level-up celebration is triggered */
+  levelUpTick?: number;
   triggerLevelUpAnimation: () => void;
 }
 
@@ -408,6 +410,7 @@ export const ThemeContext = createContext<ThemeContextValue>({
   effectiveFont: 'default',
   effectiveBackground: 'clouds',
   isLevelingUp: false,
+  levelUpTick: 0,
   triggerLevelUpAnimation: () => undefined,
 });
 

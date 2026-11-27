@@ -2,6 +2,8 @@ import {
   LOOKAHEAD,
   CHARACTER_CATEGORY_MAP,
   COMPOUND_KANA_BASE_MAP,
+  MOBILE_INTERMEDIATE_MAP,
+  MOBILE_UNAVAILABLE_CHARACTERS,
   STAGE_INTERVALS,
   allInputCharactersArray,
   initialStages,
@@ -9,7 +11,7 @@ import {
   initialMistakes,
   DEFAULT_ENABLED_CATEGORIES,
 } from '@/constants/kanas';
-import { KanaCategoryId, KanaState, KanaSettings } from '@/types/kana';
+import { InputMode, KanaCategoryId, KanaState, KanaSettings } from '@/types/kana';
 import { Theme } from '@/hooks/useTheme';
 
 /**
@@ -33,7 +35,8 @@ export type InputEvaluationResult = 'correct' | 'intermediate' | 'wrong' | 'none
  */
 export function evaluateKanaInput(
   inputValue: string,
-  targetKana: string | undefined
+  targetKana: string | undefined,
+  inputMode: InputMode = 'desktop'
 ): InputEvaluationResult {
   if (!inputValue || !targetKana) {
     return 'none';
@@ -45,17 +48,30 @@ export function evaluateKanaInput(
     .replace('゛', '\u3099')
     .replace('゜', '\u309A')
     .normalize('NFC');
-  const lastChar = inputValue[inputValue.length - 1];
+  const lastChar = inputValue[inputValue.length - 1] ?? '';
 
   // 1. Matches complete target kana (either precomposed or combined two-character sequence)
   if (normalizedTwo === targetKana || lastChar === targetKana) {
     return 'correct';
   }
 
-  // 2. Check if the target kana is a compound character and the user just typed its valid base character
-  const expectedBase = COMPOUND_KANA_BASE_MAP[targetKana];
-  if (expectedBase && lastChar === expectedBase) {
-    return 'intermediate';
+  // 2. Check intermediate states depending on keyboard mode
+  if (inputMode === 'mobile') {
+    // Mobile 12-key flick: base kana and cycling intermediates via ゛゜小
+    // (e.g. 'つ' -> 'っ' -> 'づ', 'は' -> 'ば' -> 'ぱ', 'あ' -> 'ぁ')
+    const mobileIntermediates = MOBILE_INTERMEDIATE_MAP[targetKana];
+    if (
+      mobileIntermediates &&
+      (mobileIntermediates.includes(lastChar) || mobileIntermediates.includes(normalizedTwo))
+    ) {
+      return 'intermediate';
+    }
+  } else {
+    // Desktop JIS: two-stroke dakuten/handakuten base character before ゛/゜
+    const expectedBase = COMPOUND_KANA_BASE_MAP[targetKana];
+    if (expectedBase && lastChar === expectedBase) {
+      return 'intermediate';
+    }
   }
 
   // 3. User typed an incorrect character
@@ -73,6 +89,7 @@ export interface RepositionKanaParams {
   hasLapsed: boolean;
   charsAnswered: number;
   enabledCategories: Record<KanaCategoryId, boolean>;
+  inputMode?: InputMode;
   ease?: Record<string, number>;
   priority?: Record<string, number>;
 }
@@ -91,29 +108,42 @@ export interface RepositionKanaResult {
 }
 
 /**
- * Checks whether a specific character's category switch is currently enabled.
- * If the character has no category mapping (unexpected), defaults to true.
+ * Checks whether a specific character's category switch is currently enabled
+ * and available in the active keyboard input mode.
  */
 export function isCharacterEnabled(
   char: string,
-  enabledCategories: Record<KanaCategoryId, boolean>
+  enabledCategories: Record<KanaCategoryId, boolean>,
+  inputMode: InputMode = 'desktop'
 ): boolean {
+  if (inputMode === 'mobile') {
+    if (MOBILE_UNAVAILABLE_CHARACTERS.has(char)) {
+      return false;
+    }
+    // On 12-key flick keyboards, を is directly on the わ key (Basic Kana)
+    if (char === 'を') {
+      return enabledCategories.basic ?? true;
+    }
+  }
   const categoryId = CHARACTER_CATEGORY_MAP[char];
   return categoryId ? (enabledCategories[categoryId] ?? true) : true;
 }
 
 /**
- * Filters a queue of characters, returning only those whose category is currently enabled.
+ * Filters a queue of characters, returning only those whose category is currently enabled
+ * and available in the active input mode.
  *
  * @param queue Master queue of characters
  * @param enabledCategories Active category toggle states
+ * @param inputMode Active keyboard input mode ('desktop' or 'mobile')
  * @returns Filtered array of currently active characters
  */
 export function getActiveQueue(
   queue: string[],
-  enabledCategories: Record<KanaCategoryId, boolean>
+  enabledCategories: Record<KanaCategoryId, boolean>,
+  inputMode: InputMode = 'desktop'
 ): string[] {
-  return queue.filter((c) => isCharacterEnabled(c, enabledCategories));
+  return queue.filter((c) => isCharacterEnabled(c, enabledCategories, inputMode));
 }
 
 /**
@@ -147,10 +177,11 @@ export function repositionKana({
   hasLapsed,
   charsAnswered,
   enabledCategories,
+  inputMode = 'desktop',
   ease = {},
   priority = {},
 }: RepositionKanaParams): RepositionKanaResult {
-  const activeQueue = getActiveQueue(queue, enabledCategories);
+  const activeQueue = getActiveQueue(queue, enabledCategories, inputMode);
   const currentKana = activeQueue[0];
 
   if (!currentKana) {
@@ -218,8 +249,8 @@ export function repositionKana({
 
   // 4. Organize backlog of all other characters (excluding the new prompt)
   const otherChars = queue.filter((c) => c !== nextPrompt);
-  const enabledCandidates = otherChars.filter((c) => isCharacterEnabled(c, enabledCategories));
-  const disabledCandidates = otherChars.filter((c) => !isCharacterEnabled(c, enabledCategories));
+  const enabledCandidates = otherChars.filter((c) => isCharacterEnabled(c, enabledCategories, inputMode));
+  const disabledCandidates = otherChars.filter((c) => !isCharacterEnabled(c, enabledCategories, inputMode));
 
   // 5. Select the NEW lookahead character (to follow nextPrompt)
   // Ensure the answered character does not immediately repeat as lookahead if its interval > 1
@@ -279,7 +310,7 @@ export function repositionKana({
  * strongly-typed KanaState without losing user progress.
  */
 export function migrateLoadedState(
-  loaded: Partial<KanaState> & { theme?: Theme; showKeyboard?: boolean; settings?: KanaSettings }
+  loaded: Partial<KanaState> & { theme?: Theme; showKeyboard?: boolean; inputMode?: InputMode; settings?: KanaSettings }
 ): KanaState {
   const charsAnswered = typeof loaded.charsAnswered === 'number' ? loaded.charsAnswered : 0;
 
@@ -347,12 +378,21 @@ export function migrateLoadedState(
     priority[char] = dueSteps[char] ?? 0;
   }
 
-  // 7. Settings (theme, showKeyboard)
+  // 7. Settings (theme, showKeyboard, inputMode, autoSwitchTheme, disableGamificationEffects)
+  const rawInputMode = loaded.settings?.inputMode ?? loaded.inputMode;
+  const rawAutoSwitch = loaded.settings?.autoSwitchTheme;
+  const rawDisableGamification = loaded.settings?.disableGamificationEffects;
+  const rawClassicMode = loaded.settings?.classicMode;
   const settings: KanaSettings = {
     theme: loaded.settings?.theme ?? loaded.theme ?? 'light',
     showKeyboard:
       loaded.settings?.showKeyboard ??
       (typeof loaded.showKeyboard === 'boolean' ? loaded.showKeyboard : true),
+    inputMode: rawInputMode === 'mobile' || rawInputMode === 'desktop' ? rawInputMode : undefined,
+    autoSwitchTheme: typeof rawAutoSwitch === 'boolean' ? rawAutoSwitch : false,
+    disableGamificationEffects:
+      typeof rawDisableGamification === 'boolean' ? rawDisableGamification : false,
+    classicMode: typeof rawClassicMode === 'boolean' ? rawClassicMode : false,
   };
 
   return {

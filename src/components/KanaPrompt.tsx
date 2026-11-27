@@ -32,6 +32,7 @@ export default function KanaPrompt({ currentKana, lookaheadKanas = '' }: KanaPro
   // Check if the current prompt character is a small kana
   const smallKanaInfo = currentKana ? SMALL_KANA_MAP[currentKana] : undefined;
   const isSmall = Boolean(smallKanaInfo);
+  const isLookaheadSmall = Boolean(lookaheadKanas && SMALL_KANA_MAP[lookaheadKanas[0] ?? '']);
 
   // Track whether the user has already been shown the small-kana notice at least once.
   // Initialises synchronously to 'true' (already seen) on the server to avoid hydration mismatch;
@@ -70,7 +71,7 @@ export default function KanaPrompt({ currentKana, lookaheadKanas = '' }: KanaPro
         <div className={`kana-next-question ${isSmall ? 'is-small-kana' : ''}`}>
           {currentKana ?? ''}
         </div>
-        <div className="kana-questions-after">
+        <div className={`kana-questions-after ${isLookaheadSmall ? 'is-small-preview' : ''}`}>
           {lookaheadKanas}
         </div>
       </div>

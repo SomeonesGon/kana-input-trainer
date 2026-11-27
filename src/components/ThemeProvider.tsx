@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, ReactNode, useCallback, useMemo } from 'react';
+import { useState, useEffect, ReactNode, useCallback, useMemo, useRef } from 'react';
 import {
   Theme,
   THEMES,
@@ -33,6 +33,8 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
   const [font, setFontState] = useState<FontId>('theme');
   const [background, setBackgroundState] = useState<BackgroundId>('theme');
   const [isLevelingUp, setIsLevelingUp] = useState<boolean>(false);
+  const [levelUpTick, setLevelUpTick] = useState<number>(0);
+  const levelUpTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Compute resolved font and background
   const { fontId: effectiveFont, fontFamily: effectiveFontFamily } = useMemo(
@@ -123,11 +125,15 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
   }
 
   const triggerLevelUpAnimation = useCallback(() => {
+    setLevelUpTick((c) => c + 1);
     setIsLevelingUp(true);
-    const timer = setTimeout(() => {
+    if (levelUpTimerRef.current) {
+      clearTimeout(levelUpTimerRef.current);
+    }
+    levelUpTimerRef.current = setTimeout(() => {
+      levelUpTimerRef.current = null;
       setIsLevelingUp(false);
     }, 4200);
-    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -142,6 +148,7 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
         effectiveFont,
         effectiveBackground,
         isLevelingUp,
+        levelUpTick,
         triggerLevelUpAnimation,
       }}
     >

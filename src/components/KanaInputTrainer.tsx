@@ -9,10 +9,11 @@ import SettingsModal from '@/components/SettingsModal';
 import GamificationBar from '@/components/GamificationBar';
 import LevelUpBanner from '@/components/LevelUpBanner';
 import { evaluateKanaInput } from '@/utils/srs';
-import { KanaState, KanaSettings } from '@/types/kana';
+import { InputMode, KanaState, KanaSettings } from '@/types/kana';
 import {
   useTheme,
   THEMES,
+  THEME_CONFIGS,
   Theme,
   FontId,
   BackgroundId,
@@ -89,26 +90,83 @@ export default function KanaInputTrainer({
   const [showLevelUpBanner, setShowLevelUpBanner] = useState<boolean>(false);
   const [levelUpLevel, setLevelUpLevel] = useState<number>(1);
   const previousLevelRef = useRef<number | null>(null);
+  const pendingThemeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Detect Level-Up transitions to trigger celebration animation & banner drop
+  // Whether to automatically switch to newly unlocked themes on level-up (disabled by default)
+  const autoSwitchTheme: boolean = state.settings?.autoSwitchTheme ?? false;
+  // Whether to hide gamification visuals (level/XP bar, level-up effects, notifications)
+  const disableGamificationEffects: boolean = state.settings?.disableGamificationEffects ?? false;
+  // Whether Classic minimalist mode is enabled (disables all themes, animations, and extra UI)
+  const classicMode: boolean = state.settings?.classicMode ?? false;
+
+  // Apply data-classic attribute on <html> for minimalist classic styling
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (classicMode) {
+      document.documentElement.setAttribute('data-classic', 'true');
+    } else {
+      document.documentElement.removeAttribute('data-classic');
+    }
+  }, [classicMode]);
+
+  // Clean up any pending delayed theme-switch timer on unmount
+  useEffect(() => {
+    return () => {
+      if (pendingThemeTimerRef.current) {
+        clearTimeout(pendingThemeTimerRef.current);
+      }
+    };
+  }, []);
+
+  // Detect Level-Up transitions to trigger celebration animation, banner drop, and delayed auto-theme switch
   useEffect(() => {
     if (previousLevelRef.current === null) {
       previousLevelRef.current = gamificationStats.level;
       return;
     }
     if (gamificationStats.level > previousLevelRef.current) {
-      setLevelUpLevel(gamificationStats.level);
-      setShowLevelUpBanner(true);
-      triggerLevelUpAnimation();
-      previousLevelRef.current = gamificationStats.level;
-      const timer = setTimeout(() => {
-        setShowLevelUpBanner(false);
-      }, 4500);
-      return () => clearTimeout(timer);
+      const prevLevel = previousLevelRef.current;
+      const newLevel = gamificationStats.level;
+      setLevelUpLevel(newLevel);
+
+      if (!disableGamificationEffects && !classicMode) {
+        setShowLevelUpBanner(true);
+        triggerLevelUpAnimation();
+      }
+
+      // Auto-switch to the newly unlocked theme mid-way through the level-up background effect
+      if (autoSwitchTheme && !classicMode) {
+        const unlockedThemes = THEME_CONFIGS.filter(
+          (t) => t.minLevel > prevLevel && t.minLevel <= newLevel
+        );
+        const latestUnlocked = unlockedThemes[unlockedThemes.length - 1];
+        if (latestUnlocked) {
+          if (pendingThemeTimerRef.current) {
+            clearTimeout(pendingThemeTimerRef.current);
+          }
+          pendingThemeTimerRef.current = setTimeout(() => {
+            pendingThemeTimerRef.current = null;
+            setTheme(latestUnlocked.id);
+          }, disableGamificationEffects ? 0 : 1400);
+        }
+      }
+
+      previousLevelRef.current = newLevel;
+      if (!disableGamificationEffects && !classicMode) {
+        const timer = setTimeout(() => {
+          setShowLevelUpBanner(false);
+        }, 4500);
+        return () => clearTimeout(timer);
+      }
     } else {
       previousLevelRef.current = gamificationStats.level;
     }
-  }, [gamificationStats.level, triggerLevelUpAnimation]);
+  }, [gamificationStats.level, autoSwitchTheme, disableGamificationEffects, classicMode, setTheme, triggerLevelUpAnimation]);
+
+  // Active keyboard input mode ('desktop' JIS or 'mobile' 12-key flick)
+  const inputMode: InputMode = state.settings?.inputMode ?? 'desktop';
+  const hasLoadedInputModeRef = useRef(false);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   // Active prompt is the head of the enabled category queue
   const activePrompt = activeQueue[0];
@@ -124,13 +182,18 @@ export default function KanaInputTrainer({
         font,
         background,
         showKeyboard,
+        inputMode,
+        autoSwitchTheme,
+        disableGamificationEffects,
+        classicMode,
       },
       theme,
       font,
       background,
       showKeyboard,
+      inputMode,
     }),
-    [state, theme, font, background, showKeyboard]
+    [state, theme, font, background, showKeyboard, inputMode, autoSwitchTheme, disableGamificationEffects, classicMode]
   );
 
   // 1. Continuous Autosave hook: automatically saves to browser localStorage on every state transition
@@ -141,6 +204,7 @@ export default function KanaInputTrainer({
       font?: FontId;
       background?: BackgroundId;
       showKeyboard?: boolean;
+      inputMode?: InputMode;
     }
   >({
     state: fullSavePayload,
@@ -165,9 +229,61 @@ export default function KanaInputTrainer({
       if (typeof loadedKeyboard === 'boolean') {
         onSetShowKeyboard?.(loadedKeyboard);
       }
+      // Track if inputMode was explicitly saved so device auto-detection won't override it
+      const loadedMode = loadedState.settings?.inputMode ?? loadedState.inputMode;
+      if (loadedMode === 'mobile' || loadedMode === 'desktop') {
+        hasLoadedInputModeRef.current = true;
+      }
+      // Prevent false level-up / auto-theme-switch when hydrating saved state
+      previousLevelRef.current = null;
       dispatch({ type: 'loadState', state: loadedState });
     },
   });
+
+  // Cheap automatic device detection on first visit when no inputMode preference is saved
+  // Also mark hydration complete after useAutosave's mount effect has run
+  useEffect(() => {
+    setIsHydrated(true);
+    if (hasLoadedInputModeRef.current || typeof window === 'undefined') return;
+    const isTouchMobile =
+      window.matchMedia('(pointer: coarse)').matches && window.innerWidth <= 991;
+    if (isTouchMobile) {
+      dispatch({ type: 'updateSettings', settings: { inputMode: 'mobile' } });
+    }
+  }, [dispatch]);
+
+  // Non-optional: if the player levels down and their active theme (or font/background)
+  // becomes locked, switch to the previous unlocked theme.
+  useEffect(() => {
+    if (!isHydrated) return;
+
+    const currentThemeConfig = THEME_CONFIGS.find((t) => t.id === theme);
+    if (currentThemeConfig && currentThemeConfig.minLevel > gamificationStats.level) {
+      if (pendingThemeTimerRef.current) {
+        clearTimeout(pendingThemeTimerRef.current);
+        pendingThemeTimerRef.current = null;
+      }
+      const unlockedThemes = THEME_CONFIGS.filter((t) => t.minLevel <= gamificationStats.level);
+      const previousUnlocked = unlockedThemes[unlockedThemes.length - 1];
+      if (previousUnlocked) {
+        setTheme(previousUnlocked.id);
+      }
+    }
+
+    if (font !== 'theme') {
+      const currentFontConfig = FONT_CONFIGS.find((f) => f.id === font);
+      if (currentFontConfig && currentFontConfig.minLevel > gamificationStats.level) {
+        setFont('theme');
+      }
+    }
+
+    if (background !== 'theme') {
+      const currentBgConfig = BACKGROUND_CONFIGS.find((b) => b.id === background);
+      if (currentBgConfig && currentBgConfig.minLevel > gamificationStats.level) {
+        setBackground('theme');
+      }
+    }
+  }, [isHydrated, gamificationStats.level, theme, setTheme, font, setFont, background, setBackground]);
 
   // 2. Manual Export / Import file backup hook
   const {
@@ -184,6 +300,7 @@ export default function KanaInputTrainer({
       font?: FontId;
       background?: BackgroundId;
       showKeyboard?: boolean;
+      inputMode?: InputMode;
     }
   >({
     fileNamePrefix: 'kanaState',
@@ -208,6 +325,8 @@ export default function KanaInputTrainer({
       if (typeof loadedKeyboard === 'boolean') {
         onSetShowKeyboard?.(loadedKeyboard);
       }
+      // Prevent false level-up / auto-theme-switch when importing a backup
+      previousLevelRef.current = null;
       dispatch({ type: 'loadState', state: loadedState });
       // Reset input history when loading a backup
       setPastInput(null);
@@ -224,11 +343,45 @@ export default function KanaInputTrainer({
   }
 
   function handleResetProgress() {
+    if (pendingThemeTimerRef.current) {
+      clearTimeout(pendingThemeTimerRef.current);
+      pendingThemeTimerRef.current = null;
+    }
+    previousLevelRef.current = null;
     dispatch({ type: 'resetProgress' });
     setPastInput(null);
     setInputValue('');
     keystrokeTimestampsRef.current = [];
     setSpeedCPM(0);
+  }
+
+  function handleToggleAutoSwitchTheme() {
+    dispatch({ type: 'updateSettings', settings: { autoSwitchTheme: !autoSwitchTheme } });
+  }
+
+  function handleToggleDisableGamificationEffects() {
+    const next = !disableGamificationEffects;
+    if (next) {
+      setShowLevelUpBanner(false);
+    }
+    dispatch({ type: 'updateSettings', settings: { disableGamificationEffects: next } });
+  }
+
+  function handleToggleClassicMode() {
+    const next = !classicMode;
+    if (next) {
+      setShowLevelUpBanner(false);
+      setIsShaking(false);
+    }
+    dispatch({ type: 'updateSettings', settings: { classicMode: next } });
+  }
+
+  function handleToggleInputMode() {
+    const nextMode: InputMode = inputMode === 'mobile' ? 'desktop' : 'mobile';
+    dispatch({ type: 'updateSettings', settings: { inputMode: nextMode } });
+    setPastInput(null);
+    setInputValue('');
+    setWasCorrect(true);
   }
 
   /**
@@ -241,7 +394,7 @@ export default function KanaInputTrainer({
     const val = e.target.value;
     const targetKana = activePrompt;
 
-    const result = evaluateKanaInput(val, targetKana);
+    const result = evaluateKanaInput(val, targetKana, inputMode);
 
     if (result === 'correct') {
       console.log('dispatch correct');
@@ -277,13 +430,15 @@ export default function KanaInputTrainer({
       console.log('dispatch wrong');
       dispatch({ type: 'wrong', ans });
       setWasCorrect(false);
-      // Trigger horizontal shake animation (resetting first to guarantee re-trigger on consecutive mistakes)
-      setIsShaking(false);
-      requestAnimationFrame(() => {
+      if (!classicMode) {
+        // Trigger horizontal shake animation (resetting first to guarantee re-trigger on consecutive mistakes)
+        setIsShaking(false);
         requestAnimationFrame(() => {
-          setIsShaking(true);
+          requestAnimationFrame(() => {
+            setIsShaking(true);
+          });
         });
-      });
+      }
       // Push wrong character to the past slot on the left so user has clear feedback
       setPastInput({ char: ans ?? '?', wasCorrect: false });
       // Erase active slot so the user can immediately try again with a clean box
@@ -308,8 +463,21 @@ export default function KanaInputTrainer({
           </p>
         </div>
 
-        {/* Right: Keyboard toggle, Settings button, Autosave indicator & Characters Answered */}
+        {/* Right: Mode switch, Keyboard toggle, Settings button, Autosave indicator & Characters Answered */}
         <div className="d-flex flex-wrap align-items-center gap-2">
+          {/* Switch between Desktop JIS and Mobile 12-Key Flick mode */}
+          <button
+            className={`btn btn-sm px-2 py-1 ${inputMode === 'mobile' ? 'btn-secondary' : 'btn-outline-secondary'}`}
+            onClick={handleToggleInputMode}
+            title={
+              inputMode === 'mobile'
+                ? 'Mobile 12-Key Flick Mode active (click to switch to Desktop JIS)'
+                : 'Desktop JIS Mode active (click to switch to Mobile 12-Key Flick)'
+            }
+          >
+            {inputMode === 'mobile' ? '📱 12-Key' : '⌨️ JIS'}
+          </button>
+
           {/* Toggle keyboard reference image */}
           <button
             className={`btn btn-sm px-2 py-1 ${showKeyboard ? 'btn-outline-secondary' : 'btn-secondary'}`}
@@ -331,7 +499,7 @@ export default function KanaInputTrainer({
           <div className="vr d-none d-sm-block my-1" style={{ height: '18px' }} />
 
           <div className="d-flex align-items-center gap-2">
-            <AutosaveIndicator status={autosaveStatus} />
+            {!classicMode && <AutosaveIndicator status={autosaveStatus} />}
             <span className="badge text-bg-light border text-secondary fw-normal px-2 py-1">
               Answered: <strong className="text-dark">{ state.charsAnswered }</strong>
             </span>
@@ -340,13 +508,17 @@ export default function KanaInputTrainer({
       </div>
 
       {/* Fixed-position level-up toast — position:fixed so it never shifts page elements */}
-      {showLevelUpBanner && <LevelUpBanner level={levelUpLevel} />}
+      {!classicMode && !disableGamificationEffects && showLevelUpBanner && (
+        <LevelUpBanner level={levelUpLevel} />
+      )}
 
       {/* Main Interactive Stage: Symmetrical 3-column grid ensuring Center is ALWAYS 50% dead-center */}
       <div className="kana-stage-grid">
         {/* Left Column: GamificationBar anchored top-left, balancing Column 3 */}
         <div className="kana-stage-left">
-          <GamificationBar stats={gamificationStats} />
+          {!classicMode && (
+            <GamificationBar stats={gamificationStats} statsOnly={disableGamificationEffects} />
+          )}
         </div>
 
         {/* Center Column: ALWAYS mathematically locked in the dead-center (50%) */}
@@ -388,11 +560,13 @@ export default function KanaInputTrainer({
                   placeholder={pastInput ? '' : 'かな'}
                   onChange={handleInputChange}
                   maxLength={4}
+                  inputMode='text'
+                  enterKeyHint='done'
                   autoFocus
                   autoComplete='off'
                   autoCorrect='off'
                   autoCapitalize='off'
-                  spellCheck='false'
+                  spellCheck={false}
                 />
               </div>
             </div>
@@ -404,6 +578,7 @@ export default function KanaInputTrainer({
           <KanaCategorySwitches
             enabledCategories={state.enabledCategories}
             onToggle={(category) => dispatch({ type: 'toggleCategory', category })}
+            inputMode={inputMode}
           />
         </div>
       </div>
@@ -412,6 +587,12 @@ export default function KanaInputTrainer({
       <SettingsModal
         isOpen={isSettingsOpen}
         userLevel={gamificationStats.level}
+        autoSwitchTheme={autoSwitchTheme}
+        onToggleAutoSwitchTheme={handleToggleAutoSwitchTheme}
+        disableGamificationEffects={disableGamificationEffects}
+        onToggleDisableGamificationEffects={handleToggleDisableGamificationEffects}
+        classicMode={classicMode}
+        onToggleClassicMode={handleToggleClassicMode}
         onClose={() => setIsSettingsOpen(false)}
         onExport={exportState}
         onImport={importState}
