@@ -1,5 +1,28 @@
 # Agent Log — Henry
 
+## 2026-11-27 — Normalize 8-Bit Arcade Font Sizing & Prevent Overflow
+
+- **Pseudonym:** Henry
+- **Model:** Gemini 4 Hydrogen
+- **Status:** `COMPLETED`
+- **Branch / Base Commit:** `feature/arcade-font-sizing` (`ff9b4f6`)
+
+### Goal
+Prevent the `arcade` font (`Press Start 2P`) from overflowing containers and blowing up layout sizing across the UI, using minimal CSS changes.
+
+### Planned Steps
+- [x] Add minimal `html[data-font="arcade"]:not([data-classic="true"])` rules in `src/styles/globals.css` to scale root `font-size` (`11.5px`), tighten `letter-spacing`, enable safe `overflow-wrap`, and allow `.kana-stage-right` / `.gamification-bar` to fit without horizontal overflow.
+- [x] Verify with `npx tsc --noEmit` and `npm run build`, update `agents/Henry.md` to `COMPLETED`, and commit minimally with `Co-authored-by: Henry <Henry@users.noreply.github.com>`.
+
+### Changes Made
+- `src/styles/globals.css` — Added `html[data-font="arcade"]:not([data-classic="true"])` rules scaling root `font-size` to `11.5px`, applying `letter-spacing: -0.02em` and `overflow-wrap: anywhere` on `body`, and sizing `.kana-stage-right` (`fit-content`, `min-width: 260px`) and `.gamification-bar` (`max-width: 420px`) to prevent horizontal overflow.
+
+### Verification
+- `npx tsc --noEmit` — passed (exit code `0`).
+- `npm run build` — passed (exit code `0`).
+
+---
+
 ## 2026-11-27 — Sequential Left-to-Right Font Transition on Theme Change
 
 - **Pseudonym:** Henry
