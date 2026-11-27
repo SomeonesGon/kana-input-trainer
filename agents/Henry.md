@@ -1,5 +1,28 @@
 # Agent Log — Henry
 
+## 2026-11-27 — Prevent Input Field Vertical Shift on Small Kana
+
+- **Pseudonym:** Henry
+- **Model:** Gemini 4 Hydrogen
+- **Status:** `COMPLETED`
+- **Branch / Base Commit:** `feature/correct-answer-streak` (`73f05a9`)
+
+### Goal
+Fix the vertical layout shift where the input field moves up/down when a small kana character (`ぁぃぅぇぉっゃゅょ`) appears in `KanaPrompt`. The input field must remain completely stationary vertically.
+
+### Planned Steps
+- [x] Inspect `src/components/KanaPrompt.tsx` and `src/styles/globals.css` to find why `.kana-prompt` height changes on small kana.
+- [x] Lock `.kana-prompt` height (`5.5rem`) and `.kana-next-question` `min-height: 5.5rem` (using `rem` instead of `em`) so `.kana-prompt` height is invariant across regular and small kana.
+- [x] Verify with `npx tsc --noEmit`, update `agents/Henry.md` to `COMPLETED`, and commit minimally with `Co-authored-by: Henry <Henry@users.noreply.github.com>`.
+
+### Changes Made
+- `src/styles/globals.css` — Locked `.kana-prompt` to `height: 5.5rem`, changed `.kana-next-question` `min-height` from `1.1em` to `5.5rem`, and scoped `.kana-next-question` transitions away from `all` so small kana (`3.5rem`) never shrink the prompt row or shift the input box.
+
+### Verification
+- `npx tsc --noEmit` — passed (exit code `0`).
+
+---
+
 ## 2026-11-27 — Collapsible Dev Tools & Inline Quick Settings (Dev Mode Only)
 
 - **Pseudonym:** Henry

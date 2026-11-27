@@ -1258,6 +1258,8 @@ main {
   font-size: 3rem;
   text-align: center;
   color: var(--text-primary);
+  /* Lock vertical height to match full-size 5rem kana (5rem * 1.1 = 5.5rem) so small kana never shift the input field */
+  height: 5.5rem;
 }
 
 .kana-ghost {
@@ -1268,22 +1270,23 @@ main {
 .kana-next-question {
   font-size: 5rem;
   line-height: 1.1;
-  min-height: 1.1em;
+  min-height: 5.5rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   color: var(--text-primary);
 }
 
 /* Distinctive styling for small kana characters (ぁ, っ, ゃ, etc.) */
 .kana-next-question.is-small-kana {
   font-size: 3.5rem;
+  min-height: 0;
   color: var(--small-kana-color);
   background-color: var(--small-kana-bg);
   border: 2px dashed var(--small-kana-border);
   border-radius: 14px;
-  padding: 0 16px;
+  padding: 0.15em 16px;
   box-shadow: 0 2px 8px var(--small-kana-shadow);
   transform: translateY(0.22em);
 }
