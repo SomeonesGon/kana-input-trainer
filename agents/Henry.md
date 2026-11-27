@@ -1,5 +1,33 @@
 # Agent Log — Henry
 
+## 2026-11-27 — Developer Level Controls (Change Level, Level Up / Level Down Events)
+
+- **Pseudonym:** Henry
+- **Model:** Gemini 4 Hydrogen
+- **Status:** `COMPLETED`
+- **Branch / Base Commit:** `feature/correct-answer-streak` (`b8dfdcd`)
+
+### Goal
+Extend the `DEVELOPER_MODE=true` panel in `KanaInputTrainer` with developer controls for leveling:
+- Change/override the active player level (`1`–`12`, or reset back to real computed level) without mutating SRS progress.
+- Trigger Level Up (`+1`) and Level Down (`-1`) events (including level-up banner, background celebration, auto-theme-switch, and theme/font/background re-locking on level-down).
+- Trigger/replay the level-up celebration effect on demand.
+
+### Planned Steps
+- [x] Add `applyLevelOverride` helper in `src/utils/gamification.ts`.
+- [x] Add `devLevelOverride` state and Level Up / Level Down / Replay FX controls to the `IS_DEVELOPER_MODE` panel in `src/components/KanaInputTrainer.tsx`.
+- [x] Verify `npx tsc --noEmit` passes with 0 errors.
+- [x] Update `agents/Henry.md` to `COMPLETED` and commit on `feature/correct-answer-streak` with `Co-authored-by: Henry <Henry@users.noreply.github.com>`.
+
+### Changes Made
+- `src/utils/gamification.ts` — Added `applyLevelOverride(stats, overrideLevel)` to preview any level while keeping real Coverage, Accuracy, and Speed metrics intact.
+- `src/components/KanaInputTrainer.tsx` — Added `devLevelOverride` state, `triggerDevLevelUpReplay()`, and the **Dev: Level & Events** controls (`-1 Level Down`, `+1 Level Up`, `Replay FX`, `Reset`, and `L1`/`L2`/`L3`/`L5`/`L7`/`L10`/`L11` quick-jump buttons) inside the `IS_DEVELOPER_MODE` panel.
+
+### Verification
+- `npx tsc --noEmit` — passed (exit code `0`).
+
+---
+
 ## 2026-11-27 — Correct Answer Streak Visual Feedback & Developer Mode
 
 - **Pseudonym:** Henry

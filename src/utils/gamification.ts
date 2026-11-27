@@ -203,3 +203,38 @@ export function getStreakInfo(streak: number): StreakInfo {
     tier,
   };
 }
+
+/**
+ * Returns a GamificationStats object overridden to a specific level (used in Developer Mode).
+ * Preserves Coverage, Accuracy, and Speed metrics while updating level and XP thresholds.
+ */
+export function applyLevelOverride(
+  stats: GamificationStats,
+  overrideLevel: number | null
+): GamificationStats {
+  if (overrideLevel === null || !Number.isFinite(overrideLevel) || overrideLevel < 1) {
+    return stats;
+  }
+
+  const level = Math.floor(overrideLevel);
+  const lastDefinedIndex = LEVEL_THRESHOLDS.length - 1;
+  const lastDefinedXP = LEVEL_THRESHOLDS[lastDefinedIndex] ?? 46000;
+
+  const currentThreshold =
+    level - 1 <= lastDefinedIndex
+      ? (LEVEL_THRESHOLDS[level - 1] ?? 0)
+      : lastDefinedXP + (level - 1 - lastDefinedIndex) * 12000;
+
+  const nextThreshold =
+    level <= lastDefinedIndex
+      ? (LEVEL_THRESHOLDS[level] ?? currentThreshold + 12000)
+      : currentThreshold + 12000;
+
+  return {
+    ...stats,
+    level,
+    currentXP: currentThreshold,
+    nextLevelXP: nextThreshold,
+    progressPercent: 0,
+  };
+}

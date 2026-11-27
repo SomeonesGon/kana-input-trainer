@@ -20,7 +20,7 @@ import {
   FONT_CONFIGS,
   BACKGROUND_CONFIGS,
 } from '@/hooks/useTheme';
-import { computeGamificationStats, getStreakInfo } from '@/utils/gamification';
+import { computeGamificationStats, getStreakInfo, applyLevelOverride } from '@/utils/gamification';
 
 const IS_DEVELOPER_MODE = process.env.DEVELOPER_MODE === 'true';
 
@@ -84,10 +84,21 @@ export default function KanaInputTrainer({
   const keystrokeTimestampsRef = useRef<number[]>([]);
   const [speedCPM, setSpeedCPM] = useState<number>(0);
 
+  // Developer Mode level override (null = use real computed level)
+  const [devLevelOverride, setDevLevelOverride] = useState<number | null>(null);
+
   // Computed gamification metrics (Level, XP, Coverage, Accuracy, Speed)
-  const gamificationStats = useMemo(
+  const baseGamificationStats = useMemo(
     () => computeGamificationStats(state.charsAnswered, state.stages, state.mistakes, speedCPM),
     [state.charsAnswered, state.stages, state.mistakes, speedCPM]
+  );
+
+  const gamificationStats = useMemo(
+    () =>
+      IS_DEVELOPER_MODE
+        ? applyLevelOverride(baseGamificationStats, devLevelOverride)
+        : baseGamificationStats,
+    [baseGamificationStats, devLevelOverride]
   );
 
   // Consecutive correct-answer streak & incremental intensity (20+ chars)
@@ -99,6 +110,7 @@ export default function KanaInputTrainer({
   const [levelUpLevel, setLevelUpLevel] = useState<number>(1);
   const previousLevelRef = useRef<number | null>(null);
   const pendingThemeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const levelUpBannerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Whether to automatically switch to newly unlocked themes on level-up (disabled by default)
   const autoSwitchTheme: boolean = state.settings?.autoSwitchTheme ?? false;
@@ -125,14 +137,31 @@ export default function KanaInputTrainer({
     return () => setStreakIntensity(0);
   }, [classicMode, disableGamificationEffects, streakInfo.intensity, setStreakIntensity]);
 
-  // Clean up any pending delayed theme-switch timer on unmount
+  // Clean up any pending delayed timers on unmount
   useEffect(() => {
     return () => {
       if (pendingThemeTimerRef.current) {
         clearTimeout(pendingThemeTimerRef.current);
       }
+      if (levelUpBannerTimerRef.current) {
+        clearTimeout(levelUpBannerTimerRef.current);
+      }
     };
   }, []);
+
+  function triggerDevLevelUpReplay() {
+    if (!IS_DEVELOPER_MODE || classicMode || disableGamificationEffects) return;
+    setLevelUpLevel(gamificationStats.level);
+    setShowLevelUpBanner(true);
+    triggerLevelUpAnimation();
+    if (levelUpBannerTimerRef.current) {
+      clearTimeout(levelUpBannerTimerRef.current);
+    }
+    levelUpBannerTimerRef.current = setTimeout(() => {
+      levelUpBannerTimerRef.current = null;
+      setShowLevelUpBanner(false);
+    }, 4500);
+  }
 
   // Detect Level-Up transitions to trigger celebration animation, banner drop, and delayed auto-theme switch
   useEffect(() => {
@@ -577,7 +606,7 @@ export default function KanaInputTrainer({
                 }}
                 aria-label="Developer streak value slider"
               />
-              <div className="d-flex flex-wrap gap-1">
+              <div className="d-flex flex-wrap gap-1 mb-2">
                 {[0, 20, 35, 50, 80, 100].map((val) => (
                   <button
                     key={val}
@@ -594,6 +623,78 @@ export default function KanaInputTrainer({
                     {val}
                   </button>
                 ))}
+              </div>
+
+              {/* Developer Mode Level & Level-Up/Down Controls */}
+              <div className="pt-2 mt-2 border-top">
+                <div className="d-flex align-items-center justify-content-between mb-1">
+                  <span className="fw-bold text-uppercase" style={{ letterSpacing: '0.04em', color: 'var(--text-primary)' }}>
+                    Dev: Level &amp; Events
+                  </span>
+                  <div className="d-flex align-items-center gap-1">
+                    <span style={{ color: 'var(--text-muted)' }}>
+                      Lvl {gamificationStats.level} ({devLevelOverride !== null ? 'Override' : 'Real'})
+                    </span>
+                    {devLevelOverride !== null && (
+                      <button
+                        type="button"
+                        className="btn btn-outline-secondary btn-sm py-0 px-1"
+                        style={{ fontSize: '0.65rem' }}
+                        onClick={() => setDevLevelOverride(null)}
+                        title="Restore real computed level"
+                      >
+                        Reset
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="d-flex flex-wrap gap-1 mb-1">
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary btn-sm py-0 px-2"
+                    style={{ fontSize: '0.7rem' }}
+                    disabled={gamificationStats.level <= 1}
+                    onClick={() => setDevLevelOverride(Math.max(1, gamificationStats.level - 1))}
+                    title="Trigger level down (-1)"
+                  >
+                    -1 Level Down
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-outline-primary btn-sm py-0 px-2"
+                    style={{ fontSize: '0.7rem' }}
+                    onClick={() => setDevLevelOverride(gamificationStats.level + 1)}
+                    title="Trigger level up (+1)"
+                  >
+                    +1 Level Up
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary btn-sm py-0 px-2"
+                    style={{ fontSize: '0.7rem' }}
+                    onClick={triggerDevLevelUpReplay}
+                    title="Replay level-up banner & background shower at current level"
+                  >
+                    Replay FX
+                  </button>
+                </div>
+
+                <div className="d-flex flex-wrap gap-1">
+                  {[1, 2, 3, 5, 7, 10, 11].map((lvl) => (
+                    <button
+                      key={lvl}
+                      type="button"
+                      className={`btn btn-sm py-0 px-2 ${
+                        gamificationStats.level === lvl ? 'btn-primary' : 'btn-outline-secondary'
+                      }`}
+                      style={{ fontSize: '0.7rem' }}
+                      onClick={() => setDevLevelOverride(lvl)}
+                    >
+                      L{lvl}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           )}
