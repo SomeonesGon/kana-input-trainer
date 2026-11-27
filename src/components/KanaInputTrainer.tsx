@@ -910,6 +910,8 @@ export default function KanaInputTrainer({
           <KanaPrompt
             currentKana={activePrompt}
             lookaheadKanas={lookaheadKanas}
+            transitionKey={state.charsAnswered}
+            classicMode={classicMode}
           />
 
           {/* Dual-slot input card: Past character on left (smaller, gray), active input on right */}

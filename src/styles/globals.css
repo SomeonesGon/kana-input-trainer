@@ -1303,6 +1303,46 @@ main {
   transform: translateY(0.25em);
 }
 
+/* Snappy non-blocking transition when preview character advances into active prompt */
+@keyframes kana-enter-from-preview {
+  0% {
+    opacity: 0.55;
+    transform: translateX(28px) scale(0.68);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes kana-preview-enter {
+  0% {
+    opacity: 0;
+    transform: translateX(14px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.kana-enter-from-preview {
+  display: inline-block;
+  animation: kana-enter-from-preview 130ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+  will-change: transform, opacity;
+}
+
+.kana-preview-enter {
+  display: inline-block;
+  animation: kana-preview-enter 130ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+  will-change: transform, opacity;
+}
+
+html[data-classic="true"] .kana-enter-from-preview,
+html[data-classic="true"] .kana-preview-enter {
+  animation: none !important;
+}
+
 /* =============================================================================
    INPUT CARD
    ============================================================================= */
@@ -2009,6 +2049,8 @@ html[data-classic="true"][data-theme="dark"] .btn-close {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .kana-enter-from-preview,
+  .kana-preview-enter,
   .kana-streak-pulse-ring,
   .kana-streak-break-ring,
   .bg-streak-aura,

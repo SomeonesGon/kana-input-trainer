@@ -1,5 +1,31 @@
 # Agent Log — Henry
 
+## 2026-11-27 — Snappy Preview-to-Prompt Character Transition
+
+- **Pseudonym:** Henry
+- **Model:** Gemini 4 Hydrogen
+- **Status:** `COMPLETED`
+- **Branch / Base Commit:** `feature/correct-answer-streak` (`8adc528`)
+
+### Goal
+Add a fast, snappy (`~130ms`), non-blocking CSS transition when the preview character advances into the current active character in `KanaPrompt`, excluded when Classic minimalist mode (`classicMode` / `data-classic="true"`) is enabled.
+
+### Planned Steps
+- [x] Update `src/components/KanaPrompt.tsx` to track prompt advances after initial mount and apply `.kana-enter-from-preview` / `.kana-preview-enter` classes (skipped when `classicMode` is true).
+- [x] Pass `classicMode={classicMode}` and `transitionKey={state.charsAnswered}` to `<KanaPrompt />` in `src/components/KanaInputTrainer.tsx`.
+- [x] Add snappy `@keyframes` (`130ms`, `transform` + `opacity` only) in `src/styles/globals.css`, disabled under `html[data-classic="true"]` and `@media (prefers-reduced-motion: reduce)`.
+- [x] Verify with `npx tsc --noEmit`, update `agents/Henry.md` to `COMPLETED`, and commit minimally with `Co-authored-by: Henry <Henry@users.noreply.github.com>`.
+
+### Changes Made
+- `src/components/KanaPrompt.tsx` — Added `transitionKey` and `classicMode` props, keying inner `<span>` wrappers on prompt advance so the active character slides/scales from the preview slot without disturbing `.is-small-kana` vertical alignment or blocking input.
+- `src/components/KanaInputTrainer.tsx` — Passed `transitionKey={state.charsAnswered}` and `classicMode={classicMode}` to `<KanaPrompt />`.
+- `src/styles/globals.css` — Added `130ms` `@keyframes kana-enter-from-preview` and `kana-preview-enter` animations, disabled under `html[data-classic="true"]` and `prefers-reduced-motion: reduce`.
+
+### Verification
+- `npx tsc --noEmit` — passed (exit code `0`).
+
+---
+
 ## 2026-11-27 — Prevent Input Field Vertical Shift on Small Kana
 
 - **Pseudonym:** Henry

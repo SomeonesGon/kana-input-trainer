@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { SMALL_KANA_MAP } from '@/constants/kanas';
 
 /** localStorage key used to remember that the user has already seen the small-kana notice. */
@@ -12,6 +12,10 @@ interface KanaPromptProps {
   currentKana?: string;
   /** Upcoming kana characters shown for preview lookahead */
   lookaheadKanas?: string;
+  /** Monotonic counter (e.g. charsAnswered) used to trigger snappy enter transitions on prompt advance */
+  transitionKey?: number;
+  /** When true (Classic minimalist mode), prompt transitions are disabled */
+  classicMode?: boolean;
 }
 
 /**
@@ -28,11 +32,18 @@ interface KanaPromptProps {
  * full-width characters have uniform glyph widths, this ensures the active prompt in the middle
  * remains centered within the flexbox container.
  */
-export default function KanaPrompt({ currentKana, lookaheadKanas = '' }: KanaPromptProps) {
+export default function KanaPrompt({
+  currentKana,
+  lookaheadKanas = '',
+  transitionKey = 0,
+  classicMode = false,
+}: KanaPromptProps) {
   // Check if the current prompt character is a small kana
   const smallKanaInfo = currentKana ? SMALL_KANA_MAP[currentKana] : undefined;
   const isSmall = Boolean(smallKanaInfo);
   const isLookaheadSmall = Boolean(lookaheadKanas && SMALL_KANA_MAP[lookaheadKanas[0] ?? '']);
+  const initialKeyRef = useRef<number>(transitionKey);
+  const shouldAnimate = !classicMode && transitionKey !== initialKeyRef.current;
 
   // Track whether the user has already been shown the small-kana notice at least once.
   // Initialises synchronously to 'true' (already seen) on the server to avoid hydration mismatch;
@@ -69,10 +80,20 @@ export default function KanaPrompt({ currentKana, lookaheadKanas = '' }: KanaPro
           {'空' /* this is a placeholder so the next-question will be centered */}
         </div>
         <div className={`kana-next-question ${isSmall ? 'is-small-kana' : ''}`}>
-          {currentKana ?? ''}
+          <span
+            key={shouldAnimate ? `q-${transitionKey}` : 'q-static'}
+            className={shouldAnimate ? 'kana-enter-from-preview' : undefined}
+          >
+            {currentKana ?? ''}
+          </span>
         </div>
         <div className={`kana-questions-after ${isLookaheadSmall ? 'is-small-preview' : ''}`}>
-          {lookaheadKanas}
+          <span
+            key={shouldAnimate ? `p-${transitionKey}` : 'p-static'}
+            className={shouldAnimate ? 'kana-preview-enter' : undefined}
+          >
+            {lookaheadKanas}
+          </span>
         </div>
       </div>
     </div>
