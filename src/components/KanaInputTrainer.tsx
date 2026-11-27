@@ -20,7 +20,9 @@ import {
   FONT_CONFIGS,
   BACKGROUND_CONFIGS,
 } from '@/hooks/useTheme';
-import { computeGamificationStats } from '@/utils/gamification';
+import { computeGamificationStats, getStreakInfo } from '@/utils/gamification';
+
+const IS_DEVELOPER_MODE = process.env.DEVELOPER_MODE === 'true';
 
 /**
  * Record of the most recently entered character for visual feedback.
@@ -65,9 +67,11 @@ export default function KanaInputTrainer({
     background,
     setBackground,
     triggerLevelUpAnimation,
+    setStreakIntensity,
   } = useTheme();
   const [wasCorrect, setWasCorrect] = useState<boolean>(true);
   const [isShaking, setIsShaking] = useState<boolean>(false);
+  const [streakPulseTick, setStreakPulseTick] = useState<number>(0);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   // Controlled input value ensuring the active typing slot stays clean
   const [inputValue, setInputValue] = useState<string>('');
@@ -85,6 +89,10 @@ export default function KanaInputTrainer({
     () => computeGamificationStats(state.charsAnswered, state.stages, state.mistakes, speedCPM),
     [state.charsAnswered, state.stages, state.mistakes, speedCPM]
   );
+
+  // Consecutive correct-answer streak & incremental intensity (20+ chars)
+  const streak = state.streak ?? 0;
+  const streakInfo = useMemo(() => getStreakInfo(streak), [streak]);
 
   // Level-up celebration state
   const [showLevelUpBanner, setShowLevelUpBanner] = useState<boolean>(false);
@@ -108,6 +116,14 @@ export default function KanaInputTrainer({
       document.documentElement.removeAttribute('data-classic');
     }
   }, [classicMode]);
+
+  // Sync background streak intensity (disabled in Classic or when gamification effects are off)
+  useEffect(() => {
+    const activeIntensity =
+      classicMode || disableGamificationEffects ? 0 : streakInfo.intensity;
+    setStreakIntensity(activeIntensity);
+    return () => setStreakIntensity(0);
+  }, [classicMode, disableGamificationEffects, streakInfo.intensity, setStreakIntensity]);
 
   // Clean up any pending delayed theme-switch timer on unmount
   useEffect(() => {
@@ -415,6 +431,9 @@ export default function KanaInputTrainer({
       dispatch({ type: 'correct' });
       setWasCorrect(true);
       setIsShaking(false);
+      if (!classicMode && !disableGamificationEffects && streak + 1 >= 20) {
+        setStreakPulseTick((t) => t + 1);
+      }
       // Push the completed character to the past slot on the left
       setPastInput({ char: targetKana ?? val, wasCorrect: true });
       // Erase active slot immediately so no trail remains
@@ -517,7 +536,66 @@ export default function KanaInputTrainer({
         {/* Left Column: GamificationBar anchored top-left, balancing Column 3 */}
         <div className="kana-stage-left">
           {!classicMode && (
-            <GamificationBar stats={gamificationStats} statsOnly={disableGamificationEffects} />
+            <GamificationBar
+              stats={gamificationStats}
+              statsOnly={disableGamificationEffects}
+              streakInfo={streakInfo}
+            />
+          )}
+
+          {/* Developer Mode Streak Switcher (only enabled when DEVELOPER_MODE=true in .env) */}
+          {IS_DEVELOPER_MODE && (
+            <div
+              className="mt-2 p-2 rounded-2 border"
+              style={{
+                maxWidth: '380px',
+                backgroundColor: 'var(--bg-card-past, rgba(0, 0, 0, 0.04))',
+                borderColor: 'var(--border-past, rgba(0, 0, 0, 0.15))',
+                fontSize: '0.75rem',
+              }}
+            >
+              <div className="d-flex align-items-center justify-content-between mb-1">
+                <span className="fw-bold text-uppercase" style={{ letterSpacing: '0.04em', color: 'var(--text-primary)' }}>
+                  Dev: Streak Preview
+                </span>
+                <span style={{ color: 'var(--text-muted)' }}>
+                  {streak} ({Math.round(streakInfo.intensity * 100)}%)
+                </span>
+              </div>
+              <input
+                type="range"
+                className="form-range mb-1"
+                min={0}
+                max={120}
+                value={Math.min(120, streak)}
+                onChange={(e) => {
+                  const next = Number(e.target.value);
+                  dispatch({ type: 'setStreak', streak: next });
+                  if (next >= 20 && !classicMode && !disableGamificationEffects) {
+                    setStreakPulseTick((t) => t + 1);
+                  }
+                }}
+                aria-label="Developer streak value slider"
+              />
+              <div className="d-flex flex-wrap gap-1">
+                {[0, 20, 35, 50, 80, 100].map((val) => (
+                  <button
+                    key={val}
+                    type="button"
+                    className={`btn btn-sm py-0 px-2 ${streak === val ? 'btn-primary' : 'btn-outline-secondary'}`}
+                    style={{ fontSize: '0.7rem' }}
+                    onClick={() => {
+                      dispatch({ type: 'setStreak', streak: val });
+                      if (val >= 20 && !classicMode && !disableGamificationEffects) {
+                        setStreakPulseTick((t) => t + 1);
+                      }
+                    }}
+                  >
+                    {val}
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
         </div>
 
@@ -529,11 +607,26 @@ export default function KanaInputTrainer({
           />
 
           {/* Dual-slot input card: Past character on left (smaller, gray), active input on right */}
-          <div className='kana-input-wrapper mt-3'>
+          <div className='kana-input-wrapper mt-3 position-relative'>
+            {!classicMode && !disableGamificationEffects && streakInfo.isActive && streakPulseTick > 0 && (
+              <div
+                key={streakPulseTick}
+                className="kana-streak-pulse-ring"
+                style={{ '--streak-intensity': streakInfo.intensity } as React.CSSProperties}
+                aria-hidden="true"
+              />
+            )}
             <div
               className={`kana-input-card ${wasCorrect ? 'was-correct' : 'was-wrong'} ${
                 isShaking ? 'shake-wrong' : ''
+              } ${
+                !classicMode && !disableGamificationEffects && streakInfo.isActive ? 'is-streaking' : ''
               }`}
+              style={
+                !classicMode && !disableGamificationEffects && streakInfo.isActive
+                  ? ({ '--streak-intensity': streakInfo.intensity } as React.CSSProperties)
+                  : undefined
+              }
               onAnimationEnd={() => setIsShaking(false)}
               onClick={() => inputRef.current?.focus()}
               title="Click to focus typing box"

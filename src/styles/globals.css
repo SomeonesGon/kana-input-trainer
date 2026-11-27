@@ -1796,3 +1796,142 @@ html[data-classic="true"] .btn-close {
 html[data-classic="true"][data-theme="dark"] .btn-close {
   filter: invert(1) grayscale(100%) brightness(200%) !important;
 }
+
+/* =============================================================================
+   CORRECT-ANSWER STREAK VISUAL FEEDBACK (20+ Characters, Incremental)
+   ============================================================================= */
+
+/* 1. Gamification / Level-Up Bar streak glow & badge */
+.gamification-bar {
+  transition: box-shadow 0.35s ease, border-color 0.35s ease;
+}
+
+.gamification-bar.is-streaking {
+  border-color: var(--border-focus) !important;
+  box-shadow:
+    0 0 calc(6px + var(--streak-intensity, 0) * 16px)
+      color-mix(in srgb, var(--border-focus) calc(22% + var(--streak-intensity, 0) * 35%), transparent);
+}
+
+.gamification-bar.is-streaking .progress-bar {
+  box-shadow: 0 0 calc(4px + var(--streak-intensity, 0) * 10px) var(--border-focus);
+}
+
+.gamification-streak-badge {
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  color: #ffffff;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.gamification-streak-badge.tier-2 {
+  background: linear-gradient(135deg, #f97316, #ec4899);
+  box-shadow: 0 0 8px rgba(249, 115, 22, 0.55);
+}
+
+.gamification-streak-badge.tier-3 {
+  background: linear-gradient(135deg, #ec4899, #8b5cf6);
+  box-shadow: 0 0 12px rgba(236, 72, 153, 0.65);
+}
+
+.gamification-streak-badge.tier-4 {
+  background: linear-gradient(135deg, #facc15, #f97316, #ef4444);
+  box-shadow: 0 0 16px rgba(250, 204, 21, 0.75);
+}
+
+/* 2. Input box incremental aura & per-hit pulse ring */
+.kana-input-card.is-streaking {
+  box-shadow:
+    0 0 calc(8px + var(--streak-intensity, 0) * 26px)
+      color-mix(in srgb, var(--border-focus) calc(28% + var(--streak-intensity, 0) * 45%), transparent),
+    0 0 calc(2px + var(--streak-intensity, 0) * 10px)
+      color-mix(in srgb, var(--correct-border) calc(25% + var(--streak-intensity, 0) * 40%), transparent);
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+@keyframes kana-streak-ring-burst {
+  0% {
+    opacity: calc(0.35 + var(--streak-intensity, 0.2) * 0.45);
+    transform: scale(0.98);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(calc(1.06 + var(--streak-intensity, 0.2) * 0.14));
+  }
+}
+
+.kana-streak-pulse-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 16px;
+  border: 2px solid var(--border-focus);
+  pointer-events: none;
+  z-index: 0;
+  animation: kana-streak-ring-burst 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* 3. Background incremental energy (aura + rising sparks + ambient boost) */
+@keyframes streak-aura-pulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+}
+
+.bg-streak-aura {
+  position: fixed;
+  top: 48%;
+  left: 50%;
+  width: calc(360px + var(--streak-intensity, 0) * 420px);
+  height: calc(360px + var(--streak-intensity, 0) * 420px);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--border-focus) calc(10% + var(--streak-intensity, 0) * 22%), transparent) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+  animation: streak-aura-pulse 3.2s ease-in-out infinite;
+  transition: width 0.4s ease, height 0.4s ease, opacity 0.4s ease;
+}
+
+.bg-particles.has-streak .bg-particle:not(.bg-particle--streak-spark) {
+  filter: brightness(calc(1 + var(--streak-intensity, 0) * 0.45))
+    saturate(calc(1 + var(--streak-intensity, 0) * 0.35));
+  transition: filter 0.35s ease;
+}
+
+@keyframes float-streak-spark {
+  0% {
+    transform: translateY(0) scale(0.7) rotate(0deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: var(--particle-opacity, 0.65);
+  }
+  85% {
+    opacity: var(--particle-opacity, 0.65);
+  }
+  100% {
+    transform: translateY(-108vh) scale(1.25) rotate(180deg);
+    opacity: 0;
+  }
+}
+
+.bg-particle--streak-spark {
+  bottom: -6%;
+  color: var(--border-focus);
+  text-shadow: 0 0 8px var(--border-focus);
+  animation-name: float-streak-spark;
+  animation-timing-function: linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kana-streak-pulse-ring,
+  .bg-streak-aura,
+  .bg-particle--streak-spark {
+    animation: none !important;
+  }
+}

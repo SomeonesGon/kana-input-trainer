@@ -597,11 +597,12 @@ function renderLayerParticles(layer: ParticleLayer, animClass: string) {
  * On Level-Up, triggers a celebratory shower streaking across the sky!
  */
 export default function BackgroundParticles() {
-  const { effectiveBackground, levelUpTick = 0 } = useTheme();
+  const { effectiveBackground, levelUpTick = 0, streakIntensity = 0 } = useTheme();
   const [activeLayer, setActiveLayer] = useState<ParticleLayer | null>(null);
   const [outgoingLayer, setOutgoingLayer] = useState<ParticleLayer | null>(null);
   const [isEntering, setIsEntering] = useState(false);
   const [celebrationBatches, setCelebrationBatches] = useState<CelebrationBatch[]>([]);
+  const [streakSparks, setStreakSparks] = useState<Particle[]>([]);
   const [mounted, setMounted] = useState(false);
 
   const layerSeqRef = useRef(0);
@@ -614,6 +615,18 @@ export default function BackgroundParticles() {
 
   useEffect(() => {
     setMounted(true);
+    setStreakSparks(
+      Array.from({ length: 20 }, (_, i) => ({
+        id: i,
+        left: rand(3, 97),
+        top: 0,
+        size: rand(0.65, 1.35),
+        delay: rand(0, 6),
+        duration: rand(3.5, 7.5),
+        opacity: rand(0.35, 0.85),
+        glyph: ['✦', '•', '✧', '◆'][i % 4] ?? '✦',
+      }))
+    );
     return () => {
       if (morphTimerRef.current) clearTimeout(morphTimerRef.current);
       batchTimersRef.current.forEach(clearTimeout);
@@ -669,10 +682,38 @@ export default function BackgroundParticles() {
 
   if (!mounted || !activeLayer) return null;
 
+  const hasStreak = streakIntensity > 0;
+  const visibleSparkCount = hasStreak ? Math.min(streakSparks.length, Math.round(4 + streakIntensity * 16)) : 0;
+
   return (
-    <div className="bg-particles" aria-hidden="true">
+    <div
+      className={`bg-particles ${hasStreak ? 'has-streak' : ''}`}
+      style={{ '--streak-intensity': streakIntensity } as React.CSSProperties}
+      aria-hidden="true"
+    >
+      {hasStreak && <div className="bg-streak-aura" />}
       {outgoingLayer && renderLayerParticles(outgoingLayer, 'bg-particles-layer--leaving')}
       {renderLayerParticles(activeLayer, isEntering ? 'bg-particles-layer--entering' : '')}
+
+      {/* Incremental rising streak sparks when user has a 20+ correct streak */}
+      {hasStreak &&
+        streakSparks.slice(0, visibleSparkCount).map((sp) => (
+          <span
+            key={`streak-spark-${sp.id}`}
+            className="bg-particle bg-particle--streak-spark"
+            style={
+              {
+                left: `${sp.left}%`,
+                fontSize: `${(sp.size * (0.85 + streakIntensity * 0.45)).toFixed(2)}rem`,
+                animationDelay: `${sp.delay}s`,
+                animationDuration: `${Math.max(1.8, sp.duration * (1 - streakIntensity * 0.45)).toFixed(2)}s`,
+                '--particle-opacity': Math.min(0.95, sp.opacity * (0.55 + streakIntensity * 0.55)),
+              } as React.CSSProperties
+            }
+          >
+            {sp.glyph}
+          </span>
+        ))}
 
       {/* Celebration Showers on Level-Up — each batch plays to completion independently */}
       {celebrationBatches.map((batch) => (

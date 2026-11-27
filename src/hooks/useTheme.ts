@@ -395,6 +395,9 @@ export interface ThemeContextValue {
   /** Monotonically incremented each time a level-up celebration is triggered */
   levelUpTick?: number;
   triggerLevelUpAnimation: () => void;
+  /** Normalized streak intensity (0 when streak < 20 or effects disabled, up to 1 at 100+) */
+  streakIntensity: number;
+  setStreakIntensity: (intensity: number) => void;
 }
 
 /**
@@ -412,6 +415,8 @@ export const ThemeContext = createContext<ThemeContextValue>({
   isLevelingUp: false,
   levelUpTick: 0,
   triggerLevelUpAnimation: () => undefined,
+  streakIntensity: 0,
+  setStreakIntensity: () => undefined,
 });
 
 /**

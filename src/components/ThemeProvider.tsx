@@ -34,6 +34,7 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
   const [background, setBackgroundState] = useState<BackgroundId>('theme');
   const [isLevelingUp, setIsLevelingUp] = useState<boolean>(false);
   const [levelUpTick, setLevelUpTick] = useState<number>(0);
+  const [streakIntensity, setStreakIntensity] = useState<number>(0);
   const levelUpTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Compute resolved font and background
@@ -150,6 +151,8 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
         isLevelingUp,
         levelUpTick,
         triggerLevelUpAnimation,
+        streakIntensity,
+        setStreakIntensity,
       }}
     >
       {children}

@@ -395,6 +395,11 @@ export function migrateLoadedState(
     classicMode: typeof rawClassicMode === 'boolean' ? rawClassicMode : false,
   };
 
+  const streak =
+    typeof loaded.streak === 'number' && Number.isFinite(loaded.streak) && loaded.streak >= 0
+      ? Math.floor(loaded.streak)
+      : 0;
+
   return {
     stages,
     dueSteps,
@@ -404,6 +409,7 @@ export function migrateLoadedState(
     priority,
     queue,
     charsAnswered,
+    streak,
     enabledCategories,
     settings,
   };

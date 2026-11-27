@@ -19,7 +19,7 @@ Forked, parsed into TypeScript manually, and expanded with new features.
 - **Lookahead Window & Small-Kana Hints**: Previews the upcoming kana character to improve typing rhythm and highlights small kana (`ぁぃぅぇぉっゃゅょ`) so they are not confused with full-sized characters.
 - **Category Switches**: Toggle individual character groups (`Basic Kana`, `Dakuten`, `Handakuten`, `Shift / Small Kana`, `Punctuation`) on or off.
 - **Gamification & Unlockable Rewards**:
-  - Live **Level & XP Progress Bar** tracking **Coverage %**, **All-Time Accuracy %**, and **Speed (CPM / WPM)**.
+  - Live **Level & XP Progress Bar** tracking **Coverage %**, **All-Time Accuracy %**, and **Speed (CPM / WPM)**, plus incremental **20+ Correct Answer Streak** visual feedback across the level bar, input box, and background.
   - **12 Unlockable Themes**, custom **Fonts**, and animated **Background Particle Effects** unlocked from Level 1 through Level 10 (`Light`, `Midnight Dark`, `Sakura Blossom`, `Cyberpunk Terminal`, `The Matrix`, `Synthwave Neon`, `Imperial Gold`, `Sakura Zen`, `8-Bit Retro Arcade`, `Mystic Cosmic Nebula`, `Emerald Shrine`, `Bloodmoon Samurai`).
   - Optional **Auto-switch to unlocked themes**, **Disable gamification effects**, and **Classic Mode** (minimalist distraction-free mode).
 - **Automatic Background Persistence**: Automatically saves your SRS state, category switches, and settings to `localStorage` with a live autosave indicator.
@@ -122,6 +122,8 @@ Run the development server (configured with `--webpack` and polling in `next.con
 npm run dev
 ```
 
+To enable developer preview controls (such as the live streak preview slider), add `DEVELOPER_MODE=true` to `.env.local` (disabled by default).
+
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### Type Checking & Building
@@ -146,6 +148,5 @@ npm start
 
 ### To Do
 - Better the pink theme.
-- Correct answer streak visual feedback/reward.
 - Other input modes (add support for pure hiragana and IME inputs).
 - Extra input modes for mobile (QWERTY Japanese and romaji).

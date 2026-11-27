@@ -106,6 +106,11 @@ export interface KanaState {
   charsAnswered: number;
 
   /**
+   * Current consecutive correct-answer streak (resets to 0 on any wrong answer).
+   */
+  streak?: number;
+
+  /**
    * Category switches dictating which character groups the quiz asks for.
    * Keyed by KanaCategoryId with boolean active states.
    */
@@ -134,4 +139,6 @@ export type KanaAction =
   /** Dispatched when updating user preferences (theme, showKeyboard) */
   | { type: 'updateSettings'; settings: Partial<KanaSettings> }
   /** Dispatched when resetting all SRS training progress back to defaults */
-  | { type: 'resetProgress' };
+  | { type: 'resetProgress' }
+  /** Dispatched in developer mode to preview/override the current streak value */
+  | { type: 'setStreak'; streak: number };

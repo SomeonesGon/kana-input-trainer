@@ -331,6 +331,7 @@ export const initialState: KanaState = {
   queue: allInputCharactersArray,
   priority: initialPriority,
   charsAnswered: 0,
+  streak: 0,
   enabledCategories: DEFAULT_ENABLED_CATEGORIES,
   settings: {
     theme: 'light',

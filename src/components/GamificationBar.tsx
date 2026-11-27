@@ -1,18 +1,24 @@
 import React from 'react';
-import { GamificationStats } from '@/utils/gamification';
+import { GamificationStats, StreakInfo } from '@/utils/gamification';
 
 interface GamificationBarProps {
   stats: GamificationStats;
   /** When true, hides the Level badge and XP progress bar and shows only the plain stats row */
   statsOnly?: boolean;
+  /** Active streak intensity details (effects activate at 20+ consecutive correct answers) */
+  streakInfo?: StreakInfo;
 }
 
 /**
  * Compact Gamification Progress Bar displayed on the top left under title and details.
- * Shows player Level, XP bar progress, and live metrics for Coverage, Accuracy, and Speed.
+ * Shows player Level, XP bar progress, active 20+ streak badge, and live metrics for Coverage, Accuracy, and Speed.
  * All text colours reference CSS custom properties so they remain legible on every theme.
  */
-export default function GamificationBar({ stats, statsOnly = false }: GamificationBarProps) {
+export default function GamificationBar({
+  stats,
+  statsOnly = false,
+  streakInfo,
+}: GamificationBarProps) {
   const {
     level,
     currentXP,
@@ -26,25 +32,42 @@ export default function GamificationBar({ stats, statsOnly = false }: Gamificati
     speedWPM,
   } = stats;
 
+  const isStreaking = !statsOnly && Boolean(streakInfo?.isActive);
+  const streakIntensity = streakInfo?.intensity ?? 0;
+
   return (
     <div
-      className="gamification-bar p-2 rounded-2"
-      style={{
-        maxWidth: '380px',
-        backgroundColor: 'var(--bg-card-past, rgba(0, 0, 0, 0.04))',
-        border: '1px solid var(--border-past, rgba(0, 0, 0, 0.1))',
-      }}
+      className={`gamification-bar p-2 rounded-2 ${isStreaking ? 'is-streaking' : ''}`}
+      style={
+        {
+          maxWidth: '380px',
+          backgroundColor: 'var(--bg-card-past, rgba(0, 0, 0, 0.04))',
+          border: '1px solid var(--border-past, rgba(0, 0, 0, 0.1))',
+          '--streak-intensity': isStreaking ? streakIntensity : 0,
+        } as React.CSSProperties
+      }
     >
       {!statsOnly && (
         <>
-          {/* Top line: Level badge and XP text */}
-          <div className="d-flex align-items-center justify-content-between mb-1">
-            <span
-              className="badge text-bg-primary px-2 py-0 fw-bold d-flex align-items-center gap-1"
-              style={{ fontSize: '0.72rem', letterSpacing: '0.04em' }}
-            >
-              LEVEL {level}
-            </span>
+          {/* Top line: Level badge, optional 20+ Streak badge, and XP text */}
+          <div className="d-flex align-items-center justify-content-between gap-2 mb-1">
+            <div className="d-flex align-items-center gap-1">
+              <span
+                className="badge text-bg-primary px-2 py-0 fw-bold d-flex align-items-center gap-1"
+                style={{ fontSize: '0.72rem', letterSpacing: '0.04em' }}
+              >
+                LEVEL {level}
+              </span>
+              {isStreaking && streakInfo && (
+                <span
+                  className={`badge px-2 py-0 fw-bold gamification-streak-badge tier-${streakInfo.tier}`}
+                  style={{ fontSize: '0.7rem', letterSpacing: '0.04em' }}
+                  title={`Correct answer streak: ${streakInfo.streak}`}
+                >
+                  {streakInfo.streak} STREAK
+                </span>
+              )}
+            </div>
             <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
               {currentXP} / {nextLevelXP} XP
             </span>

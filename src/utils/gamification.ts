@@ -163,3 +163,43 @@ export function computeGamificationStats(
     speedWPM: Math.max(0, Math.round(speedCPM / 5)),
   };
 }
+
+/** Minimum consecutive correct answers required to activate streak visual feedback. */
+export const STREAK_THRESHOLD = 20;
+
+export interface StreakInfo {
+  streak: number;
+  isActive: boolean;
+  /** Normalized intensity from 0 (inactive) to 1 (80-100+ streak), scaling incrementally from 20+. */
+  intensity: number;
+  /** Discrete intensity tier: 0 (<20), 1 (20-34), 2 (35-49), 3 (50-79), 4 (80+). */
+  tier: 0 | 1 | 2 | 3 | 4;
+}
+
+/**
+ * Computes incremental visual intensity metrics for a consecutive correct-answer streak.
+ * Visual effects activate at 20+ characters and scale continuously up to 100+.
+ */
+export function getStreakInfo(streak: number): StreakInfo {
+  const safeStreak = Math.max(0, Math.floor(streak));
+  if (safeStreak < STREAK_THRESHOLD) {
+    return { streak: safeStreak, isActive: false, intensity: 0, tier: 0 };
+  }
+
+  const intensity = Math.min(1, Math.round((0.2 + ((safeStreak - STREAK_THRESHOLD) / 80) * 0.8) * 1000) / 1000);
+  let tier: 1 | 2 | 3 | 4 = 1;
+  if (safeStreak >= 80) {
+    tier = 4;
+  } else if (safeStreak >= 50) {
+    tier = 3;
+  } else if (safeStreak >= 35) {
+    tier = 2;
+  }
+
+  return {
+    streak: safeStreak,
+    isActive: true,
+    intensity,
+    tier,
+  };
+}

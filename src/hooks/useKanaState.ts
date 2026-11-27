@@ -63,6 +63,7 @@ export default function useKanaState(): [KanaState, Dispatch<KanaAction>, number
           ease: newEase,
           priority: newPriority,
           charsAnswered: state.charsAnswered + 1,
+          streak: (state.streak ?? 0) + 1,
         };
         return newState;
       }
@@ -72,7 +73,7 @@ export default function useKanaState(): [KanaState, Dispatch<KanaAction>, number
           return state;
         }
 
-        // On mistake: flag active attempt as lapsed and record mistake count
+        // On mistake: flag active attempt as lapsed, record mistake count, and reset streak
         const newMistakes = {
           ...state.mistakes,
           [prompt]: (state.mistakes[prompt] ?? 0) + 1,
@@ -82,6 +83,7 @@ export default function useKanaState(): [KanaState, Dispatch<KanaAction>, number
           ...state,
           mistakes: newMistakes,
           hasLapsed: true,
+          streak: 0,
         };
         return newState;
       }
@@ -131,6 +133,14 @@ export default function useKanaState(): [KanaState, Dispatch<KanaAction>, number
             ...initialState.settings,
             ...state.settings,
           },
+        };
+      }
+
+      case 'setStreak': {
+        const nextStreak = Number.isFinite(action.streak) ? Math.max(0, Math.floor(action.streak)) : 0;
+        return {
+          ...state,
+          streak: nextStreak,
         };
       }
 
