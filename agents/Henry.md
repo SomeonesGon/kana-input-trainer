@@ -1,5 +1,37 @@
 # Agent Log — Henry
 
+## 2026-11-27 — Support Pure Romaji, QWERTY Japanese IME, and 50-Sounds Keyboards
+
+- **Pseudonym:** Henry
+- **Model:** Gemini 4 Hydrogen
+- **Status:** `COMPLETED`
+- **Branch / Base Commit:** `feature/keyboard-input-modes` (`bff54d4`)
+
+### Goal
+Add full input evaluation, character/category filtering, and mode selection for:
+1. **Pure Romaji** (`romaji`) — ASCII typing without an IME, recognizing all standard Hepburn/Kunrei/IME variants and multi-letter prefixes as valid intermediate states.
+2. **QWERTY Japanese IME** (`romaji-ime`) — mobile and PC romaji keyboards that auto-convert valid romaji sequences into kana, accepting both intermediate ASCII prefixes (even with trailing IME preedit characters) and the converted kana.
+3. **50-Sounds Japanese Keyboard** (`gojuon` / 五十音) — 50-key phonetic grid supporting `を` in Basic Kana, `ー、。` punctuation, and both `゛゜小` cycling and dedicated `゛`/`゜`/`小` modifiers.
+
+### Planned Steps
+- [x] Extend `InputMode` in `src/types/kana.ts` to `'desktop' | 'mobile' | 'gojuon' | 'romaji-ime' | 'romaji'` and export `INPUT_MODES` / `INPUT_MODE_CONFIGS`.
+- [x] Add `KANA_ROMAJI_MAP`, `ROMAJI_UNAVAILABLE_CHARACTERS`, and mode-aware `getKanaCategoriesForMode(inputMode)` in `src/constants/kanas.ts`.
+- [x] Update `evaluateKanaInput`, `isCharacterEnabled`, and `migrateLoadedState` in `src/utils/srs.ts` to handle all 5 modes accurately.
+- [x] Replace the 2-way toggle in `src/components/KanaInputTrainer.tsx` with a 5-mode selector, bump `<input maxLength={8}>`, and adapt placeholder for pure romaji.
+- [x] Verify with `npx tsc --noEmit` and `npm run build`, update `agents/Henry.md` to `COMPLETED`, and commit minimally with `Co-authored-by: Henry <Henry@users.noreply.github.com>`.
+
+### Changes Made
+- `src/types/kana.ts` — Extended `InputMode` to `'desktop' | 'mobile' | 'gojuon' | 'romaji-ime' | 'romaji'`, added `INPUT_MODES` ordered array, added `KanaCategoryId`, `KanaCategoryConfig`, and `InputMode` to settings and action types.
+- `src/constants/kanas.ts` — Added `InputModeConfig` interface, `INPUT_MODE_CONFIGS` metadata array for all 5 modes, `MOBILE_UNAVAILABLE_CHARACTERS` and `ROMAJI_UNAVAILABLE_CHARACTERS` exclusion sets, complete `KANA_ROMAJI_MAP` (Hepburn, Kunrei-shiki, Nihon-shiki, and IME variants for all 87 romaji-typeable characters), `MOBILE_INTERMEDIATE_MAP` for 12-key flick/50-sounds cycling, and `getKanaCategoriesForMode(inputMode)` returning mode-adjusted category configs.
+- `src/utils/srs.ts` — Updated `evaluateKanaInput` with dedicated branches for `romaji` (prefix-match against `KANA_ROMAJI_MAP`), `romaji-ime` (trailing ASCII buffer extraction + prefix-match), `mobile`/`gojuon` (cycling intermediates via `MOBILE_INTERMEDIATE_MAP`), and `desktop` (two-stroke compound base). Updated `isCharacterEnabled` to exclude `MOBILE_UNAVAILABLE_CHARACTERS` for `mobile`/`gojuon`, `ROMAJI_UNAVAILABLE_CHARACTERS` for `romaji`/`romaji-ime`, and treat `を` as basic kana on mobile/gojuon. Updated `migrateLoadedState` to validate `inputMode` against `INPUT_MODES`.
+- `src/components/KanaInputTrainer.tsx` — Replaced the 2-way toggle with a 5-mode `<select>` dropdown rendering all `INPUT_MODE_CONFIGS`, set `<input maxLength={8}>`, adapted placeholder to `'roma'` for pure romaji mode.
+
+### Verification
+- `npx tsc --noEmit` — passed (exit code `0`).
+- `npm run build` — passed (exit code `0`).
+
+---
+
 ## 2026-11-27 — Normalize 8-Bit Arcade Font Sizing & Prevent Overflow
 
 - **Pseudonym:** Henry

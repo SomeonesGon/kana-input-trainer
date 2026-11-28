@@ -4,6 +4,8 @@ import {
   COMPOUND_KANA_BASE_MAP,
   MOBILE_INTERMEDIATE_MAP,
   MOBILE_UNAVAILABLE_CHARACTERS,
+  ROMAJI_UNAVAILABLE_CHARACTERS,
+  KANA_ROMAJI_MAP,
   STAGE_INTERVALS,
   allInputCharactersArray,
   initialStages,
@@ -11,7 +13,7 @@ import {
   initialMistakes,
   DEFAULT_ENABLED_CATEGORIES,
 } from '@/constants/kanas';
-import { InputMode, KanaCategoryId, KanaState, KanaSettings } from '@/types/kana';
+import { InputMode, INPUT_MODES, KanaCategoryId, KanaState, KanaSettings } from '@/types/kana';
 import { Theme } from '@/hooks/useTheme';
 
 /**
@@ -42,6 +44,21 @@ export function evaluateKanaInput(
     return 'none';
   }
 
+  // 1. Pure Romaji (ASCII input, no IME)
+  if (inputMode === 'romaji') {
+    const normalized = inputValue.toLowerCase();
+    const validRomaji = KANA_ROMAJI_MAP[targetKana];
+    if (validRomaji) {
+      if (validRomaji.includes(normalized)) {
+        return 'correct';
+      }
+      if (validRomaji.some((r) => r.startsWith(normalized))) {
+        return 'intermediate';
+      }
+    }
+    return 'wrong';
+  }
+
   // Check last two characters in case the IME/browser entered uncombined base + mark (e.g. 'か゛')
   const lastTwo = inputValue.slice(-2);
   const normalizedTwo = lastTwo
@@ -50,14 +67,31 @@ export function evaluateKanaInput(
     .normalize('NFC');
   const lastChar = inputValue[inputValue.length - 1] ?? '';
 
-  // 1. Matches complete target kana (either precomposed or combined two-character sequence)
+  // 2. Matches complete target kana (either precomposed or combined two-character sequence)
   if (normalizedTwo === targetKana || lastChar === targetKana) {
     return 'correct';
   }
 
-  // 2. Check intermediate states depending on keyboard mode
-  if (inputMode === 'mobile') {
-    // Mobile 12-key flick: base kana and cycling intermediates via ゛゜小
+  // 3. QWERTY Japanese IME (mobile & PC): auto-converts romaji sequences to kana.
+  // While mid-sequence (e.g. 'k', 'sh', 'ts', 'n'), the trailing ASCII buffer is a valid prefix.
+  if (inputMode === 'romaji-ime') {
+    const asciiMatch = inputValue.match(/[a-z',.\-\/\[\]]+$/i);
+    const romajiBuf = asciiMatch ? asciiMatch[0].toLowerCase() : '';
+    const validRomaji = KANA_ROMAJI_MAP[targetKana];
+    if (romajiBuf && validRomaji) {
+      if (validRomaji.includes(romajiBuf)) {
+        return 'correct';
+      }
+      if (validRomaji.some((r) => r.startsWith(romajiBuf))) {
+        return 'intermediate';
+      }
+    }
+    return 'wrong';
+  }
+
+  // 4. Check intermediate states for kana-based keyboards
+  if (inputMode === 'mobile' || inputMode === 'gojuon') {
+    // 12-key flick & 50-sounds grid: base kana and cycling/modifier intermediates
     // (e.g. 'つ' -> 'っ' -> 'づ', 'は' -> 'ば' -> 'ぱ', 'あ' -> 'ぁ')
     const mobileIntermediates = MOBILE_INTERMEDIATE_MAP[targetKana];
     if (
@@ -74,7 +108,7 @@ export function evaluateKanaInput(
     }
   }
 
-  // 3. User typed an incorrect character
+  // 5. User typed an incorrect character
   return 'wrong';
 }
 
@@ -116,13 +150,17 @@ export function isCharacterEnabled(
   enabledCategories: Record<KanaCategoryId, boolean>,
   inputMode: InputMode = 'desktop'
 ): boolean {
-  if (inputMode === 'mobile') {
+  if (inputMode === 'mobile' || inputMode === 'gojuon') {
     if (MOBILE_UNAVAILABLE_CHARACTERS.has(char)) {
       return false;
     }
-    // On 12-key flick keyboards, を is directly on the わ key (Basic Kana)
+    // On 12-key flick & 50-sounds keyboards, を is directly in Basic Kana
     if (char === 'を') {
       return enabledCategories.basic ?? true;
+    }
+  } else if (inputMode === 'romaji' || inputMode === 'romaji-ime') {
+    if (ROMAJI_UNAVAILABLE_CHARACTERS.has(char)) {
+      return false;
     }
   }
   const categoryId = CHARACTER_CATEGORY_MAP[char];
@@ -388,7 +426,8 @@ export function migrateLoadedState(
     showKeyboard:
       loaded.settings?.showKeyboard ??
       (typeof loaded.showKeyboard === 'boolean' ? loaded.showKeyboard : true),
-    inputMode: rawInputMode === 'mobile' || rawInputMode === 'desktop' ? rawInputMode : undefined,
+    inputMode:
+      rawInputMode && INPUT_MODES.includes(rawInputMode) ? rawInputMode : undefined,
     autoSwitchTheme: typeof rawAutoSwitch === 'boolean' ? rawAutoSwitch : false,
     disableGamificationEffects:
       typeof rawDisableGamification === 'boolean' ? rawDisableGamification : false,

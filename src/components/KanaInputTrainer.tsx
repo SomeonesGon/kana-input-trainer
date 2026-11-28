@@ -11,6 +11,7 @@ import GamificationBar from '@/components/GamificationBar';
 import LevelUpBanner from '@/components/LevelUpBanner';
 import SweepText from '@/components/SweepText';
 import { evaluateKanaInput } from '@/utils/srs';
+import { INPUT_MODE_CONFIGS } from '@/constants/kanas';
 import { InputMode, KanaState, KanaSettings } from '@/types/kana';
 import {
   useTheme,
@@ -447,8 +448,7 @@ export default function KanaInputTrainer({
     dispatch({ type: 'updateSettings', settings: { classicMode: next } });
   }
 
-  function handleToggleInputMode() {
-    const nextMode: InputMode = inputMode === 'mobile' ? 'desktop' : 'mobile';
+  function handleChangeInputMode(nextMode: InputMode) {
     dispatch({ type: 'updateSettings', settings: { inputMode: nextMode } });
     setPastInput(null);
     setInputValue('');
@@ -547,18 +547,23 @@ export default function KanaInputTrainer({
 
         {/* Right: Mode switch, Keyboard toggle, Settings button, Autosave indicator & Characters Answered */}
         <div className="d-flex flex-wrap align-items-center gap-2">
-          {/* Switch between Desktop JIS and Mobile 12-Key Flick mode */}
-          <button
-            className={`btn btn-sm px-2 py-1 ${inputMode === 'mobile' ? 'btn-secondary' : 'btn-outline-secondary'}`}
-            onClick={handleToggleInputMode}
+          {/* Keyboard input mode selector (JIS, 12-Key Flick, 50-Sounds, Romaji IME, Pure Romaji) */}
+          <select
+            className="form-select form-select-sm w-auto"
+            value={inputMode}
+            onChange={(e) => handleChangeInputMode(e.target.value as InputMode)}
+            aria-label="Keyboard input mode"
             title={
-              inputMode === 'mobile'
-                ? 'Mobile 12-Key Flick Mode active (click to switch to Desktop JIS)'
-                : 'Desktop JIS Mode active (click to switch to Mobile 12-Key Flick)'
+              INPUT_MODE_CONFIGS.find((m) => m.id === inputMode)?.description ??
+              'Select keyboard input mode'
             }
           >
-            <SweepText>{inputMode === 'mobile' ? '📱 12-Key' : '⌨️ JIS'}</SweepText>
-          </button>
+            {INPUT_MODE_CONFIGS.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.label}
+              </option>
+            ))}
+          </select>
 
           {/* Toggle keyboard reference image */}
           <button
@@ -969,9 +974,9 @@ export default function KanaInputTrainer({
                   type='text'
                   value={inputValue}
                   className='kana-active-input'
-                  placeholder={pastInput ? '' : 'かな'}
+                  placeholder={pastInput ? '' : inputMode === 'romaji' ? 'roma' : 'かな'}
                   onChange={handleInputChange}
-                  maxLength={4}
+                  maxLength={8}
                   inputMode='text'
                   enterKeyHint='done'
                   autoFocus

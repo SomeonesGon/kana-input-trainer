@@ -127,12 +127,100 @@ export const COMPOUND_KANA_BASE_MAP: Record<string, string> = {
 };
 
 /**
+ * Metadata for each supported keyboard input mode.
+ */
+export interface InputModeConfig {
+  id: InputMode;
+  label: string;
+  description: string;
+}
+
+export const INPUT_MODE_CONFIGS: InputModeConfig[] = [
+  {
+    id: 'desktop',
+    label: 'JIS Kana',
+    description: 'Desktop JIS direct kana keyboard (89 chars)',
+  },
+  {
+    id: 'mobile',
+    label: '12-Key Flick',
+    description: 'Mobile 12-key flick keyboard (84 chars)',
+  },
+  {
+    id: 'gojuon',
+    label: '50-Sounds',
+    description: '50-sounds Japanese grid keyboard (84 chars)',
+  },
+  {
+    id: 'romaji-ime',
+    label: 'Romaji IME',
+    description: 'Auto-converting QWERTY Japanese IME on mobile & PC (87 chars)',
+  },
+  {
+    id: 'romaji',
+    label: 'Pure Romaji',
+    description: 'Pure ASCII romaji typing without an IME (87 chars)',
+  },
+];
+
+/**
  * Characters from the desktop JIS set that are NOT available on the basic
- * mobile 12-key flick screen (they require switching to a symbol page, or in the
- * case of standalone ゛/゜, do not exist as standalone typable keys because ゛゜小
- * only modifies the preceding kana).
+ * mobile 12-key flick screen or 50-sounds main grid (they require switching to a
+ * symbol page, or in the case of standalone ゛/゜, only modify a preceding kana).
  */
 export const MOBILE_UNAVAILABLE_CHARACTERS = new Set(['・', '「', '」', '゛', '゜']);
+
+/**
+ * Standalone ゛ and ゜ marks cannot be typed directly in Romaji or Romaji IME.
+ */
+export const ROMAJI_UNAVAILABLE_CHARACTERS = new Set(['゛', '゜']);
+
+/**
+ * Valid ASCII romaji sequences for every romaji-typeable kana & punctuation mark.
+ * Includes standard Hepburn, Kunrei-shiki, Nihon-shiki, and IME variants.
+ */
+export const KANA_ROMAJI_MAP: Record<string, string[]> = {
+  // Basic vowels
+  'あ': ['a'], 'い': ['i', 'yi'], 'う': ['u', 'wu', 'whu'], 'え': ['e'], 'お': ['o'],
+  // K-row
+  'か': ['ka', 'ca'], 'き': ['ki'], 'く': ['ku', 'cu', 'qu'], 'け': ['ke'], 'こ': ['ko', 'co'],
+  // S-row
+  'さ': ['sa'], 'し': ['shi', 'si', 'ci'], 'す': ['su'], 'せ': ['se', 'ce'], 'そ': ['so'],
+  // T-row
+  'た': ['ta'], 'ち': ['chi', 'ti'], 'つ': ['tsu', 'tu'], 'て': ['te'], 'と': ['to'],
+  // N-row
+  'な': ['na'], 'に': ['ni'], 'ぬ': ['nu'], 'ね': ['ne'], 'の': ['no'],
+  // H-row
+  'は': ['ha'], 'ひ': ['hi'], 'ふ': ['fu', 'hu'], 'へ': ['he'], 'ほ': ['ho'],
+  // M-row
+  'ま': ['ma'], 'み': ['mi'], 'む': ['mu'], 'め': ['me'], 'も': ['mo'],
+  // Y-row
+  'や': ['ya'], 'ゆ': ['yu'], 'よ': ['yo'],
+  // R-row
+  'ら': ['ra'], 'り': ['ri'], 'る': ['ru'], 'れ': ['re'], 'ろ': ['ro'],
+  // W-row & syllabic N
+  'わ': ['wa'], 'を': ['wo'], 'ん': ['nn', "n'", 'xn'],
+  // Dakuten
+  'が': ['ga'], 'ぎ': ['gi'], 'ぐ': ['gu'], 'げ': ['ge'], 'ご': ['go'],
+  'ざ': ['za'], 'じ': ['ji', 'zi'], 'ず': ['zu'], 'ぜ': ['ze'], 'ぞ': ['zo'],
+  'だ': ['da'], 'ぢ': ['di'], 'づ': ['du'], 'で': ['de'], 'ど': ['do'],
+  'ば': ['ba'], 'び': ['bi'], 'ぶ': ['bu'], 'べ': ['be'], 'ぼ': ['bo'],
+  'ゔ': ['vu'],
+  // Handakuten
+  'ぱ': ['pa'], 'ぴ': ['pi'], 'ぷ': ['pu'], 'ぺ': ['pe'], 'ぽ': ['po'],
+  // Small kana
+  'ぁ': ['la', 'xa'], 'ぃ': ['li', 'xi', 'lyi', 'xyi'], 'ぅ': ['lu', 'xu'],
+  'ぇ': ['le', 'xe', 'lye', 'xye'], 'ぉ': ['lo', 'xo'],
+  'っ': ['ltu', 'ltsu', 'xtu', 'xtsu'],
+  'ゃ': ['lya', 'xya'], 'ゅ': ['lyu', 'xyu'], 'ょ': ['lyo', 'xyo'],
+  // Punctuation
+  'ー': ['-'],
+  '、': [','],
+  '。': ['.'],
+  '・': ['/'],
+  '「': ['['],
+  '」': [']'],
+};
 
 /**
  * Intermediate characters produced while tapping/cycling the `゛゜小` key on a
@@ -193,48 +281,67 @@ export const KANA_CATEGORIES: KanaCategoryConfig[] = [
 
 /**
  * Returns the category metadata adjusted for the active keyboard input mode.
- * In mobile 12-key flick mode:
- * - `を` moves into Basic Kana (it is a single flick on the わ key).
- * - Small Kana (`ぁぃぅぇぉっゃゅょ`) are modified via `゛゜小` instead of Shift.
- * - Punctuation only includes `ー、。` available on the basic 12-key screen.
+ * - `mobile` & `gojuon`: `を` is in Basic Kana, Small Kana uses `小`, Punctuation is `ー、。`.
+ * - `romaji` & `romaji-ime`: Punctuation excludes standalone `゛` and `゜` (`ー、。・「」`).
+ * - `desktop`: full JIS Kana category set.
  */
 export function getKanaCategoriesForMode(inputMode: InputMode): KanaCategoryConfig[] {
-  if (inputMode !== 'mobile') {
-    return KANA_CATEGORIES;
+  if (inputMode === 'mobile' || inputMode === 'gojuon') {
+    return [
+      {
+        id: 'basic',
+        label: 'Basic Kana',
+        characters: BASIC_KANA_CHARACTERS + 'を',
+        sample: 'あいう...',
+      },
+      {
+        id: 'dakuten',
+        label: 'Dakuten (゛)',
+        characters: DAKUTEN_CHARACTERS,
+        sample: 'がぎぐ...',
+      },
+      {
+        id: 'handakuten',
+        label: 'Handakuten (゜)',
+        characters: HANDAKUTEN_CHARACTERS,
+        sample: 'ぱぴぷ...',
+      },
+      {
+        id: 'shift',
+        label: 'Small Kana (小)',
+        characters: SHIFT_MODIFIER_CHARACTERS.replace('を', ''),
+        sample: 'ぁっゃ...',
+      },
+      {
+        id: 'punctuation',
+        label: 'Punctuation',
+        characters: 'ー、。',
+        sample: 'ー、。',
+      },
+    ];
   }
 
-  return [
-    {
-      id: 'basic',
-      label: 'Basic Kana',
-      characters: BASIC_KANA_CHARACTERS + 'を',
-      sample: 'あいう...',
-    },
-    {
-      id: 'dakuten',
-      label: 'Dakuten (゛)',
-      characters: DAKUTEN_CHARACTERS,
-      sample: 'がぎぐ...',
-    },
-    {
-      id: 'handakuten',
-      label: 'Handakuten (゜)',
-      characters: HANDAKUTEN_CHARACTERS,
-      sample: 'ぱぴぷ...',
-    },
-    {
-      id: 'shift',
-      label: 'Small Kana (小)',
-      characters: SHIFT_MODIFIER_CHARACTERS.replace('を', ''),
-      sample: 'ぁっゃ...',
-    },
-    {
-      id: 'punctuation',
-      label: 'Punctuation',
-      characters: 'ー、。',
-      sample: 'ー、。',
-    },
-  ];
+  if (inputMode === 'romaji' || inputMode === 'romaji-ime') {
+    return [
+      KANA_CATEGORIES[0]!,
+      KANA_CATEGORIES[1]!,
+      KANA_CATEGORIES[2]!,
+      {
+        id: 'shift',
+        label: 'Small / を',
+        characters: SHIFT_MODIFIER_CHARACTERS,
+        sample: 'ぁっを...',
+      },
+      {
+        id: 'punctuation',
+        label: 'Punctuation',
+        characters: 'ー、。・「」',
+        sample: 'ー、。...',
+      },
+    ];
+  }
+
+  return KANA_CATEGORIES;
 }
 
 /**
