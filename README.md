@@ -147,6 +147,4 @@ npm start
 ---
 
 ### To Do
-- Better the pink theme.
-- Other input modes (add support for pure hiragana and IME inputs).
-- Extra input modes for mobile (QWERTY Japanese and romaji).
+- Other input modes (work in progress)
