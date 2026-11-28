@@ -5,6 +5,7 @@ import "bootstrap/dist/css/bootstrap.min.css"; // Import bootstrap CSS
 import '@/styles/globals.css';
 import ThemeProvider from '@/components/ThemeProvider';
 import BackgroundParticles from '@/components/BackgroundParticles';
+import { Analytics } from "@vercel/analytics/next"
 
 export default function App({ Component, pageProps }: AppProps) {
   // ThemeProvider wraps the entire app so any component can read/change the theme
@@ -14,6 +15,7 @@ export default function App({ Component, pageProps }: AppProps) {
   // content based on the active theme (client-side only, pointer-events: none).
   return (
     <ThemeProvider>
+      <Analytics />
       <BackgroundParticles />
       <Component {...pageProps} />
     </ThemeProvider>
