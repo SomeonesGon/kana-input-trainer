@@ -7,17 +7,17 @@ import { Theme, FontId, BackgroundId } from '@/hooks/useTheme';
 /**
  * Valid keyboard input modes:
  * - 'desktop': Standard physical Japanese JIS Kana keyboard
- * - 'mobile': Mobile 12-key flick keyboard (12キー / フリック入力)
+ * - '12-key': Mobile 12-key flick keyboard (12キー / フリック入力)
  * - 'gojuon': Japanese 50-sounds phonetic grid keyboard (五十音)
  * - 'romaji-ime': QWERTY Japanese IME (auto-converts romaji to kana on mobile & PC)
  * - 'romaji': Pure ASCII romaji input (no Japanese IME required)
  */
-export type InputMode = 'desktop' | 'mobile' | 'gojuon' | 'romaji-ime' | 'romaji';
+export type InputMode = 'kana' | '12-key' | 'gojuon' | 'romaji-ime' | 'romaji';
 
 /** All valid InputMode values for validation and UI rendering. */
 export const INPUT_MODES: readonly InputMode[] = [
-  'desktop',
-  'mobile',
+  'kana',
+  '12-key',
   'gojuon',
   'romaji-ime',
   'romaji',

@@ -236,7 +236,7 @@ export default function KanaInputTrainer({
   }, [gamificationStats.level, autoSwitchTheme, disableGamificationEffects, classicMode, setTheme, triggerLevelUpAnimation]);
 
   // Active keyboard input mode ('desktop' JIS or 'mobile' 12-key flick)
-  const inputMode: InputMode = state.settings?.inputMode ?? 'desktop';
+  const inputMode: InputMode = state.settings?.inputMode ?? 'kana';
   const hasLoadedInputModeRef = useRef(false);
   const [isHydrated, setIsHydrated] = useState(false);
 
@@ -303,7 +303,7 @@ export default function KanaInputTrainer({
       }
       // Track if inputMode was explicitly saved so device auto-detection won't override it
       const loadedMode = loadedState.settings?.inputMode ?? loadedState.inputMode;
-      if (loadedMode === 'mobile' || loadedMode === 'desktop') {
+      if (loadedMode === 'kana' || loadedMode === '12-key' || loadedMode === 'gojuon' || loadedMode === 'romaji-ime' || loadedMode === 'romaji') {
         hasLoadedInputModeRef.current = true;
       }
       // Prevent false level-up / auto-theme-switch when hydrating saved state
@@ -320,7 +320,7 @@ export default function KanaInputTrainer({
     const isTouchMobile =
       window.matchMedia('(pointer: coarse)').matches && window.innerWidth <= 991;
     if (isTouchMobile) {
-      dispatch({ type: 'updateSettings', settings: { inputMode: 'mobile' } });
+      dispatch({ type: 'updateSettings', settings: { inputMode: '12-key' } });
     }
   }, [dispatch]);
 

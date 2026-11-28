@@ -20,7 +20,7 @@ export type { KanaState, KanaAction, KanaCategoryId };
  */
 export default function useKanaState(): [KanaState, Dispatch<KanaAction>, number, string[]] {
   const reducer = (state: KanaState, action: KanaAction): KanaState => {
-    const inputMode = state.settings?.inputMode ?? 'desktop';
+    const inputMode = state.settings?.inputMode ?? 'kana';
     // Current active prompt is the first character in the enabled category queue
     const activeQueue = getActiveQueue(state.queue, state.enabledCategories, inputMode);
     const prompt = activeQueue[0];
@@ -165,7 +165,7 @@ export default function useKanaState(): [KanaState, Dispatch<KanaAction>, number
 
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const inputMode = state.settings?.inputMode ?? 'desktop';
+  const inputMode = state.settings?.inputMode ?? 'kana';
 
   // Memoize activeQueue so components can consume the filtered queue efficiently
   const activeQueue = useMemo(

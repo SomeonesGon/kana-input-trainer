@@ -106,7 +106,7 @@ export const HANDAKUTEN_CHARACTERS =
  * Total: 8 characters.
  */
 export const PUNCTUATION_AND_SYMBOL_CHARACTERS =
-  'ー、。・「」゛゜';
+  'ー、。・「」゛゜？…！〜';
 
 /**
  * Mapping of compound two-stroke kana (Dakuten and Handakuten) to their unvoiced base kana.
@@ -137,12 +137,12 @@ export interface InputModeConfig {
 
 export const INPUT_MODE_CONFIGS: InputModeConfig[] = [
   {
-    id: 'desktop',
+    id: 'kana',
     label: 'JIS Kana',
     description: 'Desktop JIS direct kana keyboard (89 chars)',
   },
   {
-    id: 'mobile',
+    id: '12-key',
     label: '12-Key Flick',
     description: 'Mobile 12-key flick keyboard (84 chars)',
   },
@@ -173,7 +173,13 @@ export const MOBILE_UNAVAILABLE_CHARACTERS = new Set(['・', '「', '」', '゛'
 /**
  * Standalone ゛ and ゜ marks cannot be typed directly in Romaji or Romaji IME.
  */
-export const ROMAJI_UNAVAILABLE_CHARACTERS = new Set(['゛', '゜']);
+export const ROMAJI_UNAVAILABLE_CHARACTERS = new Set(['゛', '゜','・', '「', '」','…','〜', '？','！','ー','、','。']);
+
+export const ROMAJI_IME_UNAVAILABLE_CHARACTERS = new Set(['゛', '゜','・', '「', '」','…','〜', '？','！','ー','、','。']);
+
+export const GOJUON_UNAVAILABLE_CHARACTERS = new Set(['？', '…','〜']);
+
+export const KANA_UNAVAILABLE_CHARACTERS = new Set(['？', '…', '！', '〜']);
 
 /**
  * Valid ASCII romaji sequences for every romaji-typeable kana & punctuation mark.
@@ -281,12 +287,12 @@ export const KANA_CATEGORIES: KanaCategoryConfig[] = [
 
 /**
  * Returns the category metadata adjusted for the active keyboard input mode.
- * - `mobile` & `gojuon`: `を` is in Basic Kana, Small Kana uses `小`, Punctuation is `ー、。`.
+ * - `12-key` & `gojuon`: `を` is in Basic Kana, Small Kana uses `小`, Punctuation is `ー、。`.
  * - `romaji` & `romaji-ime`: Punctuation excludes standalone `゛` and `゜` (`ー、。・「」`).
  * - `desktop`: full JIS Kana category set.
  */
 export function getKanaCategoriesForMode(inputMode: InputMode): KanaCategoryConfig[] {
-  if (inputMode === 'mobile' || inputMode === 'gojuon') {
+  if (inputMode === '12-key') {
     return [
       {
         id: 'basic',
@@ -315,17 +321,67 @@ export function getKanaCategoriesForMode(inputMode: InputMode): KanaCategoryConf
       {
         id: 'punctuation',
         label: 'Punctuation',
-        characters: 'ー、。',
-        sample: 'ー、。',
+        characters: 'ー、。？…！〜',
+        sample: 'ー、。...',
       },
     ];
   }
 
-  if (inputMode === 'romaji' || inputMode === 'romaji-ime') {
+  if (inputMode === 'gojuon') {
     return [
-      KANA_CATEGORIES[0]!,
-      KANA_CATEGORIES[1]!,
-      KANA_CATEGORIES[2]!,
+      {
+        id: 'basic',
+        label: 'Basic Kana',
+        characters: BASIC_KANA_CHARACTERS + 'を',
+        sample: 'あいう...',
+      },
+      {
+        id: 'dakuten',
+        label: 'Dakuten (゛)',
+        characters: DAKUTEN_CHARACTERS,
+        sample: 'がぎぐ...',
+      },
+      {
+        id: 'handakuten',
+        label: 'Handakuten (゜)',
+        characters: HANDAKUTEN_CHARACTERS,
+        sample: 'ぱぴぷ...',
+      },
+      {
+        id: 'shift',
+        label: 'Small Kana (小)',
+        characters: SHIFT_MODIFIER_CHARACTERS.replace('を', ''),
+        sample: 'ぁっゃ...',
+      },
+      {
+        id: 'punctuation',
+        label: 'Punctuation',
+        characters: 'ー、。！',
+        sample: 'ー、。！',
+      },
+    ];
+  }
+
+  if (inputMode === 'romaji-ime') {
+    return [
+      {
+        id: 'basic',
+        label: 'Basic Kana',
+        characters: BASIC_KANA_CHARACTERS,
+        sample: 'ちとし...',
+      },
+      {
+        id: 'dakuten',
+        label: 'Dakuten (゛)',
+        characters: DAKUTEN_CHARACTERS,
+        sample: 'がぎぐ...',
+      },
+      {
+        id: 'handakuten',
+        label: 'Handakuten (゜)',
+        characters: HANDAKUTEN_CHARACTERS,
+        sample: 'ぱぴぷ...',
+      },
       {
         id: 'shift',
         label: 'Small / を',
@@ -335,15 +391,81 @@ export function getKanaCategoriesForMode(inputMode: InputMode): KanaCategoryConf
       {
         id: 'punctuation',
         label: 'Punctuation',
-        characters: 'ー、。・「」',
-        sample: 'ー、。...',
+        characters: '',
+        sample: 'N/A',
       },
     ];
   }
 
-  return KANA_CATEGORIES;
-}
+  if (inputMode === 'romaji') {
+    return [
+      {
+        id: 'basic',
+        label: 'Basic Kana',
+        characters: BASIC_KANA_CHARACTERS,
+        sample: 'ちとし...',
+      },
+      {
+        id: 'dakuten',
+        label: 'Dakuten (゛)',
+        characters: DAKUTEN_CHARACTERS,
+        sample: 'がぎぐ...',
+      },
+      {
+        id: 'handakuten',
+        label: 'Handakuten (゜)',
+        characters: HANDAKUTEN_CHARACTERS,
+        sample: 'ぱぴぷ...',
+      },
+      {
+        id: 'shift',
+        label: 'Small / を',
+        characters: SHIFT_MODIFIER_CHARACTERS,
+        sample: 'ぁっを...',
+      },
+      {
+        id: 'punctuation',
+        label: 'Punctuation',
+        characters: '',
+        sample: 'N/A',
+      },
+    ];
+  }
 
+  // 'kana' (JIS Kana desktop layout)
+  return [
+    {
+      id: 'basic',
+      label: 'Basic Kana',
+      characters: BASIC_KANA_CHARACTERS,
+      sample: 'ちとし...',
+    },
+    {
+      id: 'dakuten',
+      label: 'Dakuten (゛)',
+      characters: DAKUTEN_CHARACTERS,
+      sample: 'がぎぐ...',
+    },
+    {
+      id: 'handakuten',
+      label: 'Handakuten (゜)',
+      characters: HANDAKUTEN_CHARACTERS,
+      sample: 'ぱぴぷ...',
+    },
+    {
+      id: 'shift',
+      label: 'Small / Shift',
+      characters: SHIFT_MODIFIER_CHARACTERS,
+      sample: 'ぁっを...',
+    },
+    {
+      id: 'punctuation',
+      label: 'Punctuation',
+      characters: 'ー、。・「」゛゜',
+      sample: 'ー、。...',
+    },
+  ];
+}
 /**
  * Default category switch states: all categories enabled by default.
  */
@@ -443,7 +565,7 @@ export const initialState: KanaState = {
   settings: {
     theme: 'light',
     showKeyboard: true,
-    inputMode: 'desktop',
+    inputMode: 'kana',
     autoSwitchTheme: false,
     disableGamificationEffects: false,
     classicMode: false,
