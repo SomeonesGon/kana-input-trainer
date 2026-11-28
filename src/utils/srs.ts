@@ -5,6 +5,9 @@ import {
   MOBILE_INTERMEDIATE_MAP,
   MOBILE_UNAVAILABLE_CHARACTERS,
   ROMAJI_UNAVAILABLE_CHARACTERS,
+  ROMAJI_IME_UNAVAILABLE_CHARACTERS,
+  GOJUON_UNAVAILABLE_CHARACTERS,
+  KANA_UNAVAILABLE_CHARACTERS,
   KANA_ROMAJI_MAP,
   STAGE_INTERVALS,
   allInputCharactersArray,
@@ -38,7 +41,7 @@ export type InputEvaluationResult = 'correct' | 'intermediate' | 'wrong' | 'none
 export function evaluateKanaInput(
   inputValue: string,
   targetKana: string | undefined,
-  inputMode: InputMode = 'desktop'
+  inputMode: InputMode = 'kana'
 ): InputEvaluationResult {
   if (!inputValue || !targetKana) {
     return 'none';
@@ -90,7 +93,7 @@ export function evaluateKanaInput(
   }
 
   // 4. Check intermediate states for kana-based keyboards
-  if (inputMode === 'mobile' || inputMode === 'gojuon') {
+  if (inputMode === '12-key' || inputMode === 'gojuon') {
     // 12-key flick & 50-sounds grid: base kana and cycling/modifier intermediates
     // (e.g. 'つ' -> 'っ' -> 'づ', 'は' -> 'ば' -> 'ぱ', 'あ' -> 'ぁ')
     const mobileIntermediates = MOBILE_INTERMEDIATE_MAP[targetKana];
@@ -148,20 +151,30 @@ export interface RepositionKanaResult {
 export function isCharacterEnabled(
   char: string,
   enabledCategories: Record<KanaCategoryId, boolean>,
-  inputMode: InputMode = 'desktop'
+  inputMode: InputMode = 'kana'
 ): boolean {
-  if (inputMode === 'mobile' || inputMode === 'gojuon') {
-    if (MOBILE_UNAVAILABLE_CHARACTERS.has(char)) {
-      return false;
-    }
-    // On 12-key flick & 50-sounds keyboards, を is directly in Basic Kana
-    if (char === 'を') {
-      return enabledCategories.basic ?? true;
-    }
-  } else if (inputMode === 'romaji' || inputMode === 'romaji-ime') {
-    if (ROMAJI_UNAVAILABLE_CHARACTERS.has(char)) {
-      return false;
-    }
+  switch (inputMode) {
+    case '12-key':
+      if (MOBILE_UNAVAILABLE_CHARACTERS.has(char)) {
+        return false;
+      }
+    case 'gojuon':
+      if (GOJUON_UNAVAILABLE_CHARACTERS.has(char)) {
+        return false;
+      }
+    case 'romaji':
+      if (ROMAJI_UNAVAILABLE_CHARACTERS.has(char)) {
+        return false;
+      }
+    case 'romaji-ime':
+      if (ROMAJI_IME_UNAVAILABLE_CHARACTERS.has(char)) {
+        return false;
+      }
+    case 'kana':
+      if (KANA_UNAVAILABLE_CHARACTERS.has(char)) {
+        return false;
+      }
+      break;
   }
   const categoryId = CHARACTER_CATEGORY_MAP[char];
   return categoryId ? (enabledCategories[categoryId] ?? true) : true;
@@ -179,7 +192,7 @@ export function isCharacterEnabled(
 export function getActiveQueue(
   queue: string[],
   enabledCategories: Record<KanaCategoryId, boolean>,
-  inputMode: InputMode = 'desktop'
+  inputMode: InputMode = 'kana'
 ): string[] {
   return queue.filter((c) => isCharacterEnabled(c, enabledCategories, inputMode));
 }
@@ -215,7 +228,7 @@ export function repositionKana({
   hasLapsed,
   charsAnswered,
   enabledCategories,
-  inputMode = 'desktop',
+  inputMode = 'kana',
   ease = {},
   priority = {},
 }: RepositionKanaParams): RepositionKanaResult {

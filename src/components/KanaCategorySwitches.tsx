@@ -20,7 +20,7 @@ interface KanaCategorySwitchesProps {
 export default function KanaCategorySwitches({
   enabledCategories,
   onToggle,
-  inputMode = 'desktop',
+  inputMode = 'kana',
 }: KanaCategorySwitchesProps) {
   const categories = getKanaCategoriesForMode(inputMode);
   // Count how many categories are currently active
