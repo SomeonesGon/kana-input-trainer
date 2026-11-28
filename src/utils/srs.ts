@@ -158,24 +158,29 @@ export function isCharacterEnabled(
       if (MOBILE_UNAVAILABLE_CHARACTERS.has(char)) {
         return false;
       }
+      break;
     case 'gojuon':
       if (GOJUON_UNAVAILABLE_CHARACTERS.has(char)) {
         return false;
       }
+      break;
     case 'romaji':
       if (ROMAJI_UNAVAILABLE_CHARACTERS.has(char)) {
         return false;
       }
+      break;
     case 'romaji-ime':
       if (ROMAJI_IME_UNAVAILABLE_CHARACTERS.has(char)) {
         return false;
       }
+      break;
     case 'kana':
       if (KANA_UNAVAILABLE_CHARACTERS.has(char)) {
         return false;
       }
       break;
   }
+
   const categoryId = CHARACTER_CATEGORY_MAP[char];
   return categoryId ? (enabledCategories[categoryId] ?? true) : true;
 }

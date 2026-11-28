@@ -73,9 +73,6 @@ export const SMALL_KANA_MAP: Record<string, { regular: string; label: string }> 
   'ゃ': { regular: 'や', label: 'small ゃ (vs や)' },
   'ゅ': { regular: 'ゆ', label: 'small ゅ (vs ゆ)' },
   'ょ': { regular: 'よ', label: 'small ょ (vs よ)' },
-  'ゎ': { regular: 'わ', label: 'small ゎ (vs わ)' },
-  'ゕ': { regular: 'か', label: 'small ゕ (vs か)' },
-  'ゖ': { regular: 'け', label: 'small ゖ (vs け)' },
 };
 
 /**
